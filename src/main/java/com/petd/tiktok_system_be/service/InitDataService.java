@@ -5,6 +5,7 @@ import com.petd.tiktok_system_be.entity.Account;
 import com.petd.tiktok_system_be.entity.Team;
 import com.petd.tiktok_system_be.repository.AccountRepository;
 import com.petd.tiktok_system_be.repository.TeamRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,16 @@ public class InitDataService {
 
     AccountRepository accountRepository;
     TeamRepository teamRepository;
+    PasswordService passwordService;
 
 
     @Transactional
     public void initAccount() {
 
-        String leaderId = "4983b764-5548-4fac-909b-290346e6b28a";
-        String password = "$2a$10$XrJZkpYc8h0lFy1kcoqV2e1rDqXHuZ4qNz0C6aHkbSgSx2sqnrYHa";
+        String leaderId = "7bf0db0e-f9d3-497a-901b-efbc735d8fac";
+        String password = passwordService.encodePassword("Dung1702@");
+
+        if(accountRepository.existsById(leaderId)) return;
 
         Team team = Team.builder()
                 .teamName("Default Team")

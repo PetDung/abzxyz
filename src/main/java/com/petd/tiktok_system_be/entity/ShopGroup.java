@@ -22,8 +22,13 @@ public class ShopGroup  extends Base{
     @Column(nullable = false)
     String groupName;
 
+
     @OneToMany(mappedBy = "group")
     @Builder.Default
     List<GroupShopAccess> groupShopAccess = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group")
+    @Builder.Default
+    List<Account> employees = new ArrayList<>();
 
 }

@@ -27,4 +27,11 @@ public class ConnectShopController {
                 .build();
     }
 
+    @GetMapping("/check-owner")
+    public Boolean checkShopOwner(@RequestParam("shopId") String shopId, @RequestParam("accountId")  String accountId) {
+        return  shopService.checkShopBelongUser(accountId, shopId);
+    }
+
+
+
 }

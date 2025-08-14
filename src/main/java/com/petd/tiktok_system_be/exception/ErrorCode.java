@@ -8,8 +8,11 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
 
   UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+
   USER_NOT_FOUND(4004, "Không tìm thấy tài khoản", HttpStatus.NOT_FOUND),
-  FI(4004, "Bạn không có quyền trên hành động này", HttpStatus.CONFLICT),
+  SHOP_NOT_FOUND(4004, "Không tìm thấy shop", HttpStatus.CONFLICT),
+
+  FI(4003, "Bạn không có quyền trên hành động này", HttpStatus.CONFLICT),
   ;
 
   private final int code;

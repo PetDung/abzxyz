@@ -8,5 +8,5 @@ import java.util.Map;
 
 public interface TiktokCallApi {
   Map<String, String> createParameters ();
-  TiktokApiResponse callApi() ;
+  TiktokApiResponse callApi()  throws JsonProcessingException ;
 }

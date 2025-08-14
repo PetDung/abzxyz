@@ -10,9 +10,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import javax.security.auth.login.AccountNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +22,15 @@ public class AccountService {
 
     AccountRepository accountRepository;
 
+
+    public Account getAccountByUserName(String username) {
+        return accountRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+    public Account getById(String id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
 
 
     public Account admin(String id) {
@@ -42,5 +51,13 @@ public class AccountService {
             throw new AppException(ErrorCode.FI);
         }
         return account;
+    }
+
+    public Account getMe(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        return (Account) authentication.getPrincipal();
     }
 }

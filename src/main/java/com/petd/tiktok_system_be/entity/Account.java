@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -15,9 +19,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Account extends Base{
+public class Account extends Base implements UserDetails {
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     String userName;
 
     @Column(nullable = false)
@@ -38,9 +42,13 @@ public class Account extends Base{
     ShopGroup group;
 
 
-    @Transient
-    List<Shop> shops = new ArrayList<>();
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role));
+    }
 
-
-
+    @Override
+    public String getUsername() {
+        return this.userName;
+    }
 }

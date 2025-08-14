@@ -3,26 +3,27 @@ package com.petd.tiktok_system_be.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.api.AuthorizedApi;
+import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.dto.request.AuthShopRequest;
 import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
 import com.petd.tiktok_system_be.entity.Account;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
+import com.petd.tiktok_system_be.repository.ShopGroupRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
 import com.petd.tiktok_system_be.shared.TiktokAuthAppClient;
-import com.petd.tiktok_system_be.shared.TiktokCallApi;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +31,45 @@ import java.io.IOException;
 @Slf4j
 public class ShopService {
 
-    ShopRepository shopRepository;
+
     TiktokAuthAppClient authClient;
     RequestClient requestClient;
 
-    ObjectMapper objectMapper;
     AccountService accountService;
+    ShopRepository shopRepository;
+    ShopGroupRepository shopGroupRepository;
+
+
+    public Shop getShopByShopId(String shopId) {
+        return shopRepository.findById(shopId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
+    }
+
+    public List<Shop> getMyShops (Account account) {
+        if(account.getRole().equals(Role.Admin.toString())){
+            return  shopRepository.findAll();
+        }
+        if(account.getRole().equals(Role.Leader.toString())){
+            return  shopRepository.findByLeader_Id(account.getId());
+        }
+       return shopRepository.findByAccountGroupAccess(account.getId());
+    }
+
+    public boolean checkShopBelongUser(String accountId, String shopId) {
+
+        Account account =  accountService.getById(accountId);
+
+        if(account.getRole().equals(Role.Admin.toString())){
+            return true;
+        }
+
+        if(account.getRole().equals(Role.Leader.toString())){
+            return shopRepository.existsByLeaderAndId(account, shopId);
+        }
+
+        return shopGroupRepository.existsEmployeeHasAccessToShop(accountId, shopId);
+    }
+
 
     public AuthShopResponse connectShop(AuthShopRequest request){
         try {
@@ -102,4 +136,6 @@ public class ShopService {
             throw new AppException(e.getMessage(), 409);
         }
     }
+
+
 }
