@@ -77,4 +77,8 @@ public class JwtUtils {
     return token;
   }
 
+  public String getTokenByRequestHeader(HttpServletRequest request) {
+      return request.getHeader("Authorization");
+  }
+
 }

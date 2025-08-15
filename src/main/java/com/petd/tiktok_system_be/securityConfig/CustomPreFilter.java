@@ -44,7 +44,7 @@ public class CustomPreFilter extends OncePerRequestFilter {
       }
     }
 
-    String token = jwtUtils.getTokenByRequest(request);
+    String token = jwtUtils.getTokenByRequestHeader(request);
     log.info("token: {}", StringUtils.isBlank(token));
 
     if(StringUtils.isBlank(token) || !jwtUtils.validateToken(token)) {

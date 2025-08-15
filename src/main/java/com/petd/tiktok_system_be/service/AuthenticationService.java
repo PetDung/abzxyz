@@ -53,6 +53,7 @@ public class AuthenticationService {
                 .role(accountLogin.getRole())
                 .team(accountLogin.getTeam().getTeamName())
                 .username(accountLogin.getUsername())
+                .accessToken(token)
                 .build();
     }
 }

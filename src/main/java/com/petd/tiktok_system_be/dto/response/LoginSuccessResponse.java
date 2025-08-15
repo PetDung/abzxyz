@@ -14,4 +14,5 @@ public class LoginSuccessResponse {
     String name;
     String role;
     String team;
+    String accessToken;
 }
