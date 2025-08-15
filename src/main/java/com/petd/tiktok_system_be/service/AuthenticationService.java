@@ -12,7 +12,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -33,13 +37,15 @@ public class AuthenticationService {
 
         String token = jwtUtils.generateToken(accountLogin.getUsername());
 
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge( (int) jwtUtils.getExpiration()/ 1000);
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(true) // HTTPS
+                .path("/")
+                .sameSite("None") // có sẵn, không cần thủ công
+                .maxAge(Duration.ofMillis(jwtUtils.getExpiration()))
+                .build();
 
-        response.addCookie(cookie);
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return LoginSuccessResponse.builder()
                 .id(accountLogin.getId())
