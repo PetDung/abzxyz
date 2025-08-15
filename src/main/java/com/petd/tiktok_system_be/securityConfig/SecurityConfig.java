@@ -55,7 +55,7 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http,  CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
     http.cors(cors -> cors.configurationSource(request -> {
       var corsConfig = new CorsConfiguration();
-      corsConfig.setAllowedOrigins(List.of("http://localhost:3000"));
+      corsConfig.addAllowedOriginPattern("*");
       corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
       corsConfig.setAllowedHeaders(List.of("*"));
       corsConfig.setAllowCredentials(true);
