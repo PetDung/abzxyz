@@ -43,8 +43,8 @@ public class AccountService {
         return account;
     }
 
-    public Account leader(String id) {
-        Account account = accountRepository.findById(id)
+    public Account leader(String username) {
+        Account account = accountRepository.findByUserName(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if(!account.getRole().equals(Role.Leader.toString())){

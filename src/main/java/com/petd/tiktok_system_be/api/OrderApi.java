@@ -2,6 +2,7 @@ package com.petd.tiktok_system_be.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.api.body.OrderRequestBody;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
@@ -54,7 +55,9 @@ public class OrderApi  implements TiktokCallApi {
     @Override
     public TiktokApiResponse callApi() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         String bodyJson = mapper.writeValueAsString(body);
+        System.out.println(bodyJson);
         return requestClient.post(api, accessToken , createParameters(), bodyJson);
     }
 

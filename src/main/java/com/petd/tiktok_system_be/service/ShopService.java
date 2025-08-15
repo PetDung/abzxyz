@@ -6,10 +6,12 @@ import com.petd.tiktok_system_be.api.AuthorizedApi;
 import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.dto.request.AuthShopRequest;
 import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
+import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.entity.Account;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
+import com.petd.tiktok_system_be.mapper.ShopMapper;
 import com.petd.tiktok_system_be.repository.ShopGroupRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
@@ -34,6 +36,7 @@ public class ShopService {
 
     TiktokAuthAppClient authClient;
     RequestClient requestClient;
+    ShopMapper shopMapper;
 
     AccountService accountService;
     ShopRepository shopRepository;
@@ -53,6 +56,12 @@ public class ShopService {
             return  shopRepository.findByLeader_Id(account.getId());
         }
        return shopRepository.findByAccountGroupAccess(account.getId());
+    }
+
+    public List<ShopResponse> getMyShopsResponse () {
+        Account account = accountService.getMe();
+        List<Shop> shops = getMyShops(account);
+        return shopMapper.toShopResponseList(shops);
     }
 
     public boolean checkShopBelongUser(String accountId, String shopId) {

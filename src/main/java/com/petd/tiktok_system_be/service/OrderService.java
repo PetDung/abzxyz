@@ -3,11 +3,15 @@ package com.petd.tiktok_system_be.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.api.OrderApi;
+import com.petd.tiktok_system_be.api.OrderDetailsApi;
+import com.petd.tiktok_system_be.api.body.OrderRequestBody;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
+import com.petd.tiktok_system_be.shared.TiktokCallApi;
+import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,14 +30,39 @@ public class OrderService {
     RequestClient requestClient;
     ShopService shopService;
 
-    public JsonNode getOrders (String shopId, String nextPageToken) {
+    public JsonNode getOrders (Map<String, String> params) {
+
+        String shopId = params.get("shop_id");
+        String nextPageToken = params.get("next_page_token");
+        String status = StringUtils.isNotBlank(params.get("order_status")) ? params.get("order_status") : null;
+        String shippingType = StringUtils.isNotBlank(params.get("shipping_type")) ? params.get("shipping_type") : null;
+
+
         Shop shop = shopService.getShopByShopId(shopId);
-        OrderApi orderApi = OrderApi.builder()
-                .requestClient(requestClient)
-                .accessToken(shop.getAccessToken())
-                .pageToken(nextPageToken)
-                .shopCipher(shop.getCipher())
-                .build();
+        String orderId = params.get("order_id");
+        TiktokCallApi orderApi;
+        if(StringUtils.isNotBlank(orderId)) {
+            log.info("Order Id: " + orderId);
+            orderApi = OrderDetailsApi.builder()
+                    .requestClient(requestClient)
+                    .orderId(orderId)
+                    .shopCipher(shop.getCipher())
+                    .accessToken(shop.getAccessToken())
+                    .build();
+        }else {
+            OrderRequestBody orderRequestBody = OrderRequestBody.builder()
+                    .orderStatus(status)
+                    .shippingType(shippingType)
+                    .build();
+
+            orderApi = OrderApi.builder()
+                    .requestClient(requestClient)
+                    .accessToken(shop.getAccessToken())
+                    .pageToken(nextPageToken)
+                    .shopCipher(shop.getCipher())
+                    .body(orderRequestBody)
+                    .build();
+        }
         try {
             TiktokApiResponse response = orderApi.callApi();
             return response.getData();

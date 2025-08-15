@@ -72,16 +72,16 @@ public class RequestClient{
         try (Response response = okHttpClient.newCall(signedRequest).execute()) {
 
             if (!response.isSuccessful()) {
-                log.error("Failed to refresh token: HTTP {}", response.code());
+                log.error("Failed : HTTP {}", response.body().string());
                 throw TiktokException.builder()
                         .code(400)
-                        .message(response.message())
+                        .message(response.body().string())
                         .build();
             }
 
             TiktokApiResponse res = objectMapper.readValue(response.body().string(), TiktokApiResponse.class);
             if(res.getCode() != 0){
-                log.error("Failed to refresh token: HTTP {}", res.getMessage());
+                log.error("Failed mapper HTTP {}", res.getMessage());
                 throw TiktokException.builder()
                         .code(res.getCode())
                         .message(res.getMessage())
@@ -89,7 +89,7 @@ public class RequestClient{
             }
             return res;
         } catch (IOException  e) {
-            log.error("Error refreshing token: {}", e.getMessage(), e);
+            log.error("IO: {}", e.getMessage(), e);
             throw new TiktokException(500, "Lỗi hệ thống!");
         }
     }
