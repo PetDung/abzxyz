@@ -6,6 +6,8 @@ public class SecurityConstants {
       "/login",
       "/register",
       "/connect",
+      "/order-sync",
+      "/webhook/*"
   };
 
 }

@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.api.OrderApi;
 import com.petd.tiktok_system_be.api.OrderDetailsApi;
 import com.petd.tiktok_system_be.api.body.OrderRequestBody;
+import com.petd.tiktok_system_be.dto.response.OrderResponse;
+import com.petd.tiktok_system_be.entity.Order;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
+import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
@@ -16,9 +19,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -29,8 +37,9 @@ public class OrderService {
 
     RequestClient requestClient;
     ShopService shopService;
+    OrderRepository orderRepository;
 
-    public JsonNode getOrders (Map<String, String> params) {
+    public JsonNode getOrders (Map<String, String> params, Integer pageSize) {
 
         String shopId = params.get("shop_id");
         String nextPageToken = params.get("next_page_token");
@@ -60,6 +69,7 @@ public class OrderService {
                     .accessToken(shop.getAccessToken())
                     .pageToken(nextPageToken)
                     .shopCipher(shop.getCipher())
+                    .pageSize(pageSize)
                     .body(orderRequestBody)
                     .build();
         }
@@ -72,5 +82,19 @@ public class OrderService {
         } catch (JsonProcessingException e) {
             throw new AppException(e.getMessage(), 409);
         }
+    }
+
+    public OrderResponse getAllOrderOnDataBaseByOwnerId(String ownerId, Integer page) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createTime").descending());
+
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        return  OrderResponse.builder()
+                .orders(orderPage.getContent())
+                .totalCount(orderPage.getTotalElements())
+                .currentPage(orderPage.getNumber())
+                .isLast(orderPage.isLast())
+                .build();
     }
 }

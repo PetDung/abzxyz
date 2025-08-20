@@ -42,6 +42,10 @@ public class RequestClient{
         return execute("POST", path, accessToken, queryParams, jsonBody);
     }
 
+    public TiktokApiResponse put(String path, String accessToken, Map<String, String> queryParams, String jsonBody) {
+        return execute("PUT", path, accessToken, queryParams, jsonBody);
+    }
+
     private TiktokApiResponse execute(String method, String path, String accessToken, Map<String, String> queryParams, String jsonBody) {
         long timestamp = Instant.now().getEpochSecond();
         Map<String, String> params = new TreeMap<>();
@@ -53,7 +57,7 @@ public class RequestClient{
         params.forEach(urlBuilder::addQueryParameter);
 
         RequestBody body = null;
-        if ("POST".equalsIgnoreCase(method) && jsonBody != null) {
+        if ("POST".equalsIgnoreCase(method)  || "PUT".equalsIgnoreCase(method) && jsonBody != null) {
             body = RequestBody.create(jsonBody, MediaType.get("application/json; charset=utf-8"));
         }
 

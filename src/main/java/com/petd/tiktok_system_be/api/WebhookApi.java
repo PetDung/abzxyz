@@ -3,7 +3,7 @@ package com.petd.tiktok_system_be.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.petd.tiktok_system_be.api.body.OrderRequestBody;
+import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.shared.TiktokCallApi;
@@ -11,44 +11,27 @@ import lombok.*;
 
 import java.util.HashMap;
 import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderApi  implements TiktokCallApi {
+public class WebhookApi implements TiktokCallApi {
 
-    private final String api = "/order/202309/orders/search";
-
-    RequestClient requestClient;
+    private final String api = "/event/202309/webhooks";
 
     String shopCipher;
+    RequestClient requestClient;
+
+    Event body;
     String accessToken;
-
-    OrderRequestBody body;
-
-    @Builder.Default
-    String sortField  = "create_time";
-
-    @Builder.Default
-    String sortOrder = "DESC";
-
-    @Builder.Default
-    String pageToken ="";
-
-    @Builder.Default
-    int pageSize = 10;
-
 
 
     @Override
     public Map<String, String> createParameters() {
         Map<String, String> params = new HashMap<String, String>();
         params.put("shop_cipher", shopCipher);
-        params.put("page_size", String.valueOf(pageSize));
-        params.put("sort_order", sortOrder);
-        params.put("sort_field", sortField);
-        params.put("page_token", pageToken);
         return params;
     }
 
@@ -57,7 +40,6 @@ public class OrderApi  implements TiktokCallApi {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         String bodyJson = mapper.writeValueAsString(body);
-        return requestClient.post(api, accessToken , createParameters(), bodyJson);
+        return requestClient.put(api, accessToken, createParameters(), bodyJson);
     }
-
 }

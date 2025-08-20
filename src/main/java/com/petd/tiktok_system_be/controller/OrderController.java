@@ -27,7 +27,7 @@ public class OrderController {
     @PostMapping("/list")
     public ApiResponse<JsonNode> getOrder(@RequestParam Map<String, String> params){
         return ApiResponse.<JsonNode>builder()
-                .result(orderService.getOrders(params))
+                .result(orderService.getOrders(params, 10))
                 .build();
     }
 }
