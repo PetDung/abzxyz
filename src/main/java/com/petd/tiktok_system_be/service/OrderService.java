@@ -2,6 +2,7 @@ package com.petd.tiktok_system_be.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.petd.tiktok_system_be.Specification.OrderSpecification;
 import com.petd.tiktok_system_be.api.OrderApi;
 import com.petd.tiktok_system_be.api.OrderDetailsApi;
 import com.petd.tiktok_system_be.api.body.OrderRequestBody;
@@ -84,17 +85,26 @@ public class OrderService {
         }
     }
 
-    public OrderResponse getAllOrderOnDataBaseByOwnerId(String ownerId, Integer page) {
-
+    public OrderResponse getAllOrderOnDataBaseByOwnerId(
+            String orderId,
+            List<String> shopIds,
+            String status,
+            String shippingType,
+            Integer page
+    ) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createTime").descending());
 
-        Page<Order> orderPage = orderRepository.findAll(pageable);
+        Page<Order> orderPage = orderRepository.findAll(
+                OrderSpecification.filterOrders(orderId, shopIds, status, shippingType),
+                pageable
+        );
 
-        return  OrderResponse.builder()
+        return OrderResponse.builder()
                 .orders(orderPage.getContent())
                 .totalCount(orderPage.getTotalElements())
                 .currentPage(orderPage.getNumber())
                 .isLast(orderPage.isLast())
                 .build();
     }
+
 }

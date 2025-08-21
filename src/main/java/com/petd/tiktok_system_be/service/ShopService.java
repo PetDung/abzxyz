@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.api.AuthorizedApi;
 import com.petd.tiktok_system_be.constant.Role;
+import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
 import com.petd.tiktok_system_be.dto.request.AuthShopRequest;
 import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
@@ -22,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -41,6 +43,8 @@ public class ShopService {
     AccountService accountService;
     ShopRepository shopRepository;
     ShopGroupRepository shopGroupRepository;
+    KafkaTemplate<String, String> kafkaTemplate;
+    ObjectMapper mapper = new ObjectMapper();
 
 
     public Shop getShopByShopId(String shopId) {
@@ -132,6 +136,14 @@ public class ShopService {
 
             shopRepository.save(shop);
 
+            OrderSyncMessage msg = OrderSyncMessage.builder()
+                    .shopId(shop.getId())
+                    .limit(10)
+                    .build();
+
+            kafkaTemplate.send("order-sync", shop.getId(), mapper.writeValueAsString(msg));
+            System.out.println("Pushed job for shop: " + shop.getId());
+
             return AuthShopResponse.builder()
                     .id(shop.getId())
                     .userShopName(shop.getUserShopName())
@@ -145,6 +157,4 @@ public class ShopService {
             throw new AppException(e.getMessage(), 409);
         }
     }
-
-
 }

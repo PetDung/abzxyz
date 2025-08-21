@@ -38,13 +38,30 @@ public class AuthenticationController {
 
     }
 
-    @PostMapping("/order-sync")
-    public ApiResponse<?> orderSync(@RequestParam (name = "page") Integer page) throws JsonProcessingException {
-        orderSyncService.pushJob();
+    @GetMapping("/order-sync")
+    public ApiResponse<?> orderSync(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "order_id", required = false) String orderId,
+            @RequestParam(name = "shop_ids", required = false) List<String> shopIds,
+            @RequestParam(name = "order_status", required = false) String status,
+            @RequestParam(name = "shipping_type", required = false) String shippingType
+    ){
+
+        log.info("Order Sync Request: {}, {}", page, shopIds.isEmpty());
+        // lấy dữ liệu từ DB với filter
+        OrderResponse response = orderService.getAllOrderOnDataBaseByOwnerId(
+                orderId,
+                shopIds,
+                status,
+                shippingType,
+                page
+        );
         return ApiResponse.<OrderResponse>builder()
                 .message("Order sync started")
-                .result(orderService.getAllOrderOnDataBaseByOwnerId("adsdsad", page))
+                .result(response)
                 .build();
     }
+
+
 
 }

@@ -54,9 +54,16 @@ public class Order {
     Boolean isSampleOrder;
     Boolean isCod;
 
+    String label;
+
     @Transient
     public String getShopName(){
         return shop.getUserShopName();
+    }
+
+    @Transient
+    public String getShopId(){
+        return shop.getId();
     }
 
 
@@ -73,6 +80,4 @@ public class Order {
     @JoinColumn(name = "shop_id")
     @JsonIgnore
     Shop shop;
-
-
 }
