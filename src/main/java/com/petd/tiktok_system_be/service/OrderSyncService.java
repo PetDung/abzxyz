@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +102,7 @@ public class OrderSyncService {
        }
     }
 
-//    @KafkaListener(topics = "order-details-sync", groupId = "order-workers")
+    @KafkaListener(topics = "order-details-sync", groupId = "order-workers")
     public void worderOrderDetailSync (ConsumerRecord<String, String> record) throws InterruptedException, JsonProcessingException {
 
         try {
