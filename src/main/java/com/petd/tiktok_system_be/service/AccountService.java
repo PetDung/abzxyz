@@ -3,6 +3,7 @@ package com.petd.tiktok_system_be.service;
 
 import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.entity.Account;
+import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.AccountRepository;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,12 @@ public class AccountService {
     public Account getById(String id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public List<Account> getAllAccountsAccessShop(Shop shop) {
+        List<Account> list = accountRepository.findEmployeesByShopId(shop.getId());
+        list.add(shop.getLeader());
+        return list;
     }
 
 

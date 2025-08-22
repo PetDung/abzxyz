@@ -7,7 +7,9 @@ public class SecurityConstants {
       "/register",
       "/connect",
       "/order-sync",
-      "/webhook/*"
+      "/webhook/**",
+      "/ws-order",
+      "/ws-order/**"
   };
 
 }

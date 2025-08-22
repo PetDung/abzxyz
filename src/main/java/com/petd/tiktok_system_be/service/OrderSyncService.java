@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class OrderSyncService {
     ShopRepository shopRepository;
     OrderService orderService;
     OrderSaveDataBaseService orderSaveDataBaseService;
+    NotificationService notificationService;
 
     public void pushJob () throws JsonProcessingException {
         List<Shop> shops = shopRepository.findAll();
@@ -62,7 +64,8 @@ public class OrderSyncService {
 
     @KafkaListener(topics = "order-sync", groupId = "order-workers", concurrency = "3")
     public void workerOrderSync(ConsumerRecord<String, String> record) throws Exception {
-       try {
+
+               try {
            TimeUnit.MILLISECONDS.sleep(1000);
 
            ObjectMapper mapper = new ObjectMapper();
@@ -102,7 +105,7 @@ public class OrderSyncService {
        }
     }
 
-    @KafkaListener(topics = "order-details-sync", groupId = "order-workers")
+//    @KafkaListener(topics = "order-details-sync", groupId = "order-workers")
     public void worderOrderDetailSync (ConsumerRecord<String, String> record) throws InterruptedException, JsonProcessingException {
 
         try {
@@ -129,11 +132,11 @@ public class OrderSyncService {
                     Order order = mapper.treeToValue(node, Order.class);
                     order.setShop(shop);
                     orderSaveDataBaseService.save(order);
+                    notificationService.orderUpdateStatus(order);
                 }
             }
         }catch (Exception e) {
             log.error(e.getMessage());
         }
-
     }
 }

@@ -2,10 +2,13 @@ package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.petd.tiktok_system_be.api.GetWebhookApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
+import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
+import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.service.GoogleDriveService;
 import com.petd.tiktok_system_be.service.OrderSyncService;
 import com.petd.tiktok_system_be.service.ShippingService;
@@ -34,6 +37,7 @@ public class Webhook {
     WebhookService webhookService;
     ShippingService shippingService;
     GoogleDriveService googleDriveService;
+    RequestClient requestClient;
 
     @PostMapping("/order")
     public Boolean OrderWebhook(@RequestBody TtsNotification<OrderData> ttsNotification) throws JsonProcessingException {
@@ -48,19 +52,13 @@ public class Webhook {
     }
 
     @PostMapping("/test")
-    public ResponseEntity<byte[]> test(@RequestParam String url) {
-        try (InputStream inputStream = googleDriveService.getPdfFromUrl(url)) {
-            byte[] pdfBytes = inputStream.readAllBytes();
+    public boolean test() throws JsonProcessingException {
+       orderSyncService.pushJob();
+       return true;
+    }
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"file.pdf\"");
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(pdfBytes);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @GetMapping("/get")
+    public TiktokApiResponse get(@RequestParam("shop_id") String shopId) throws JsonProcessingException {
+        return webhookService.getWebhook(shopId);
     }
 }

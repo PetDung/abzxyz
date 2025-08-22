@@ -27,4 +27,10 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     Optional<Account> findByUserName(String userName);
 
 
+    @Query("select distinct e from Account e " +
+            "join e.group g " +
+            "join g.groupShopAccess ga " +
+            "where ga.shop.id = :shopId")
+    List<Account> findEmployeesByShopId(@Param("shopId") String shopId);
+
 }

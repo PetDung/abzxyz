@@ -10,6 +10,7 @@ import com.petd.tiktok_system_be.dto.response.OrderResponse;
 import com.petd.tiktok_system_be.entity.Order;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
+import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
@@ -39,6 +40,12 @@ public class OrderService {
     RequestClient requestClient;
     ShopService shopService;
     OrderRepository orderRepository;
+
+
+    public Order getOrderById (String id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
+    }
 
     public JsonNode getOrders (Map<String, String> params, Integer pageSize) {
 

@@ -2,11 +2,13 @@ package com.petd.tiktok_system_be.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.petd.tiktok_system_be.api.GetWebhookApi;
 import com.petd.tiktok_system_be.api.WebhookApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.message.WebhookMessage;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.repository.ShopRepository;
+import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +40,24 @@ public class WebhookService {
                     .event(event)
                     .shopId(shop.getId())
                     .build();
-
             try {
                 kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(msg));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+
+    public TiktokApiResponse getWebhook(String shopId) throws JsonProcessingException {
+        Shop shop = shopRepository.findById(shopId).get();
+
+        GetWebhookApi  getWebhookApi = GetWebhookApi.builder()
+                .accessToken(shop.getAccessToken())
+                .requestClient(requestClient)
+                .shopCipher(shop.getCipher())
+                .build();
+        return getWebhookApi.callApi();
     }
 
     @KafkaListener(topics = "web-hook", groupId = "order-workers", concurrency = "3")
