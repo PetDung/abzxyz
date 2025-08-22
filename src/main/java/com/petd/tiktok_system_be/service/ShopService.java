@@ -62,6 +62,17 @@ public class ShopService {
        return shopRepository.findByAccountGroupAccess(account.getId());
     }
 
+    public List<Shop> getMyShops () {
+        Account account = accountService.getMe();
+        if(account.getRole().equals(Role.Admin.toString())){
+            return  shopRepository.findAll();
+        }
+        if(account.getRole().equals(Role.Leader.toString())){
+            return  shopRepository.findByLeader_Id(account.getId());
+        }
+        return shopRepository.findByAccountGroupAccess(account.getId());
+    }
+
     public List<ShopResponse> getMyShopsResponse () {
         Account account = accountService.getMe();
         List<Shop> shops = getMyShops(account);

@@ -49,8 +49,6 @@ public class SecurityConfig {
     return provider;
   }
 
-  String[] PUBLIC_USER_URL = { "/login" };
-
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,  CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
     http.cors(cors -> cors.configurationSource(request -> {

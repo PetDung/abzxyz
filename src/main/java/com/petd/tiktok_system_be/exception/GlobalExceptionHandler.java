@@ -4,6 +4,7 @@ import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -49,17 +50,26 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
-//    @ExceptionHandler(value = AccessDeniedException.class)
-//    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
-//        ErrorCode errorCode = ErrorCode.FORBIDDEN_ACTION;
-//
-//        return ResponseEntity.status(errorCode.getStatusCode()).body(
-//            ApiResponse.builder()
-//                .code(errorCode.getCode())
-//                .message(errorCode.getMessage())
-//                .build()
-//        );
-//    }
+  @ExceptionHandler(AuthorizationDeniedException.class)
+  public ResponseEntity<ApiResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+    ApiResponse response = ApiResponse.builder()
+            .code(4003)
+            .message("You do not have permission to perform this action")
+            .build();
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+  }
+
+  @ExceptionHandler(value = AccessDeniedException.class)
+    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
+        ErrorCode errorCode = ErrorCode.ACCESS_DENIN;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+            ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build()
+        );
+  }
 //
 //  @ExceptionHandler(value = MethodArgumentNotValidException.class)
 //  public ResponseEntity<ApiResponse> handleValidationException(MethodArgumentNotValidException exception) {

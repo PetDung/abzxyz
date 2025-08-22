@@ -93,11 +93,10 @@ public class ShippingService {
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
         Map<String, String> params = new HashMap<>();
-        params.put("shop_id", shopId);
         params.put("next_page_token","");
         params.put("order_id", orderId);
 
-        JsonNode jsonNode = orderService.getOrders(params, 10);
+        JsonNode jsonNode = orderService.getOrders(shopId, params, 10);
         JsonNode ordersNode = jsonNode.get("orders");
 
         if (ordersNode == null || !ordersNode.isArray() || ordersNode.isEmpty()) {

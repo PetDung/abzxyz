@@ -72,12 +72,11 @@ public class OrderSyncService {
 
 
            Map<String, String> params = new HashMap<>();
-           params.put("shop_id", msg.getShopId());
            params.put("next_page_token","");
 
            Shop shop  = shopRepository.findById( msg.getShopId()).get();
 
-           JsonNode jsonNode = orderService.getOrders(params, msg.getLimit());
+           JsonNode jsonNode = orderService.getOrders(shop.getId(), params, msg.getLimit());
 
            JsonNode totalCountNode  = jsonNode.get("total_count");
 
@@ -111,17 +110,15 @@ public class OrderSyncService {
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
             OrderDetalisSyncMessage msg = mapper.readValue(record.value(), OrderDetalisSyncMessage.class);
 
+            Shop shop  = shopRepository.findById( msg.getShopId()).get();
 
             Map<String, String> params = new HashMap<>();
-            params.put("shop_id", msg.getShopId());
             params.put("next_page_token","");
             params.put("order_id", msg.getOrderId());
 
-            JsonNode jsonNode = orderService.getOrders(params, msg.getLimit());
+            JsonNode jsonNode = orderService.getOrders(shop.getId(), params, msg.getLimit());
 
             JsonNode ordersNode = jsonNode.get("orders");
-
-            Shop shop  = shopRepository.findById( msg.getShopId()).get();
 
             if (ordersNode != null && ordersNode.isArray() && !ordersNode.isEmpty()) {
                 // Có dữ liệu order

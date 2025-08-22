@@ -28,8 +28,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,19 +44,10 @@ public class OrderService {
     ShopService shopService;
     OrderRepository orderRepository;
 
-
-    public Order getOrderById (String id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
-    }
-
-    public JsonNode getOrders (Map<String, String> params, Integer pageSize) {
-
-        String shopId = params.get("shop_id");
+    public JsonNode getOrders (String shopId, Map<String, String> params, Integer pageSize) {
         String nextPageToken = params.get("next_page_token");
         String status = StringUtils.isNotBlank(params.get("order_status")) ? params.get("order_status") : null;
         String shippingType = StringUtils.isNotBlank(params.get("shipping_type")) ? params.get("shipping_type") : null;
-
 
         Shop shop = shopService.getShopByShopId(shopId);
         String orderId = params.get("order_id");
@@ -99,10 +93,31 @@ public class OrderService {
             String shippingType,
             Integer page
     ) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createTime").descending());
+        List<Shop> myShops = shopService.getMyShops();
 
+        if(myShops == null || myShops.isEmpty()) {
+            return OrderResponse.builder()
+                    .orders(new ArrayList<>())
+                    .totalCount(0)
+                    .currentPage(0)
+                    .isLast(true)
+                    .build();
+        }
+        // Ném lỗi nếu shopIds chứa id không hợp lệ
+        if(hasInvalidShopId(myShops, shopIds)){
+            throw new AppException(ErrorCode.FI);
+        }
+
+        List<String> id;
+        if(shopIds != null && !shopIds.isEmpty()){
+            id = shopIds;
+        } else {
+            id = myShops.stream().map(Shop::getId).collect(Collectors.toList());
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createTime").descending());
         Page<Order> orderPage = orderRepository.findAll(
-                OrderSpecification.filterOrders(orderId, shopIds, status, shippingType),
+                OrderSpecification.filterOrders(orderId, id, status, shippingType),
                 pageable
         );
 
@@ -113,5 +128,14 @@ public class OrderService {
                 .isLast(orderPage.isLast())
                 .build();
     }
+
+    public boolean hasInvalidShopId(List<Shop> myShops, List<String> shopIds) {
+        if(shopIds == null || shopIds.isEmpty()) return false;
+        Set<String> myShopIdSet = myShops.stream()
+                .map(Shop::getId)
+                .collect(Collectors.toSet());
+        return shopIds.stream().anyMatch(id -> !myShopIdSet.contains(id));
+    }
+
 
 }

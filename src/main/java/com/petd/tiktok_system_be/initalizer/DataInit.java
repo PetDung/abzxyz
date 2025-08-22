@@ -28,5 +28,6 @@ public class DataInit  implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         initDataService.initAccount();
+        initDataService.initAccount2();
     }
 }

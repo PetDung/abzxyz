@@ -47,5 +47,28 @@ public class InitDataService {
 
         log.info("Tạo account test thủ công bằng SQL với id cố định thành công!");
     }
+    @Transactional
+    public void initAccount2() {
+
+        String leaderId = "5dd32a3a-feae-4738-9b9c-f5b944d117e7";
+        String password = passwordService.encodePassword("Dung1702@");
+
+        if(accountRepository.existsById(leaderId)) return;
+
+        Team team = Team.builder()
+                .teamName("Default Team")
+                .build();
+        teamRepository.saveAndFlush(team);
+
+        accountRepository.insertIfNotExists(
+                leaderId,
+                "No Shop leader",
+                "petd",
+                password,
+                Role.Leader.toString(),
+                team.getId(),
+                true
+        );
+    }
 
 }

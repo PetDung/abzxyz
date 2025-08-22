@@ -7,10 +7,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -23,11 +21,14 @@ public class OrderController {
 
     OrderService orderService;
 
-
-    @PostMapping("/list")
-    public ApiResponse<JsonNode> getOrder(@RequestParam Map<String, String> params){
+    @PreAuthorize("@shopSecurity.isAccept(#shopId)")
+    @PostMapping("/list/{shopId}")
+    public ApiResponse<JsonNode> getOrder(
+            @RequestParam Map<String, String> params,
+            @PathVariable String shopId
+    ){
         return ApiResponse.<JsonNode>builder()
-                .result(orderService.getOrders(params, 10))
+                .result(orderService.getOrders(shopId,params, 10))
                 .build();
     }
 }
