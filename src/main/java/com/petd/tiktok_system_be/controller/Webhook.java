@@ -6,13 +6,11 @@ import com.petd.tiktok_system_be.api.GetWebhookApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
+import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
-import com.petd.tiktok_system_be.service.GoogleDriveService;
-import com.petd.tiktok_system_be.service.OrderSyncService;
-import com.petd.tiktok_system_be.service.ShippingService;
-import com.petd.tiktok_system_be.service.WebhookService;
+import com.petd.tiktok_system_be.service.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,10 +26,18 @@ public class Webhook {
 
     OrderSyncService orderSyncService;
     WebhookService webhookService;
+    ProductService productService;
+    ProductSyncService  productSyncService;
 
     @PostMapping("/order")
     public Boolean OrderWebhook(@RequestBody TtsNotification<OrderData> ttsNotification) throws JsonProcessingException {
         orderSyncService.pushJobNotication(ttsNotification.getShopId(), ttsNotification.getData().getOrderId());
+        return true;
+    }
+
+    @PostMapping("/product/change")
+    public Boolean newProductWebhook(@RequestBody TtsNotification<ProductData> ttsNotification) throws JsonProcessingException {
+        productSyncService.pushJob(ttsNotification.getShopId(), ttsNotification.getData().getProductId());
         return true;
     }
 
@@ -41,10 +47,14 @@ public class Webhook {
         return true;
     }
 
-    @PostMapping("/test")
-    public boolean test() throws JsonProcessingException {
-       orderSyncService.pushJob();
-       return true;
+    @PostMapping("/test/{shopId}/{productId}")
+    public ApiResponse<JsonNode> test(
+            @PathVariable String productId,
+            @PathVariable String shopId
+    ){
+       return ApiResponse.<JsonNode>builder()
+               .result(productService.getProduct(shopId, productId))
+               .build();
     }
 
     @GetMapping("/get")

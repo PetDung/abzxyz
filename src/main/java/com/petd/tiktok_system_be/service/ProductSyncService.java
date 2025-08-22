@@ -1,0 +1,63 @@
+package com.petd.tiktok_system_be.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
+import com.petd.tiktok_system_be.dto.message.ProductMessage;
+import com.petd.tiktok_system_be.entity.Product;
+import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.repository.ProductRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
+public class ProductSyncService {
+
+    KafkaTemplate<String, String> kafkaTemplate;
+    ShopService shopService;
+    ObjectMapper mapper = new ObjectMapper();
+    ProductService productService;
+    ProductRepository productRepository;
+
+    public void pushJob (String shopId, String productId) throws JsonProcessingException {
+
+        Shop shop = shopService.getShopByShopId(shopId);
+        ProductMessage productMessage = ProductMessage.builder()
+                .productId(productId)
+                .shopId(shop.getId())
+                .build();
+        kafkaTemplate.send("product-sync", shopId, mapper.writeValueAsString(productMessage));
+    }
+
+
+    @Transactional
+    @KafkaListener(topics = "product-sync", groupId = "order-workers", concurrency = "3")
+    public void handlerProductJob (ConsumerRecord<String, String> record) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        ProductMessage msg = mapper.readValue(record.value(), ProductMessage.class);
+
+        JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
+
+        Shop shop = shopService.getShopByShopId(msg.getShopId());
+
+        Product product = mapper.convertValue(productNode, Product.class);
+        product.setShop(shop);
+        productRepository.save(product);
+    }
+}
