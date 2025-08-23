@@ -1,8 +1,10 @@
 package com.petd.tiktok_system_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +23,6 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Product {
 
@@ -36,7 +37,18 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "shop_id")
+    @JsonIgnore
     Shop shop;
+
+    @Transient
+    public ShopResponse getShop() {
+        return ShopResponse.builder()
+                .id(shop.getId())
+                .userShopName(shop.getUserShopName())
+                .tiktokShopName(shop.getTiktokShopName())
+                .createdAt(shop.getCreatedAt())
+                .build();
+    }
 
     Long createdTime;
     Long updatedTime;
