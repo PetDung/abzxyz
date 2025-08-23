@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
 import com.petd.tiktok_system_be.dto.message.ProductMessage;
+import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
+import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
 import com.petd.tiktok_system_be.entity.Product;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.repository.ProductRepository;
@@ -33,14 +35,16 @@ public class ProductSyncService {
     ProductService productService;
     ProductRepository productRepository;
 
-    public void pushJob (String shopId, String productId) throws JsonProcessingException {
+    public void pushJob (TtsNotification<ProductData> notification) throws JsonProcessingException {
 
-        Shop shop = shopService.getShopByShopId(shopId);
+        Shop shop = shopService.getShopByShopId(notification.getShopId());
         ProductMessage productMessage = ProductMessage.builder()
-                .productId(productId)
+                .productId(notification.getData().getProductId())
                 .shopId(shop.getId())
+                .event(notification.getData().getStatus())
+                .updateTime(notification.getData().getUpdateTime())
                 .build();
-        kafkaTemplate.send("product-sync", shopId, mapper.writeValueAsString(productMessage));
+        kafkaTemplate.send("product-sync", notification.getShopId(), mapper.writeValueAsString(productMessage));
     }
 
 
@@ -57,6 +61,13 @@ public class ProductSyncService {
         Shop shop = shopService.getShopByShopId(msg.getShopId());
 
         Product product = mapper.convertValue(productNode, Product.class);
+
+        String event = msg.getEvent();
+
+        if("PRODUCT_FIRST_PASS_REVIEW".equals(event)) {
+            product.setActiveTime(msg.getUpdateTime());
+        }
+
         product.setShop(shop);
         productRepository.save(product);
     }

@@ -37,7 +37,7 @@ public class Webhook {
 
     @PostMapping("/product/change")
     public Boolean newProductWebhook(@RequestBody TtsNotification<ProductData> ttsNotification) throws JsonProcessingException {
-        productSyncService.pushJob(ttsNotification.getShopId(), ttsNotification.getData().getProductId());
+        productSyncService.pushJob(ttsNotification);
         return true;
     }
 

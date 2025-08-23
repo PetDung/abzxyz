@@ -16,4 +16,8 @@ public class ProductMessage {
     String productId;
     @JsonProperty("shopId")
     String shopId;
+    @JsonProperty("event")
+    String event;
+    @JsonProperty("update_time")
+    Long updateTime;
 }

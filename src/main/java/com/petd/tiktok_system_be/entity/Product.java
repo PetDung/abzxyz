@@ -29,7 +29,7 @@ public class Product {
     String id;
     String title;
     String status;
-
+    Long activeTime;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     List<AuditFailedReason> auditFailedReasons;
@@ -37,4 +37,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "shop_id")
     Shop shop;
+
+    Long createdTime;
+    Long updatedTime;
 }
