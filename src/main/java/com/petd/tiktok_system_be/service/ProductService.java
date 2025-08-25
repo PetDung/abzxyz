@@ -80,7 +80,10 @@ public class ProductService {
                 .and(ProductSpecification.activeTimeBetween(startDate, endDate))
                 .and(ProductSpecification.hasIdOrTitleLike(keyword));
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("activeTime").descending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(
+                Sort.Order.desc("activeTime"),
+                Sort.Order.desc("id")
+        ));
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
         return ProductResponse.builder()
