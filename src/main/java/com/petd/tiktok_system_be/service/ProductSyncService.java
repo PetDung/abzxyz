@@ -52,23 +52,31 @@ public class ProductSyncService {
     @KafkaListener(topics = "product-sync", groupId = "order-workers", concurrency = "3")
     public void handlerProductJob (ConsumerRecord<String, String> record) throws JsonProcessingException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-        ProductMessage msg = mapper.readValue(record.value(), ProductMessage.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+            ProductMessage msg = mapper.readValue(record.value(), ProductMessage.class);
 
-        JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
+            JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
 
-        Shop shop = shopService.getShopByShopId(msg.getShopId());
+            Shop shop = shopService.getShopByShopId(msg.getShopId());
 
-        Product product = mapper.convertValue(productNode, Product.class);
+            Product product = mapper.convertValue(productNode, Product.class);
 
-        String event = msg.getEvent();
+            System.out.println(product.getTitle());
 
-        if("PRODUCT_FIRST_PASS_REVIEW".equals(event)) {
-            product.setActiveTime(msg.getUpdateTime());
+            String event = msg.getEvent();
+
+            if("PRODUCT_FIRST_PASS_REVIEW".equals(event)) {
+                product.setActiveTime(msg.getUpdateTime());
+                System.out.println("sdadsadasd");
+            }
+
+            product.setShop(shop);
+            productRepository.save(product);
+            System.out.println("done");
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
-
-        product.setShop(shop);
-        productRepository.save(product);
     }
 }

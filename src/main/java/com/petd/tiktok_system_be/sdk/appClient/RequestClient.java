@@ -85,7 +85,7 @@ public class RequestClient{
 
             TiktokApiResponse res = objectMapper.readValue(response.body().string(), TiktokApiResponse.class);
             if(res.getCode() != 0){
-                log.error("Failed mapper HTTP {}", res.getMessage());
+                log.error("{}", res.getCode());
                 throw TiktokException.builder()
                         .code(res.getCode())
                         .message(res.getMessage())

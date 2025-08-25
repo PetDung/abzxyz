@@ -2,8 +2,7 @@ package com.petd.tiktok_system_be.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +11,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.List;
-import java.util.Map;
 
 
 @Entity
@@ -41,7 +39,8 @@ public class Product {
     Shop shop;
 
     @Transient
-    public ShopResponse getShop() {
+    @JsonProperty("shop")
+    public ShopResponse getShopResponse() {
         return ShopResponse.builder()
                 .id(shop.getId())
                 .userShopName(shop.getUserShopName())
@@ -50,6 +49,6 @@ public class Product {
                 .build();
     }
 
-    Long createdTime;
-    Long updatedTime;
+    Long createTime;
+    Long updateTime;
 }
