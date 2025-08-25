@@ -24,6 +24,7 @@ public class NotificationService {
     public void orderUpdateStatus(Order order){
         List<Account> accounts = accountService.getAllAccountsAccessShop(order.getShop());
         accounts.forEach(account -> {
+            System.out.println("Tới 3");
             messagingTemplate.convertAndSendToUser(
                     account.getUsername(),
                     "/queue/orders",

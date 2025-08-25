@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -60,11 +61,21 @@ public class ProductService {
 
     public ProductResponse getListProductInDataBase(Map<String, String> param) {
 
+        List<String> allowedFilters = Arrays.asList("ACTIVE", "UPDATE");
+
         int page = parseNumberSafe(param.get("page"), Integer::parseInt, 0);
-        String status = param.get("status");
+        List<String> statuses = param.containsKey("status")
+                ? Arrays.asList(param.get("status").split(","))
+                : List.of("ACTIVATE");
         String keyword = param.get("keyword");
         Long endDate = parseNumberSafe(param.get("end_time"),Long::parseLong, null);
         Long startDate = parseNumberSafe(param.get("start_time"),Long::parseLong,null);
+
+        String filterParam = param.get("filter");
+        String filter = (filterParam != null && allowedFilters.contains(filterParam))
+                ? filterParam
+                : "ACTIVE";
+
 
 
         // Lấy tất cả shop của user
@@ -75,13 +86,21 @@ public class ProductService {
 
         // Tạo Specification
         Specification<Product> spec = Specification
-                .where(ProductSpecification.hasStatus(status))
+                .where(ProductSpecification.hasStatus(statuses))
                 .and(ProductSpecification.hasShopIds(shopIds))
-                .and(ProductSpecification.activeTimeBetween(startDate, endDate))
                 .and(ProductSpecification.hasIdOrTitleLike(keyword));
 
+        String sortBy = "activeTime";
+
+        if(filter.equals("ACTIVE")) {
+            spec = spec.and(ProductSpecification.activeTimeBetween(startDate, endDate));
+        }else if(filter.equals("UPDATE")) {
+            spec = spec.and(ProductSpecification.updateTimeBetween(startDate, endDate));
+            sortBy = "updateTime";
+        }
+
         Pageable pageable = PageRequest.of(page, 10, Sort.by(
-                Sort.Order.desc("activeTime"),
+                Sort.Order.desc(sortBy),
                 Sort.Order.desc("id")
         ));
         Page<Product> productPage = productRepository.findAll(spec, pageable);

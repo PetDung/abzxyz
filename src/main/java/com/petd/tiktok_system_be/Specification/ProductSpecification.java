@@ -12,7 +12,12 @@ public class ProductSpecification {
         return (root, query, cb) ->
                 status == null ? cb.conjunction() : cb.equal(root.get("status"), status);
     }
-
+    public static Specification<Product> hasStatus(List<String> statuses) {
+        return (root, query, cb) ->
+                (statuses == null || statuses.isEmpty())
+                        ? cb.conjunction()
+                        : root.get("status").in(statuses);
+    }
     public static Specification<Product> hasTitleLike(String keyword) {
         return (root, query, cb) ->
                 keyword == null ? cb.conjunction() : cb.like(cb.lower(root.get("title")), "%" + keyword.toLowerCase() + "%");
@@ -70,6 +75,21 @@ public class ProductSpecification {
                 return cb.greaterThanOrEqualTo(root.get("activeTime"), from);
             }
             return cb.lessThanOrEqualTo(root.get("activeTime"), to);
+        };
+    }
+
+    public static Specification<Product> updateTimeBetween(Long from, Long to) {
+        return (root, query, cb) -> {
+            if (from == null && to == null) {
+                return cb.conjunction();
+            }
+            if (from != null && to != null) {
+                return cb.between(root.get("updateTime"), from, to);
+            }
+            if (from != null) {
+                return cb.greaterThanOrEqualTo(root.get("updateTime"), from);
+            }
+            return cb.lessThanOrEqualTo(root.get("updateTime"), to);
         };
     }
 

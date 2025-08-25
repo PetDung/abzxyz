@@ -31,6 +31,7 @@ public class Webhook {
 
     @PostMapping("/order")
     public Boolean OrderWebhook(@RequestBody TtsNotification<OrderData> ttsNotification) throws JsonProcessingException {
+        System.out.println("Nhận 1");
         orderSyncService.pushJobNotication(ttsNotification.getShopId(), ttsNotification.getData().getOrderId());
         return true;
     }

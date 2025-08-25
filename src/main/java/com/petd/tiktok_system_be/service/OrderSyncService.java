@@ -126,6 +126,7 @@ public class OrderSyncService {
                     Order order = mapper.treeToValue(node, Order.class);
                     order.setShop(shop);
                     orderSaveDataBaseService.save(order);
+                    System.out.println("Tới đây");
                     notificationService.orderUpdateStatus(order);
                 }
             }
