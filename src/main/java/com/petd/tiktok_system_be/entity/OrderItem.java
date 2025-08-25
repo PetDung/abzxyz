@@ -33,6 +33,7 @@ public class OrderItem {
     Order order;
 
     String productId;
+    @Column(name = "product_name", columnDefinition = "varchar")
     String productName;
 
     String skuId;
