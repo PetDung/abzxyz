@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tiktok-api:latest
+    container_name: tiktok-system_be
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
