@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ShopRepository extends JpaRepository<Shop, String> {
 
@@ -24,4 +25,8 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
         WHERE e.id = :accountId
     """)
     List<Shop> findByAccountGroupAccess(@Param("accountId") String accountId);
+
+    Optional<Shop> findByUserShopName(String userShopName);
+
+
 }

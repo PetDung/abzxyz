@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +52,10 @@ public class ShopService {
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
+    }
+    public Shop getShopByShopName(String shopName) {
+        return shopRepository.findByUserShopName(shopName)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
 
@@ -99,6 +104,11 @@ public class ShopService {
 
     public AuthShopResponse connectShop(AuthShopRequest request){
         try {
+
+            Optional<Shop> exitShop = shopRepository.findByUserShopName(request.getUserShopName());
+            if(exitShop.isPresent()){
+                throw new AppException(ErrorCode.EXIST_AL);
+            }
 
             Account account = accountService.leader(request.getUserName());
 

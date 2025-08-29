@@ -33,3 +33,5 @@ build/
 .vscode
 src/main/resources/key/*.json
 tokens/
+/logs/*
+/logs

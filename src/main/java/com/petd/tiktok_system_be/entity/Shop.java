@@ -27,7 +27,7 @@ public class Shop {
     @Column(nullable = false)
     String tiktokShopName;
 
-    @Column
+    @Column(unique = true)
     String userShopName;
 
     @Column(nullable = false)

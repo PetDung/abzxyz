@@ -34,18 +34,38 @@ public class ProductDeleteService {
     RequestClient requestClient;
     KafkaTemplate<String, String> kafkaTemplate;
 
-    public void pushJob(DeleteProductRequest request) throws JsonProcessingException {
+    // --- Producer ---
+    public void pushJob(DeleteProductRequest request) {
         List<DeleteProductMessage> messages = batchByShop(request, 20);
-        for(DeleteProductMessage message: messages){
-            System.out.println(mapper.writeValueAsString(message));
+        for (DeleteProductMessage message : messages) {
+            try {
+                String payload = mapper.writeValueAsString(message);
+                System.out.println("payload: " + payload);
+                kafkaTemplate.send("delete-product", payload);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to serialize DeleteProductMessage for shop {}: {}",
+                        message.getShopId(), e.getMessage(), e);
+            }
         }
     }
 
+    // --- Listener ---
     @KafkaListener(topics = "delete-product", concurrency = "3")
-    public void pushJob(ConsumerRecord<String, String> record) throws JsonProcessingException {
-        DeleteProductMessage msg = mapper.convertValue(record.value(), DeleteProductMessage.class);
-        Shop shop = shopService.getShopByShopId(msg.getShopId());
+    public void handleDeleteProduct(ConsumerRecord<String, String> record) {
+        try {
+            // Deserialize message
+            DeleteProductMessage msg = mapper.readValue(record.value(), DeleteProductMessage.class);
+            processDeleteProduct(msg);
+            log.info("Deleted products from shop {}", msg.getShopId());
+        } catch (JsonProcessingException e) {
+            log.error("Failed to deserialize message: {}", record.value(), e);
+        } catch (Exception e) {
+            log.error("Failed to process delete product message: {}", record.value(), e);
+        }
+    }
 
+    private void processDeleteProduct(DeleteProductMessage msg) throws Exception {
+        Shop shop = shopService.getShopByShopName(msg.getShopId().trim());
         DeleteProductApi deleteProductApi = DeleteProductApi.builder()
                 .body(Map.of("product_ids", msg.getProductIds()))
                 .shopCipher(shop.getCipher())
@@ -54,6 +74,7 @@ public class ProductDeleteService {
                 .build();
         deleteProductApi.callApi();
     }
+
 
 
     public List<DeleteProductMessage> batchByShop(DeleteProductRequest products, int batchSize) {

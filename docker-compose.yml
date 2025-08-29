@@ -8,3 +8,11 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - GG_CERTIFICATE=${GG_CERTIFICATE}
+      - GG_CLIENT_ID=${GG_CLIENT_ID}
+      - GG_CLIENT_SECRET=${GG_CLIENT_SECRET}
+    volumes:
+      - ${GG_CERTIFICATE}:/root/code/client_secret.json:ro

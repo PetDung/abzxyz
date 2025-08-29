@@ -157,13 +157,15 @@ public class Webhook {
                     continue;
                 }
 
-                Cell productIdCell = row.getCell(0);
-                Cell shopIdCell = row.getCell(1);
+                Cell shopIdCell = row.getCell(0);
+                Cell productIdCell = row.getCell(1);
 
                 if (productIdCell != null && shopIdCell != null) {
                     String productId = productIdCell.getStringCellValue().trim();
                     String shopId = shopIdCell.getStringCellValue().trim();
-                    products.add(new ProductId(productId, shopId));
+                    if (!productId.isEmpty() && !shopId.isEmpty()) {
+                        products.add(new ProductId(productId, shopId));
+                    }
                 }
             }
         }
