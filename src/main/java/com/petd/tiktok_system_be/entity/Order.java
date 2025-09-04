@@ -58,6 +58,7 @@ public class Order {
     Boolean isCod;
 
     String label;
+    Boolean isNote;
 
     @Transient
     public String getShopName(){

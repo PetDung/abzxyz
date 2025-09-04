@@ -35,7 +35,7 @@ public class RecipientAddress {
     @JsonIgnore
     private Order order;
 
-    private String fistName;
+    private String firstName;
     private String lastName;
 
     private String fullAddress;
@@ -52,6 +52,6 @@ public class RecipientAddress {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    List<Map<String,String>> districtInfo;
+    List<Address> districtInfo;
 
 }

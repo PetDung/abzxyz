@@ -19,4 +19,6 @@ public class Setting extends Base{
     String connectUrl;
     String ggAccessToken;
     String ggRefreshToken;
+    String orderSheetId;
+    String orderAllSheetName;
 }

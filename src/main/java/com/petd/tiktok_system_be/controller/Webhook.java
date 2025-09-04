@@ -15,6 +15,11 @@ import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.service.*;
+import com.petd.tiktok_system_be.service.ExportConfig.Export;
+import com.petd.tiktok_system_be.service.ExportConfig.OrderExport;
+import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
+import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
+import com.petd.tiktok_system_be.service.GoogleSevice.GoogleSheetService;
 import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
 import com.petd.tiktok_system_be.service.Queue.ProductDeleteService;
 import com.petd.tiktok_system_be.service.Queue.WebhookService;
@@ -30,12 +35,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/webhook")
@@ -105,6 +109,16 @@ public class Webhook {
     ShippingService shippingService;
     OrderSaveDataBaseService orderSaveDataBaseService;
     OrderRepository orderService;
+    OrderExportCase orderExportCase;
+
+    @GetMapping("/test")
+    public Map<String, String> exports(
+            @RequestParam List<String> orderIds
+    ) throws Exception {
+        return orderExportCase.run(orderIds);
+    }
+
+
 
     @GetMapping("/ship")
     public ResponseEntity<BigDecimal> getShipping(
@@ -173,35 +187,6 @@ public class Webhook {
         return DeleteProductRequest.builder()
                 .productIds(products)
                 .build();
-    }
-
-    public static void main(String[] args) throws IOException {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Products");
-
-        // Header
-        Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("productId");
-        header.createCell(1).setCellValue("shopId");
-
-        // Data giả lập 25 sản phẩm
-        for (int i = 1; i <= 25; i++) {
-            Row row = sheet.createRow(i);
-            row.createCell(0).setCellValue("product_" + i);
-            row.createCell(1).setCellValue("shopA");
-        }
-
-        // Auto size columns
-        sheet.autoSizeColumn(0);
-        sheet.autoSizeColumn(1);
-
-        // Ghi file
-        try (FileOutputStream fos = new FileOutputStream("delete_products_test.xlsx")) {
-            workbook.write(fos);
-        }
-
-        workbook.close();
-        System.out.println("File Excel test đã tạo: delete_products_test.xlsx");
     }
 
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.services.drive.model.File;
 import com.petd.tiktok_system_be.dto.message.LabelMessage;
 import com.petd.tiktok_system_be.entity.Order;
-import com.petd.tiktok_system_be.service.GoogleDriveService;
+import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
 import com.petd.tiktok_system_be.service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

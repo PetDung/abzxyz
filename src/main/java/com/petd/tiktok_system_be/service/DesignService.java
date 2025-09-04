@@ -44,6 +44,9 @@ public class DesignService {
                 .build();
         return repository.save(design);
     }
+    public List<Design> getAllDesigns() {
+        return repository.findAll();
+    }
 
     public Design getDesignBySkuIdAnhProductId (String skuId, String productId){
         MappingDesign mappingDesign = mappingRepository.findByProductIdAndSku(productId, skuId).orElse(null);
