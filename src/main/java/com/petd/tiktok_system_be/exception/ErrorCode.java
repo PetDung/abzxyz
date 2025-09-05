@@ -17,6 +17,7 @@ public enum ErrorCode {
   FI(4003, "Bạn không có quyền trên hành động này", HttpStatus.CONFLICT),
   ACCESS_DENIN(4003, "Bạn không có quyền trên hành động này", HttpStatus.FORBIDDEN),
   EXIST_AL(4009, "Đối tượng đã tồn tại", HttpStatus.CONFLICT),
+  RQ(4009, "Thiếu dữ liệu", HttpStatus.CONFLICT),
   ;
 
   private final int code;

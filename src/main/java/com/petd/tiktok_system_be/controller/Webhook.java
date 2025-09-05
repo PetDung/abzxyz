@@ -2,7 +2,6 @@ package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.api.services.drive.model.File;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
@@ -10,16 +9,10 @@ import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
-import com.petd.tiktok_system_be.entity.Order;
-import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.service.*;
-import com.petd.tiktok_system_be.service.ExportConfig.Export;
-import com.petd.tiktok_system_be.service.ExportConfig.OrderExport;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
-import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
-import com.petd.tiktok_system_be.service.GoogleSevice.GoogleSheetService;
 import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
 import com.petd.tiktok_system_be.service.Queue.ProductDeleteService;
 import com.petd.tiktok_system_be.service.Queue.WebhookService;
@@ -32,11 +25,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -101,62 +92,23 @@ public class Webhook {
         return true;
     }
 
-    @GetMapping("/get-product")
-    public JsonNode getProduct (@RequestParam String shopId, @RequestParam String productId) throws JsonProcessingException {
-        return productService.getProduct(shopId, productId);
-    }
-
-    ShippingService shippingService;
-    OrderSaveDataBaseService orderSaveDataBaseService;
-    OrderRepository orderService;
     OrderExportCase orderExportCase;
 
     @GetMapping("/test")
-    public Map<String, String> exports(
-            @RequestParam List<String> orderIds
-    ) throws Exception {
-        return orderExportCase.run(orderIds);
-    }
-
-
-
-    @GetMapping("/ship")
-    public ResponseEntity<BigDecimal> getShipping(
-            @RequestParam String orderId
-    ) throws JsonProcessingException {
-        Order order = orderService.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        BigDecimal data = orderSaveDataBaseService.paymentAmount(order);
-        return ResponseEntity.ok(data);
-    }
-    GoogleDriveService googleDriveService;
-
-    @PostMapping("/upload-from-url")
-    public String uploadFromUrl(
-            @RequestParam("fileUrl") String fileUrl,
-            @RequestParam("fileName") String fileName,
-            @RequestParam(value = "folderId", required = false) String folderId
-    ) {
-        try {
-            File uploadedFile = googleDriveService.uploadFileFromUrl(fileUrl, "application/pdf", folderId, fileName);
-            return "Upload thành công! File ID: " + uploadedFile.getId() + ", Link: " + uploadedFile.getWebViewLink();
-        } catch (Exception e) {
-            log.error("Lỗi upload file từ URL: {}", e.getMessage(), e);
-            return "Upload thất bại: " + e.getMessage();
-        }
+    public ApiResponse<Map<String, String>> exports(@RequestParam List<String> orderIds) {
+        return ApiResponse.<Map<String, String>>builder()
+                .result(orderExportCase.run(orderIds))
+                .build();
     }
 
     ProductDeleteService productDeleteService;
 
     @PostMapping("/delete-product")
     public boolean deleteProduct(@RequestParam("file") MultipartFile file) throws IOException {
-
         DeleteProductRequest request = parseExcelFile(file);
         productDeleteService.pushJob(request);
         return true;
     }
-
 
     public DeleteProductRequest parseExcelFile(MultipartFile file) throws IOException {
         List<ProductId> products = new ArrayList<>();

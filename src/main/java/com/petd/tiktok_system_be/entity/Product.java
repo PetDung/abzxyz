@@ -29,9 +29,14 @@ public class Product {
     String title;
     String status;
     Long activeTime;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     List<AuditFailedReason> auditFailedReasons;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    List<CategoryChain> categoryChains;
 
     @ManyToOne
     @JoinColumn(name = "shop_id")

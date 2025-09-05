@@ -59,11 +59,31 @@ public class ProductService {
         }
     }
 
+    public List<Product> getAllActiveProducts() {
+        // Lấy tất cả shop của user
+        List<Shop> myShops = shopService.getMyShops();
+        List<String> shopIds = myShops.stream()
+                .map(Shop::getId)
+                .toList();
+
+        // Tạo Specification: chỉ lấy ACTIVE và thuộc shopIds
+        Specification<Product> spec = Specification
+                .where(ProductSpecification.hasStatus(List.of("ACTIVATE")))
+                .and(ProductSpecification.hasShopIds(shopIds));
+
+        // Sắp xếp theo activeTime giảm dần
+        Sort sort = Sort.by(Sort.Order.desc("activeTime"));
+
+        // Không phân trang, lấy tất cả
+        return productRepository.findAll(spec,sort);
+    }
+
     public ProductResponse getListProductInDataBase(Map<String, String> param) {
 
         List<String> allowedFilters = Arrays.asList("ACTIVE", "UPDATE");
 
         int page = parseNumberSafe(param.get("page"), Integer::parseInt, 0);
+        int pageSize = parseNumberSafe(param.get("pageSize"), Integer::parseInt, 10);
         List<String> statuses = param.containsKey("status")
                 ? Arrays.asList(param.get("status").split(","))
                 : List.of("ACTIVATE");
@@ -99,7 +119,7 @@ public class ProductService {
             sortBy = "updateTime";
         }
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(
                 Sort.Order.desc(sortBy),
                 Sort.Order.desc("id")
         ));

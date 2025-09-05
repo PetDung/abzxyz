@@ -1,6 +1,7 @@
 package com.petd.tiktok_system_be.service.ExportConfig;
 
 import com.petd.tiktok_system_be.entity.Address;
+import com.petd.tiktok_system_be.entity.Design;
 import com.petd.tiktok_system_be.entity.Order;
 import com.petd.tiktok_system_be.entity.OrderItem;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,10 @@ public class OrderExport {
     private String key;
 
 
-    public OrderExport(Order  order, Integer quantity, OrderItem item){
+
+
+
+    public OrderExport(Order  order, Integer quantity, OrderItem item, Design design){
 
         List<Address> addresses = order.getRecipientAddress().getDistrictInfo();
 
@@ -84,7 +88,7 @@ public class OrderExport {
         this.sellerOrderId = order.getId();
         this.quantity = quantity;
         this.size = "";
-        this.color = item.getSellerSku();
+        this.color = item.getSkuName();
         this.productId = "Classic T-Shirt";
         this.tracking = order.getTrackingNumber();
         this.prepaidLabel = order.getLabel();
@@ -95,7 +99,12 @@ public class OrderExport {
         this.orderFree = "";
         this.orderAmount = order.getPaymentAmount().toString();
         this.key = item.getSkuId() + "-" + order.getId();
-
+        if(design != null){
+            this.front = design.getFrontSide();
+            this.back = design.getBackSide();
+            this.left = design.getLeftSide();
+            this.right = design.getRightSide();
+        }
     }
 
     public String convertToVietnamTime(long epochSeconds) {

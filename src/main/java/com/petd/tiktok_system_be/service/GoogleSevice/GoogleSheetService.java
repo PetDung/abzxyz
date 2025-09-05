@@ -34,52 +34,68 @@ public class GoogleSheetService<T> {
     }
 
 
-    public <T> void exportOrdersToSheet(String spreadsheetId, String sheetName, List<T> exports, Class<T> clazz, String keyFieldName) throws Exception {
+    public <T> void exportOrdersToSheet(String spreadsheetId, String sheetName,
+                                  List<T> exports, Class<T> clazz, String keyFieldName) throws Exception {
+
         Setting setting = settingRepository.findAll().get(0);
         Sheets sheetsService = getSheetsService(setting);
 
-        // 1. Lấy dữ liệu hiện tại trong sheet
+        // 1. Lấy dữ liệu hiện có từ sheet
         ValueRange existingData = sheetsService.spreadsheets().values()
                 .get(spreadsheetId, sheetName)
                 .execute();
 
-        List<List<Object>> sheetValues = existingData.getValues() != null ? existingData.getValues() : new ArrayList<>();
+        List<List<Object>> sheetValues = existingData.getValues() != null
+                ? existingData.getValues()
+                : new ArrayList<>();
 
-        // 2. Lấy tên field làm header
+        // 2. Lấy header từ class
         List<String> headers = Arrays.stream(clazz.getDeclaredFields())
                 .map(Field::getName)
                 .toList();
 
+        // Map header -> index
         Map<String, Integer> headerIndex = new HashMap<>();
         for (int i = 0; i < headers.size(); i++) {
             headerIndex.put(headers.get(i), i);
         }
 
-        // 3. Nếu sheet trống, thêm header
+        // 3. Đảm bảo header ở hàng đầu tiên
         if (sheetValues.isEmpty()) {
             sheetValues.add(new ArrayList<>(headers));
-        }
+            updateHeader(spreadsheetId, sheetName, headers,sheetsService);
+        } else {
+            List<Object> firstRow = sheetValues.get(0);
+            boolean headerMismatch = firstRow.size() != headers.size()
+                    || !firstRow.equals(headers);
 
-        // 4. Xây map key -> rowIndex trong sheet
-        Map<String, Integer> keyToRowIndex = new HashMap<>();
-        int keyColIndex = headerIndex.get(keyFieldName);
-        for (int i = 1; i < sheetValues.size(); i++) { // Bỏ header
-            List<Object> row = sheetValues.get(i);
-            if (row.size() > keyColIndex) {
-                keyToRowIndex.put(row.get(keyColIndex).toString(), i);
+            if (headerMismatch) {
+                updateHeader(spreadsheetId, sheetName, headers, sheetsService);
+                sheetValues.set(0, new ArrayList<>(headers));
             }
         }
 
-        // 5. Cập nhật hoặc thêm dữ liệu
+        // 4. Build map key -> rowIndex
+        Map<String, Integer> keyToRowIndex = new HashMap<>();
+        int keyColIndex = headerIndex.get(keyFieldName);
+
+        for (int i = 1; i < sheetValues.size(); i++) { // bỏ qua header
+            List<Object> row = sheetValues.get(i);
+            if (row.size() > keyColIndex) {
+                String keyVal = row.get(keyColIndex).toString();
+                keyToRowIndex.put(keyVal, i);
+            }
+        }
+
+        // 5. Duyệt dữ liệu export và ghi vào sheet
         for (T export : exports) {
-            // Lấy key từ từng phần tử
             Field keyField = clazz.getDeclaredField(keyFieldName);
             keyField.setAccessible(true);
             Object keyObj = keyField.get(export);
-            if (keyObj == null) continue; // bỏ qua nếu key null
+            if (keyObj == null) continue;
             String key = keyObj.toString();
 
-            // Build row dữ liệu
+            // Build row data theo headers
             List<Object> row = new ArrayList<>();
             for (Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true);
@@ -88,7 +104,7 @@ public class GoogleSheetService<T> {
             }
 
             if (keyToRowIndex.containsKey(key)) {
-                // Update row
+                // Update row đã tồn tại
                 int rowIndex = keyToRowIndex.get(key);
                 String range = sheetName + "!" + (rowIndex + 1) + ":" + (rowIndex + 1);
                 sheetsService.spreadsheets().values()
@@ -106,5 +122,13 @@ public class GoogleSheetService<T> {
         }
     }
 
-
+    // Helper: update header vào dòng đầu tiên
+    private void updateHeader(String spreadsheetId, String sheetName, List<String> headers, Sheets sheetsService) throws Exception {
+        String headerRange = sheetName + "!1:1"; // dòng 1
+        sheetsService.spreadsheets().values()
+                .update(spreadsheetId, headerRange,
+                        new ValueRange().setValues(List.of(new ArrayList<>(headers))))
+                .setValueInputOption("RAW")
+                .execute();
+    }
 }

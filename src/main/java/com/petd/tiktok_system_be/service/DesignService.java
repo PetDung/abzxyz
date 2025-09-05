@@ -48,6 +48,10 @@ public class DesignService {
         return repository.findAll();
     }
 
+    public void deleteDesignById(String id) {
+        repository.deleteById(id);
+    }
+
     public Design getDesignBySkuIdAnhProductId (String skuId, String productId){
         MappingDesign mappingDesign = mappingRepository.findByProductIdAndSku(productId, skuId).orElse(null);
         if(mappingDesign == null){
@@ -58,6 +62,18 @@ public class DesignService {
 
     @Transactional
     public MappingDesign mappingDesignAndProduct (DesignMappingRequest request) {
+
+        if (request.getProductId() == null || request.getProductId().trim().isEmpty()) {
+            throw new AppException(ErrorCode.RQ);
+        }
+        if (request.getDesignId() == null || request.getDesignId().trim().isEmpty()) {
+            throw new AppException(ErrorCode.RQ);
+        }
+
+        if (request.getSkuIds() == null || request.getSkuIds().isEmpty()) {
+            throw new AppException(ErrorCode.RQ);
+        }
+
 
         Design design = repository.findById(request.getDesignId())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));

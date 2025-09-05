@@ -45,4 +45,12 @@ public class DesignController {
                 .build();
     }
 
+    @DeleteMapping("/{id}")
+    public ApiResponse<Boolean> deleteDesignById(@PathVariable String id) {
+        designService.deleteDesignById(id);
+        return ApiResponse.<Boolean>builder()
+                .result(true)
+                .build();
+    }
+
 }

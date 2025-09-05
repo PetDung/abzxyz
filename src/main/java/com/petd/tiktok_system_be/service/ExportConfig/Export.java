@@ -1,7 +1,9 @@
 package com.petd.tiktok_system_be.service.ExportConfig;
 
+import com.petd.tiktok_system_be.entity.Design;
 import com.petd.tiktok_system_be.entity.Order;
 import com.petd.tiktok_system_be.entity.OrderItem;
+import com.petd.tiktok_system_be.service.DesignService;
 import com.petd.tiktok_system_be.service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.lang.reflect.Field;
 public class Export {
 
     OrderService orderService;
+    DesignService designService;
 
     public List<OrderExport> run(String  orderId){
         Order order = orderService.getById(orderId);
@@ -36,7 +39,8 @@ public class Export {
                 .map(items -> {
                     OrderItem first = items.get(0); // lấy item đầu tiên làm đại diện
                     int quantity = items.size();    // số lượng của skuId này
-                    return new OrderExport(order, quantity, first);
+                    Design design = designService.getDesignBySkuIdAnhProductId(first.getSkuId(), first.getProductId());
+                    return new OrderExport(order, quantity, first, design);
                 })
                 .toList();
     }

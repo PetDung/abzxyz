@@ -33,6 +33,12 @@ public class ProductController {
                 .result(productService.getListProductInDataBase(params))
                 .build();
     }
+    @GetMapping("/active/all")
+    public ApiResponse<List<Product>> getAllActiveProducts() {
+        return ApiResponse.<List<Product>>builder()
+                .result(productService.getAllActiveProducts())
+                .build();
+    }
     @GetMapping("/record")
     public ApiResponse<ProductResponse> getProductsRecord(@RequestParam(required = false) Map<String, String> params) {
         params.put("status", "FAILED,PLATFORM_DEACTIVATED,FREEZE");

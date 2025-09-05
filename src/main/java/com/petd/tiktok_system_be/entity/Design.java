@@ -1,12 +1,13 @@
 package com.petd.tiktok_system_be.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,4 +22,8 @@ public class Design  extends Base {
     String backSide;
     String leftSide;
     String rightSide;
+
+    @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<MappingDesign> mappingDesigns = new ArrayList<>();
 }

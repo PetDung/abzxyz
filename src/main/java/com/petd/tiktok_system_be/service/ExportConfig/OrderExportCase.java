@@ -32,7 +32,6 @@ public class OrderExportCase implements ExportInterface {
 
         for (String orderId : items) {
             try {
-                System.out.println(setting.getOrderSheetId());
                 List<OrderExport> orderExports = export.run(orderId);
                 googleSheetService.exportOrdersToSheet(
                         setting.getOrderSheetId(),
