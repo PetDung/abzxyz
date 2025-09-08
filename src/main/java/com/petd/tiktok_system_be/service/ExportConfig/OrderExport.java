@@ -83,7 +83,7 @@ public class OrderExport {
         this.address1 = order.getRecipientAddress().getAddressLine1();
         this.address2 = order.getRecipientAddress().getAddressLine2();
         this.city = city;
-        this.state = state;
+        this.state = StateMapper.getAbbreviation(state);
         this.country = country;
         this.zip = order.getRecipientAddress().getPostalCode();
         this.phone = order.getRecipientAddress().getPhoneNumber();

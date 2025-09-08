@@ -2,7 +2,6 @@ package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
@@ -15,6 +14,7 @@ import com.petd.tiktok_system_be.service.*;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
 import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
 import com.petd.tiktok_system_be.service.Queue.ProductDeleteService;
+import com.petd.tiktok_system_be.service.Queue.ProductSyncService;
 import com.petd.tiktok_system_be.service.Queue.WebhookService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class Webhook {
 
     OrderSyncService orderSyncService;
     WebhookService webhookService;
-    ProductSyncService  productSyncService;
+    ProductSyncService productSyncService;
     TransactionsService transactionsService;
 
     @PostMapping("/order")
@@ -57,8 +57,8 @@ public class Webhook {
     }
 
     @PostMapping("/add")
-    public boolean OrderWebhook(@RequestBody Event event) throws JsonProcessingException {
-        webhookService.addWebHook(event);
+    public boolean OrderWebhook() throws JsonProcessingException {
+        webhookService.addAllWebHooks();
         return true;
     }
 

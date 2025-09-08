@@ -31,4 +31,15 @@ public class NotificationService {
             );
         });
     }
+
+    public void orderUpdateStatus(List<Order> orders){
+        List<Account> accounts = accountService.getAllAccountsAccessShop(orders.get(0).getShop());
+        accounts.forEach(account -> {
+            messagingTemplate.convertAndSendToUser(
+                    account.getUsername(),
+                    "/queue/orders",
+                    orders
+            );
+        });
+    }
 }

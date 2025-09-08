@@ -5,10 +5,12 @@ import com.petd.tiktok_system_be.entity.Setting;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleSheetService;
+import com.petd.tiktok_system_be.service.NotificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,9 @@ public class OrderExportCase implements ExportInterface {
     OrderRepository orderRepository;
     GoogleSheetService<OrderExport> googleSheetService;
     Export export;
+    NotificationService notificationService;
 
+    @Transactional
     @Override
     public Map<String, String> run(List<String> items) {
         Map<String, String> errors = new HashMap<>();
@@ -42,6 +46,8 @@ public class OrderExportCase implements ExportInterface {
                 );
                 Order order = orderRepository.findById(orderId).get();
                 order.setIsNote(true);
+                orderRepository.save(order);
+                notificationService.orderUpdateStatus(order);
             } catch (Exception e) {
                 errors.put(orderId, e.getMessage());
             }

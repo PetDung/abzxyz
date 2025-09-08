@@ -11,10 +11,12 @@ import com.petd.tiktok_system_be.dto.request.AuthShopRequest;
 import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.entity.Account;
+import com.petd.tiktok_system_be.entity.Setting;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.mapper.ShopMapper;
+import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.repository.ShopGroupRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
@@ -48,7 +50,7 @@ public class ShopService {
     ShopGroupRepository shopGroupRepository;
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
-
+    SettingRepository settingRepository;
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
@@ -164,12 +166,14 @@ public class ShopService {
                     .limit(10)
                     .build();
 
+            Setting setting = settingRepository.findAll().get(0);
+
             Event eventOrder = Event.builder()
-                    .address("https://api.roninteam.store/webhook/product/change")
+                    .address(setting.getOrderWebhook())
                     .event_type("PRODUCT_STATUS_CHANGE")
                     .build();
             Event eventProduct = Event.builder()
-                    .address("https://api.roninteam.store/webhook/order")
+                    .address(setting.getProductWebhook())
                     .event_type("ORDER_STATUS_CHANGE")
                     .build();
 

@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -50,17 +51,19 @@ public class ProductDeleteService {
     }
 
     // --- Listener ---
-    @KafkaListener(topics = "delete-product", concurrency = "3")
-    public void handleDeleteProduct(ConsumerRecord<String, String> record) {
+    @KafkaListener(topics = "delete-product",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+    )
+    public void handleDeleteProduct(ConsumerRecord<String, String> record,  Acknowledgment ack) {
         try {
-            // Deserialize message
             DeleteProductMessage msg = mapper.readValue(record.value(), DeleteProductMessage.class);
             processDeleteProduct(msg);
+            ack.acknowledge();
             log.info("Deleted products from shop {}", msg.getShopId());
-        } catch (JsonProcessingException e) {
-            log.error("Failed to deserialize message: {}", record.value(), e);
         } catch (Exception e) {
             log.error("Failed to process delete product message: {}", record.value(), e);
+            throw new RuntimeException(e);
         }
     }
 

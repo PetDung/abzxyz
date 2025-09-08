@@ -6,7 +6,9 @@ import com.petd.tiktok_system_be.api.GetWebhookApi;
 import com.petd.tiktok_system_be.api.WebhookApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.message.WebhookMessage;
+import com.petd.tiktok_system_be.entity.Setting;
 import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +35,7 @@ public class WebhookService {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
     ShopRepository  shopRepository;
+    SettingRepository settingRepository;
 
     public void addWebHook(Event event) throws JsonProcessingException {
         List<Shop> list =  shopRepository.findAll();
@@ -48,6 +52,21 @@ public class WebhookService {
         });
     }
 
+    public void addAllWebHooks() throws JsonProcessingException {
+        Setting setting = settingRepository.findAll().get(0);
+
+        Event eventOrder = Event.builder()
+                .address(setting.getOrderWebhook())
+                .event_type("ORDER_STATUS_CHANGE")
+                .build();
+        Event eventProduct = Event.builder()
+                .address(setting.getProductWebhook())
+                .event_type("PRODUCT_STATUS_CHANGE")
+                .build();
+        addWebHook(eventOrder);
+        addWebHook(eventProduct);
+    }
+
 
     public TiktokApiResponse getWebhook(String shopId) throws JsonProcessingException {
         Shop shop = shopRepository.findById(shopId).get();
@@ -60,15 +79,17 @@ public class WebhookService {
         return getWebhookApi.callApi();
     }
 
-    @KafkaListener(topics = "web-hook", concurrency = "3")
-    public void workerWebhookSync(ConsumerRecord<String, String> record) throws Exception {
+    @KafkaListener(
+            topics = "web-hook",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+    )
+    public void workerWebhookSync(ConsumerRecord<String, String> record, Acknowledgment ack) throws Exception {
      try {
-         TimeUnit.MILLISECONDS.sleep(1000);
-
          WebhookMessage msg = mapper.readValue(record.value(), WebhookMessage.class);
 
          Shop shop  = shopRepository.findById( msg.getShopId()).get();
-
+         log.info("msg {} {}", msg.getEvent().getEvent_type(), msg.getEvent().getAddress());
          WebhookApi webhookApi = WebhookApi.builder()
                  .shopCipher(shop.getCipher())
                  .accessToken(shop.getAccessToken())
@@ -76,6 +97,7 @@ public class WebhookService {
                  .body(msg.getEvent())
                  .build();
          webhookApi.callApi();
+         ack.acknowledge();
      }catch (Exception e){
          log.error(e.getMessage());
      }

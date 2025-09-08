@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 
@@ -25,19 +26,28 @@ public class LabelUploadService {
     GoogleDriveService googleDriveService;
     OrderService orderService;
 
-    @KafkaListener(topics = "order-get-label", concurrency = "3")
-    public void job(ConsumerRecord<String, String> record) throws Exception {
+    @KafkaListener(topics = "order-get-label",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+    )
+    public void job(ConsumerRecord<String, String> record, Acknowledgment ack) throws Exception {
+        try {
+            LabelMessage msg = mapper.readValue(record.value(), LabelMessage.class);
 
-        LabelMessage msg = mapper.readValue(record.value(), LabelMessage.class);
+            Order order = orderService.getById(msg.getOrderId());
 
-        Order order = orderService.getById(msg.getOrderId());
+            String mimeType = "application/pdf";
+            String folderId = "1tT1Syx94e14uNY2J3-2ZP0RFNeGk7SGU";
+            File file = googleDriveService.uploadFileFromUrl(msg.getLabel(),mimeType, folderId, msg.getTrackingNumber());
+            order.setLabel(file.getWebViewLink());
+            orderService.save(order);
 
-        String mimeType = "application/pdf";
-        String folderId = "1tT1Syx94e14uNY2J3-2ZP0RFNeGk7SGU";
+            ack.acknowledge();
 
-        File file = googleDriveService.uploadFileFromUrl(msg.getLabel(),mimeType, folderId, msg.getTrackingNumber());
-        order.setLabel(file.getWebViewLink());
-        orderService.save(order);
+        }catch(Exception e){
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
 
     }
 }

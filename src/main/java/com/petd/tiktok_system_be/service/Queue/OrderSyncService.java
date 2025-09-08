@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -76,11 +77,11 @@ public class OrderSyncService {
         }
     }
 
-    /**
-     * Worker xử lý đồng bộ order list
-     */
-    @KafkaListener(topics = "order-sync", concurrency = "3")
-    public void workerOrderSync(ConsumerRecord<String, String> record) {
+    @KafkaListener(topics = "order-sync",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+    )
+    public void workerOrderSync(ConsumerRecord<String, String> record, Acknowledgment ack) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
@@ -113,17 +114,18 @@ public class OrderSyncService {
             }
 
             log.info("✅ Synced {} orders for shop {}", totalCount, shop.getId());
-
+            ack.acknowledge();
         } catch (Exception e) {
             log.error("❌ Error processing order-sync: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Worker xử lý đồng bộ chi tiết đơn hàng
-     */
-    @KafkaListener(topics = "order-details-sync")
-    public void workerOrderDetailSync(ConsumerRecord<String, String> record) {
+    @KafkaListener(topics = "order-details-sync",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+    )
+    public void workerOrderDetailSync(ConsumerRecord<String, String> record,  Acknowledgment ack) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
@@ -151,9 +153,10 @@ public class OrderSyncService {
             }
 
             log.info("✅ Synced order details shopId={} orderId={}", shop.getId(), msg.getOrderId());
-
+            ack.acknowledge();
         } catch (Exception e) {
             log.error("❌ Error processing order-details-sync: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
