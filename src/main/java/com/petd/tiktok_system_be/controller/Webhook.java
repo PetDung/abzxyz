@@ -43,8 +43,6 @@ public class Webhook {
     WebhookService webhookService;
     ProductSyncService  productSyncService;
     TransactionsService transactionsService;
-    RefreshTokenService  refreshTokenService;
-    ProductService productService;
 
     @PostMapping("/order")
     public Boolean OrderWebhook(@RequestBody TtsNotification<OrderData> ttsNotification) throws JsonProcessingException {

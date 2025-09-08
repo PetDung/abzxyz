@@ -55,6 +55,7 @@ public class ProductSyncService {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+            log.info("received record: {}", record.value());
             ProductMessage msg = mapper.readValue(record.value(), ProductMessage.class);
 
             JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());

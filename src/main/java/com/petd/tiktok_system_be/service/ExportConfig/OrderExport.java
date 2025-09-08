@@ -74,6 +74,8 @@ public class OrderExport {
                 .map(Address::getAddress_name)
                 .findFirst().orElse(null);
 
+        String[] parts = item.getSkuName().split(",");
+
         this.acc = order.getShop().getUserShopName();
         this.createdTime =  convertToVietnamTime(order.getCreateTime());
         this.firstName = order.getRecipientAddress().getFirstName();
@@ -87,8 +89,10 @@ public class OrderExport {
         this.phone = order.getRecipientAddress().getPhoneNumber();
         this.sellerOrderId = order.getId();
         this.quantity = quantity;
-        this.size = "";
-        this.color = item.getSkuName();
+
+        this.size = parts[1];
+        this.color = parts[0];
+
         this.productId = "Classic T-Shirt";
         this.tracking = order.getTrackingNumber();
         this.prepaidLabel = order.getLabel();
