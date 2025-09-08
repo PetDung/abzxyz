@@ -2,7 +2,8 @@ package com.petd.tiktok_system_be.controller;
 import com.petd.tiktok_system_be.dto.request.LoginRequest;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.LoginSuccessResponse;
-import com.petd.tiktok_system_be.dto.response.OrderResponse;
+import com.petd.tiktok_system_be.dto.response.ResponsePage;
+import com.petd.tiktok_system_be.entity.Order;
 import com.petd.tiktok_system_be.service.AuthenticationService;
 import com.petd.tiktok_system_be.service.OrderService;
 import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
@@ -23,7 +24,6 @@ import java.util.List;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
-    OrderSyncService orderSyncService;
     OrderService orderService;
 
     @PostMapping("/login")
@@ -47,14 +47,14 @@ public class AuthenticationController {
 
         log.info("Order Sync Request: {}, {}", page, shopIds.isEmpty());
         // lấy dữ liệu từ DB với filter
-        OrderResponse response = orderService.getAllOrderOnDataBaseByOwnerId(
+        ResponsePage<Order> response = orderService.getAllOrderOnDataBaseByOwnerId(
                 orderId,
                 shopIds,
                 status,
                 shippingType,
                 page
         );
-        return ApiResponse.<OrderResponse>builder()
+        return ApiResponse.<ResponsePage<Order>>builder()
                 .message("Order sync started")
                 .result(response)
                 .build();

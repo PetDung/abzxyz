@@ -9,6 +9,7 @@ import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
 import com.petd.tiktok_system_be.dto.message.WebhookMessage;
 import com.petd.tiktok_system_be.dto.request.AuthShopRequest;
 import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
+import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.entity.Account;
 import com.petd.tiktok_system_be.entity.Setting;
@@ -27,10 +28,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +66,28 @@ public class ShopService {
         return shopRepository.findByUserShopName(shopName)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
+    public ShopResponse update(Shop shopRequest) {
+        if(shopRequest.getId() == null){
+            throw new AppException(ErrorCode.RQ);
+        }
+        if(shopRequest.getUserShopName() == null || shopRequest.getUserShopName().isEmpty()){
+            throw new AppException(ErrorCode.RQ);
+        }
+        Shop shop = getShopByShopId(shopRequest.getId());
+        shop.setUserShopName(shopRequest.getUserShopName());
+        shopRepository.save(shop);
+        return shopMapper.toShopResponse(shop);
+    }
+
+    public Page<Shop> getMyShops(Account account, Pageable pageable) {
+        if (account.getRole().equals(Role.Admin.toString())) {
+            return shopRepository.findAll(pageable);
+        }
+        if (account.getRole().equals(Role.Leader.toString())) {
+            return shopRepository.findByLeader_Id(account.getId(), pageable);
+        }
+        return shopRepository.findByAccountGroupAccess(account.getId(), pageable);
+    }
 
     public List<Shop> getMyShops (Account account) {
         if(account.getRole().equals(Role.Admin.toString())){
@@ -81,6 +109,34 @@ public class ShopService {
         }
         return shopRepository.findByAccountGroupAccess(account.getId());
     }
+
+    public ResponsePage<ShopResponse> getMyShopPage(int pageNumber, int pageSize) {
+        Account account = accountService.getMe();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Shop> shopPage;
+
+        if (account.getRole().equals(Role.Admin.toString())) {
+            shopPage = shopRepository.findAll(pageable);
+        } else if (account.getRole().equals(Role.Leader.toString())) {
+            shopPage = shopRepository.findByLeader_Id(account.getId(), pageable);
+        } else {
+            shopPage = shopRepository.findByAccountGroupAccess(account.getId(), pageable);
+        }
+
+        return mapToResponsePage(shopPage);
+    }
+
+    private ResponsePage<ShopResponse> mapToResponsePage(Page<Shop> shopPage) {
+        List<ShopResponse> shopResponseList = shopMapper.toShopResponseList(shopPage.getContent());
+        return ResponsePage.<ShopResponse>builder()
+                .currentPage(shopPage.getNumber())
+                .totalCount(shopPage.getTotalElements())
+                .isLast(shopPage.isLast())
+                .orders(shopResponseList)
+                .build();
+    }
+
 
     public List<ShopResponse> getMyShopsResponse () {
         Account account = accountService.getMe();

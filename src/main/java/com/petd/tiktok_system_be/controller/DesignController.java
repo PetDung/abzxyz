@@ -37,6 +37,16 @@ public class DesignController {
                 .build();
     }
 
+    @GetMapping("/get-design-by-sku-product")
+    public ApiResponse<Design> checkDesign(
+            @RequestParam(name = "sku_id") String skuId,
+            @RequestParam(name = "product_id") String productId
+    ) {
+        return ApiResponse.<Design>builder()
+                .result(designService.getDesignBySkuIdAnhProductId(skuId, productId))
+                .build();
+    }
+
 
     @PostMapping("/mapping-design")
     public ApiResponse<MappingDesign> createDesignMapping(@RequestBody DesignMappingRequest request) {

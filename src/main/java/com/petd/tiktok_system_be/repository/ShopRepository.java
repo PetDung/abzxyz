@@ -2,6 +2,8 @@ package com.petd.tiktok_system_be.repository;
 
 import com.petd.tiktok_system_be.entity.Account;
 import com.petd.tiktok_system_be.entity.Shop;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +27,19 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
         WHERE e.id = :accountId
     """)
     List<Shop> findByAccountGroupAccess(@Param("accountId") String accountId);
+
+    Page<Shop> findByLeader_Id(String leaderId, Pageable pageable);
+
+    // Phân trang theo group access
+    @Query("""
+        SELECT s
+        FROM Shop s
+        JOIN GroupShopAccess gsa ON gsa.shop = s
+        JOIN gsa.group sg
+        JOIN sg.employees e
+        WHERE e.id = :accountId
+    """)
+    Page<Shop> findByAccountGroupAccess(@Param("accountId") String accountId, Pageable pageable);
 
     Optional<Shop> findByUserShopName(String userShopName);
 

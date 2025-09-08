@@ -13,9 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class OrderResponse {
+public class ResponsePage<T> {
 
-    List<Order> orders;
+    List<T> orders;
     long totalCount;
     long currentPage;
     boolean isLast;

@@ -6,7 +6,7 @@ import com.petd.tiktok_system_be.Specification.OrderSpecification;
 import com.petd.tiktok_system_be.api.OrderApi;
 import com.petd.tiktok_system_be.api.OrderDetailsApi;
 import com.petd.tiktok_system_be.api.body.OrderRequestBody;
-import com.petd.tiktok_system_be.dto.response.OrderResponse;
+import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Order;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +93,7 @@ public class OrderService {
         }
     }
 
-    public OrderResponse getAllOrderOnDataBaseByOwnerId(
+    public ResponsePage<Order> getAllOrderOnDataBaseByOwnerId(
             String orderId,
             List<String> shopIds,
             String status,
@@ -104,7 +103,7 @@ public class OrderService {
         List<Shop> myShops = shopService.getMyShops();
 
         if(myShops == null || myShops.isEmpty()) {
-            return OrderResponse.builder()
+            return ResponsePage.<Order>builder()
                     .orders(new ArrayList<>())
                     .totalCount(0)
                     .currentPage(0)
@@ -129,7 +128,7 @@ public class OrderService {
                 pageable
         );
 
-        return OrderResponse.builder()
+        return ResponsePage.<Order>builder()
                 .orders(orderPage.getContent())
                 .totalCount(orderPage.getTotalElements())
                 .currentPage(orderPage.getNumber())
