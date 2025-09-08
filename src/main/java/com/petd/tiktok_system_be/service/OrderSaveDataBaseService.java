@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,50 +27,15 @@ import java.util.List;
 @Slf4j
 public class OrderSaveDataBaseService {
 
-    OrderRepository orderRepository;
+    OrderSaveCase orderSaveCase;
     RequestClient requestClient;
     ShippingService shippingService;
     DesignService designService;
+    ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
-    @Transactional
     public boolean save(Order order) {
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-
         try {
-            if (order.getId() != null && orderRepository.existsById(order.getId())) {
-                Order existingOrder = orderRepository.findById(order.getId()).get();
-
-                // Remove all children
-                existingOrder.setPayment(null);
-                existingOrder.setRecipientAddress(null);
-                existingOrder.getLineItems().clear();
-                existingOrder.setSettlement(null);
-
-                // Xóa Order cũ
-                orderRepository.delete(existingOrder);
-                orderRepository.flush(); // đảm bảo DB xóa trước khi insert mới
-            }
-
-            // Gắn entity con mới
-            Payment payment = order.getPayment();
-            if (payment != null) payment.setOrder(order);
-
-            RecipientAddress addr = order.getRecipientAddress();
-            if (addr != null) addr.setOrder(order);
-
-            List<OrderItem> items = order.getLineItems();
-            if (items != null) {
-                for (OrderItem item : items) {
-                    item.setOrder(order);
-                    String productId = item.getProductId();
-                    String skuId = item.getSkuId();
-                    Design design = designService.getDesignBySkuIdAnhProductId(productId, skuId);
-                    item.setDesign(design);
-                }
-            }
-
+            // --- 1. Lấy settlement từ API (ngoài transaction) ---
             GetTransactionsByOrder getTransactionsByOrder = GetTransactionsByOrder.builder()
                     .orderId(order.getId())
                     .accessToken(order.getShop().getAccessToken())
@@ -78,24 +44,44 @@ public class OrderSaveDataBaseService {
                     .build();
 
             TiktokApiResponse response = getTransactionsByOrder.callApi();
-
+            // nếu response null hoặc error -> trả false
+            if (response == null || response.getData() == null) {
+                log.error("Empty response from TikTok for order {}", order.getId());
+                return false;
+            }
 
             Settlement settlement = mapper.convertValue(response.getData(), Settlement.class);
-            settlement.setOrder(order);
-
             order.setSettlement(settlement);
-            BigDecimal amount = paymentAmount(order);
+
+            // --- 2. Lấy design cho mỗi item (ngoài transaction nếu designService có thể gọi DB safely) ---
+            List<OrderItem> items = order.getLineItems();
+            List<OrderItem> preprocessedItems = new ArrayList<>();
+            if (items != null) {
+                for (OrderItem item : items) {
+                    // Lưu design vào item (cần tránh lazy-loading problems later)
+                    Design design = designService.getDesignBySkuIdAnhProductId(item.getProductId(), item.getSkuId());
+                    item.setDesign(design);
+                    preprocessedItems.add(item);
+                }
+            }
+            order.setLineItems(preprocessedItems);
+
+            // --- 3. Tính amount (có thể gọi shippingService) ---
+            BigDecimal amount = paymentAmount(order); // có thể ném JsonProcessingException
             order.setPaymentAmount(amount);
 
-            // Insert Order mới
-            orderRepository.save(order);
-
+            // --- 4. Bước DB: chỉ logic persist vào DB, nằm trong transaction ---
+            orderSaveCase.persistOrderTransactional(order);
             return true;
+        } catch (JsonProcessingException e) {
+            log.error("Failed to compute payment amount for order {}: {}", order.getId(), e.getMessage(), e);
+            return false;
         } catch (Exception e) {
-            log.error("Failed to replace order", e);
+            log.error("Failed to save order {}: {}", order.getId(), e.getMessage(), e);
             return false;
         }
     }
+
 
     public BigDecimal paymentAmount(Order order) throws JsonProcessingException {
 
