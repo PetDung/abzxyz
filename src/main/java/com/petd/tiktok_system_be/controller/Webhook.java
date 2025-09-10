@@ -12,10 +12,7 @@ import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.service.*;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
-import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
-import com.petd.tiktok_system_be.service.Queue.ProductDeleteService;
-import com.petd.tiktok_system_be.service.Queue.ProductSyncService;
-import com.petd.tiktok_system_be.service.Queue.WebhookService;
+import com.petd.tiktok_system_be.service.Queue.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -79,7 +76,7 @@ public class Webhook {
 
     DriveTokenFetcher driveTokenFetcher;
     @GetMapping("/ref")
-    public boolean refToken () throws Exception {
+    public boolean refGG () throws Exception {
         driveTokenFetcher.getTokenGG();
         return true;
     }
@@ -105,6 +102,13 @@ public class Webhook {
     public boolean deleteProduct(@RequestParam("file") MultipartFile file) throws IOException {
         DeleteProductRequest request = parseExcelFile(file);
         productDeleteService.pushJob(request);
+        return true;
+    }
+
+    RefreshTokenService refreshTokenService;
+    @GetMapping("/ref-token")
+    public boolean refToken () throws Exception {
+        refreshTokenService.pushJob();
         return true;
     }
 

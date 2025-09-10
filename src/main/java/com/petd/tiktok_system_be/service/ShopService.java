@@ -261,4 +261,10 @@ public class ShopService {
             throw new AppException(e.getMessage(), 409);
         }
     }
+
+    public List<Shop> getShopsNearExpiry(long thresholdInHours) {
+        long now = System.currentTimeMillis();
+        long threshold = now + thresholdInHours * 3600 * 1000; // giờ → millis
+        return shopRepository.findByAccessTokenExpiryLessThan(threshold);
+    }
 }

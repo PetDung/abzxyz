@@ -76,7 +76,7 @@ public class GoogleDriveService {
         }
     }
 
-    private InputStream getPdfFromUrl(String fileUrl) throws Exception {
+    public InputStream getPdfFromUrl(String fileUrl) throws Exception {
         return new URL(fileUrl).openStream();
     }
 }

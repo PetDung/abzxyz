@@ -2,6 +2,7 @@ package com.petd.tiktok_system_be.exception;
 
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -47,6 +48,14 @@ public class GlobalExceptionHandler {
     ApiResponse response = new ApiResponse();
     response.setCode(400);
     response.setMessage("Thiếu tham số bắt buộc: " + ex.getParameterName());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<ApiResponse> handleSameValue(DataIntegrityViolationException ex) {
+    ApiResponse response = new ApiResponse();
+    response.setCode(400);
+    response.setMessage("Giá trị duy nhất đã tồn tại");
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 

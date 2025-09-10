@@ -43,5 +43,7 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
 
     Optional<Shop> findByUserShopName(String userShopName);
 
+    List<Shop> findByAccessTokenExpiryLessThan(Long expiryTime);
+
 
 }

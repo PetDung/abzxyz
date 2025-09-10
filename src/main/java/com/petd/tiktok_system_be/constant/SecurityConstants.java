@@ -9,8 +9,10 @@ public class SecurityConstants {
       "/webhook/**",
       "/ws-order",
       "/ws-order/**",
-          "/design",
-          "/design/**"
+      "/design",
+      "/design/**",
+      "/files",
+      "/files/**",
   };
 
 }
