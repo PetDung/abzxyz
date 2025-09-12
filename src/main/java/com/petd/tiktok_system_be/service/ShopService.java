@@ -12,11 +12,13 @@ import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
 import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.entity.Account;
+import com.petd.tiktok_system_be.entity.MappingUserSystem;
 import com.petd.tiktok_system_be.entity.Setting;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.mapper.ShopMapper;
+import com.petd.tiktok_system_be.repository.MappingUserSystemRepository;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.repository.ShopGroupRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
@@ -32,8 +34,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -158,6 +165,34 @@ public class ShopService {
 
         return shopGroupRepository.existsEmployeeHasAccessToShop(accountId, shopId);
     }
+
+    MappingUserSystemRepository mappingUserSystemRepository;
+
+    public AuthShopResponse connectShopSystem(AuthShopRequest request) {
+        MappingUserSystem mappingUserSystem = mappingUserSystemRepository.findByUsername(request.getUserName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        String api = mappingUserSystem.getApi();
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            ResponseEntity<AuthShopResponse> response = restTemplate.postForEntity(
+                    api,
+                    request,
+                    AuthShopResponse.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            // Parse body lỗi từ server (nếu có)
+            String errorBody = ex.getResponseBodyAsString();
+            throw new AppException(4009, errorBody);
+        } catch (Exception ex) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+    }
+
+
+
 
 
     public AuthShopResponse connectShop(AuthShopRequest request){

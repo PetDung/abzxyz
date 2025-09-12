@@ -23,9 +23,17 @@ public class ConnectShopController {
     @PostMapping("/connect")
     public ApiResponse<AuthShopResponse> connectShop(@RequestBody(required = true) AuthShopRequest authShop) {
         return ApiResponse.<AuthShopResponse>builder()
+                .result(shopService.connectShopSystem(authShop))
+                .build();
+    }
+
+    @PostMapping("/connect-api")
+    public ApiResponse<AuthShopResponse> connectShopApi(@RequestBody(required = true) AuthShopRequest authShop) {
+        return ApiResponse.<AuthShopResponse>builder()
                 .result(shopService.connectShop(authShop))
                 .build();
     }
+
 
     @GetMapping("/check-owner")
     public Boolean checkShopOwner(@RequestParam("shopId") String shopId, @RequestParam("accountId")  String accountId) {
