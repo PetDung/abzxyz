@@ -60,6 +60,20 @@ public class DesignService {
         return mappingDesign.getDesign();
     }
 
+
+    public Map<String, Design> getDesignBySkusIdAndProductId(String[] skuIds, String productId) {
+        List<Object[]> rows = mappingRepository.findDesignsByProductIdAndSkuIds(productId, skuIds);
+        Map<String,Design> map = new HashMap<>();
+
+        for(Object[] row : rows){
+            String skuId = (String)row[1];
+            String designId = (String)row[0];
+            Design design  = repository.findById(designId).orElse(null);
+            map.put(skuId,design);
+        }
+        return map;
+    }
+
     @Transactional
     public MappingDesign mappingDesignAndProduct (DesignMappingRequest request) {
 
@@ -103,6 +117,24 @@ public class DesignService {
         mappingDesign.setSkus(new ArrayList<>(updatedSkus));
 
         return mappingRepository.save(mappingDesign);
+    }
+
+    @Transactional
+    public void removeSkus(String productId, List<String> skusToRemove) {
+        List<MappingDesign> mappings = mappingRepository.findByProductId(productId);
+
+        for (MappingDesign md : mappings) {
+            List<String> skus = md.getSkus();
+            boolean changed = skus.removeAll(skusToRemove); // remove các sku cần xoá
+            if (changed) {
+                if (skus.isEmpty()) {
+                    mappingRepository.delete(md); // nếu không còn SKU thì delete record
+                } else {
+                    md.setSkus(skus); // update jsonb
+                    mappingRepository.save(md);
+                }
+            }
+        }
     }
 
 

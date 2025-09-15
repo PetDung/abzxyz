@@ -7,7 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MappingUserSystemRepository extends JpaRepository<MappingUserSystem, String> {
-
-
     Optional<MappingUserSystem> findByUsername(String username);
 }

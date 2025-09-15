@@ -18,6 +18,8 @@ public enum ErrorCode {
   ACCESS_DENIN(4003, "Bạn không có quyền trên hành động này", HttpStatus.FORBIDDEN),
   EXIST_AL(4009, "Đối tượng đã tồn tại", HttpStatus.CONFLICT),
   RQ(4009, "Thiếu dữ liệu", HttpStatus.CONFLICT),
+  PASSWORD_INVALID(4009, "Xác thực dữ liệu không đúng", HttpStatus.CONFLICT),
+  PASSWORD_TOO_SHORT(4009, "Mật khẩu trên 6 chữ số", HttpStatus.CONFLICT),
   ;
 
   private final int code;

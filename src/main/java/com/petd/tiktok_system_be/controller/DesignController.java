@@ -10,9 +10,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/design")
@@ -48,6 +50,16 @@ public class DesignController {
     }
 
 
+    @GetMapping("/get-design-by-batch-sku-product")
+    public ApiResponse<Map<String, Design>> checkDesigns(
+            @RequestParam(name = "sku_ids") String[] skuIds,
+            @RequestParam(name = "product_id") String productId
+    ) {
+        return ApiResponse.<Map<String, Design>>builder()
+                .result(designService.getDesignBySkusIdAndProductId(skuIds, productId))
+                .build();
+    }
+
     @PostMapping("/mapping-design")
     public ApiResponse<MappingDesign> createDesignMapping(@RequestBody DesignMappingRequest request) {
         return ApiResponse.<MappingDesign>builder()
@@ -60,6 +72,17 @@ public class DesignController {
         designService.deleteDesignById(id);
         return ApiResponse.<Boolean>builder()
                 .result(true)
+                .build();
+    }
+
+    @DeleteMapping("/remove-skus")
+    public ApiResponse<String> removeSkus(
+            @RequestParam String productId,
+            @RequestParam List<String> skusToRemove
+    ) {
+        designService.removeSkus(productId, skusToRemove);
+        return ApiResponse.<String>builder()
+                .result("Delete successfully")
                 .build();
     }
 

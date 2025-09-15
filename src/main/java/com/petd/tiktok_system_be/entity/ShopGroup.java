@@ -1,8 +1,7 @@
 package com.petd.tiktok_system_be.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -22,13 +21,37 @@ public class ShopGroup  extends Base{
     @Column(nullable = false)
     String groupName;
 
+    String description;
 
-    @OneToMany(mappedBy = "group")
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL,  orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     List<GroupShopAccess> groupShopAccess = new ArrayList<>();
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     List<Account> employees = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "leader_id")
+    @JsonIgnore
+    Account leader;
+
+    @Transient
+    Integer memberCount;
+
+    @Transient
+    Integer shopCount;
+
+    @Transient
+    public Integer getShopCount (){
+        return groupShopAccess.size();
+    }
+    @Transient
+    public Integer getMemberCount (){
+        return employees.size();
+    }
 
 }

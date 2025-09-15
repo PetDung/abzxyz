@@ -4,7 +4,9 @@ import com.petd.tiktok_system_be.entity.ShopGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface ShopGroupRepository extends JpaRepository<ShopGroup, Long> {
+import java.util.List;
+
+public interface ShopGroupRepository extends JpaRepository<ShopGroup, String> {
 
 
     @Query("""
@@ -17,4 +19,6 @@ public interface ShopGroupRepository extends JpaRepository<ShopGroup, Long> {
           AND s.id = :shopId
     """)
     boolean existsEmployeeHasAccessToShop(String employeeId, String shopId);
+
+    List<ShopGroup> findAllByLeaderId(String shopId);
 }

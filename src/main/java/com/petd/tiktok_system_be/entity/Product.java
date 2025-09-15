@@ -36,6 +36,10 @@ public class Product {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
+    List<MainImage> mainImages;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
     List<CategoryChain> categoryChains;
 
     @ManyToOne

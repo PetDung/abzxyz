@@ -21,4 +21,5 @@ public class Setting extends Base{
     String ggRefreshToken;
     String orderSheetId;
     String orderAllSheetName;
+    String driverId;
 }

@@ -60,12 +60,7 @@ public class ProductSyncService {
             JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
             Shop shop = shopService.getShopByShopId(msg.getShopId());
             Product product = mapper.convertValue(productNode, Product.class);
-            System.out.println(product.getTitle());
-            String event = msg.getEvent();
-
-            if("PRODUCT_FIRST_PASS_REVIEW".equals(event)) {
-                product.setActiveTime(msg.getUpdateTime());
-            }
+            product.setActiveTime(msg.getUpdateTime());
             product.setShop(shop);
             productRepository.save(product);
             ack.acknowledge();
