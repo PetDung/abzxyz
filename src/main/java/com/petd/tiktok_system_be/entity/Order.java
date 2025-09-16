@@ -60,6 +60,8 @@ public class Order {
     String label;
     Boolean isNote;
 
+
+
     @Transient
     public String getShopName(){
         return shop.getUserShopName();
@@ -71,8 +73,12 @@ public class Order {
     }
 
 
+    @ManyToOne
+    @JoinColumn(name = "printer_id", nullable = true)
+    Printer printer;
+
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true)
-    private Payment payment;
+    private PaymentOrder payment;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true)
     private Settlement settlement;

@@ -1,75 +1,52 @@
 package com.petd.tiktok_system_be.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.SuperBuilder;
-
-import java.math.BigDecimal;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "order_payments")
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonIgnoreProperties(ignoreUnknown = true)
+@Table(name = "payment")
 @Getter
 @Setter
-@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Payment {
 
     @Id
-    String orderId;
+    String id;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "order_id")
-    @JsonIgnore
-    Order order;
+    String status;
 
-    private String currency;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    Money amount;
 
-    @JsonProperty("original_shipping_fee")
-    private BigDecimal  originalShippingFee;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    Money settlementAmount;
 
-    @JsonProperty("original_total_product_price")
-    private BigDecimal  originalTotalProductPrice;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    Money reserveAmount;
 
-    @JsonProperty("platform_discount")
-    private BigDecimal  platformDiscount;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    Money paymentAmountBeforeExchange;
 
-    @JsonProperty("product_tax")
-    private BigDecimal  productTax;
+    String exchangeRate;
 
-    @JsonProperty("seller_discount")
-    private BigDecimal  sellerDiscount;
+    Long paidTime;
 
-    @JsonProperty("shipping_fee")
-    private BigDecimal  shippingFee;
+    String bankAccount;
 
-    @JsonProperty("shipping_fee_cofunded_discount")
-    private BigDecimal  shippingFeeCofundedDiscount;
+    Long createTime;
 
-    @JsonProperty("shipping_fee_platform_discount")
-    private BigDecimal  shippingFeePlatformDiscount;
-
-    @JsonProperty("shipping_fee_seller_discount")
-    private BigDecimal  shippingFeeSellerDiscount;
-
-    @JsonProperty("shipping_fee_tax")
-    private BigDecimal  shippingFeeTax;
-
-    @JsonProperty("sub_total")
-    private BigDecimal  subTotal;
-
-    private BigDecimal  tax;
-
-    @JsonProperty("total_amount")
-    private BigDecimal  totalAmount;
+    @ManyToOne
+    @JoinColumn(name = "shop_id")
+    Shop shop;
 }

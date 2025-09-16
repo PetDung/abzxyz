@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.api.GetTransactionsByOrder;
 import com.petd.tiktok_system_be.dto.response.ShippingResponse;
 import com.petd.tiktok_system_be.entity.*;
-import com.petd.tiktok_system_be.repository.*;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -87,7 +85,7 @@ public class OrderSaveDataBaseService {
 
         if("ON_HOLD".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) return BigDecimal.ZERO;
 
-        Payment payment = order.getPayment();
+        PaymentOrder payment = order.getPayment();
         String targetId = "7208502187360519982";
 
         BigDecimal labelPrice;
