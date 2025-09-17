@@ -1,5 +1,6 @@
 package com.petd.tiktok_system_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -21,5 +22,6 @@ public class Printer  extends Base {
     String description;
 
     @OneToMany(mappedBy = "printer")
+    @JsonIgnore
     List<Order> orders;
 }

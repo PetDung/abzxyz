@@ -6,8 +6,10 @@ import com.petd.tiktok_system_be.Specification.OrderSpecification;
 import com.petd.tiktok_system_be.api.OrderApi;
 import com.petd.tiktok_system_be.api.OrderDetailsApi;
 import com.petd.tiktok_system_be.api.body.OrderRequestBody;
+import com.petd.tiktok_system_be.dto.request.UpdateOrderCostPrinter;
 import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Order;
+import com.petd.tiktok_system_be.entity.Printer;
 import com.petd.tiktok_system_be.entity.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
@@ -27,10 +29,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +42,8 @@ public class OrderService {
     RequestClient requestClient;
     ShopService shopService;
     OrderRepository orderRepository;
+    PrinterService printerService;
+    NotificationService notificationService;
 
     public Order getById(String id) {
         return orderRepository.findById(id)
@@ -91,6 +93,23 @@ public class OrderService {
         } catch (JsonProcessingException e) {
             throw new AppException(e.getMessage(), 409);
         }
+    }
+
+    public Order updatePrinter (String orderId, String printerId){
+        Order order = getById(orderId);
+        Printer printer = "REMOVE".equals(printerId) ? null : printerService.findById(printerId);
+        order.setPrinter(printer);
+        orderRepository.save(order);
+        notificationService.orderUpdateStatus(order);
+        return order;
+    }
+
+    public Order updateCost (String orderId, BigDecimal cost){
+        Order order = getById(orderId);
+        order.setCost(cost);
+        orderRepository.save(order);
+        notificationService.orderUpdateStatus(order);
+        return order;
     }
 
     public ResponsePage<Order> getAllOrderOnDataBaseByOwnerId(

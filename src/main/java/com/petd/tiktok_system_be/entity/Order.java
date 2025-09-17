@@ -57,6 +57,9 @@ public class Order {
     Boolean isSampleOrder;
     Boolean isCod;
 
+    @Builder.Default
+    BigDecimal cost = BigDecimal.ZERO;
+
     String label;
     Boolean isNote;
 
