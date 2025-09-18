@@ -6,13 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.dto.message.OrderDetalisSyncMessage;
 import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
-import com.petd.tiktok_system_be.entity.Order;
-import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
+import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.service.NotificationService;
-import com.petd.tiktok_system_be.service.OrderSaveDataBaseService;
-import com.petd.tiktok_system_be.service.OrderService;
-import com.petd.tiktok_system_be.service.ShippingService;
+import com.petd.tiktok_system_be.service.Order.OrderSaveDataBaseService;
+import com.petd.tiktok_system_be.service.Order.OrderService;
+import com.petd.tiktok_system_be.service.Order.ShippingService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -62,6 +63,25 @@ public class OrderSyncService {
     /**
      * Push job sync chi tiết đơn hàng (thường dùng cho notification)
      */
+
+    OrderRepository orderRepository;
+
+    public void pubJobStatus(String status){
+        ObjectMapper mapper = new ObjectMapper();
+        List<Order> list = orderRepository.findAllByStatus(status);
+        list.forEach(order -> {
+            try {
+                OrderDetalisSyncMessage msg = OrderDetalisSyncMessage.builder()
+                        .shopId(order.getShop().getId())
+                        .orderId(order.getId())
+                        .build();
+                kafkaTemplate.send("order-details-sync", order.getShop().getId(), mapper.writeValueAsString(msg));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public void pushJobNotification(String shopId, String orderId) {
         ObjectMapper mapper = new ObjectMapper();
         try {

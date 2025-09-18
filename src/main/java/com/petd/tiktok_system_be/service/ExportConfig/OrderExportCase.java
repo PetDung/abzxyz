@@ -1,7 +1,7 @@
 package com.petd.tiktok_system_be.service.ExportConfig;
 
-import com.petd.tiktok_system_be.entity.Order;
-import com.petd.tiktok_system_be.entity.Setting;
+import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleSheetService;

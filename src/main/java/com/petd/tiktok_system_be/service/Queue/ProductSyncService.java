@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.dto.message.ProductMessage;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
-import com.petd.tiktok_system_be.entity.Product;
-import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.entity.Product.Product;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.ProductRepository;
-import com.petd.tiktok_system_be.service.ProductService;
-import com.petd.tiktok_system_be.service.ShopService;
+import com.petd.tiktok_system_be.service.Product.ProductService;
+import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,11 +48,11 @@ public class ProductSyncService {
     }
 
 
-    @Transactional
-    @KafkaListener(topics = "product-sync",
-            containerFactory = "kafkaListenerContainerFactory",
-            concurrency = "3"
-    )
+//    @Transactional
+//    @KafkaListener(topics = "product-sync",
+//            containerFactory = "kafkaListenerContainerFactory",
+//            concurrency = "3"
+//    )
     public void handlerProductJob (ConsumerRecord<String, String> record,  Acknowledgment ack){
         try {
             log.info("received record: {}", record.value());

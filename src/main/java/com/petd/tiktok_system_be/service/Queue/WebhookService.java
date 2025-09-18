@@ -6,8 +6,8 @@ import com.petd.tiktok_system_be.api.GetWebhookApi;
 import com.petd.tiktok_system_be.api.WebhookApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.message.WebhookMessage;
-import com.petd.tiktok_system_be.entity.Setting;
-import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
@@ -23,7 +23,6 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor

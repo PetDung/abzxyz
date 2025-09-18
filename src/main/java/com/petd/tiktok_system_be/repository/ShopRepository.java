@@ -1,7 +1,7 @@
 package com.petd.tiktok_system_be.repository;
 
-import com.petd.tiktok_system_be.entity.Account;
-import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.entity.Auth.Account;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

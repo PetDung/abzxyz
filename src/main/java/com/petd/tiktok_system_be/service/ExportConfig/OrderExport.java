@@ -1,9 +1,9 @@
 package com.petd.tiktok_system_be.service.ExportConfig;
 
-import com.petd.tiktok_system_be.entity.Address;
-import com.petd.tiktok_system_be.entity.Design;
-import com.petd.tiktok_system_be.entity.Order;
-import com.petd.tiktok_system_be.entity.OrderItem;
+import com.petd.tiktok_system_be.entity.Order.Address;
+import com.petd.tiktok_system_be.entity.Design.Design;
+import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.entity.Order.OrderItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -5,7 +5,7 @@ import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.GroupResponse;
 import com.petd.tiktok_system_be.dto.response.LoginSuccessResponse;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
-import com.petd.tiktok_system_be.service.GroupService;
+import com.petd.tiktok_system_be.service.Manager.GroupService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

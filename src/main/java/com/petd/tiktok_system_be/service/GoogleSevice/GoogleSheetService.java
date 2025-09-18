@@ -4,7 +4,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
-import com.petd.tiktok_system_be.entity.Setting;
+import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

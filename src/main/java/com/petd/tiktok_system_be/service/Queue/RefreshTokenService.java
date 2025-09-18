@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
-import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
-import com.petd.tiktok_system_be.service.ShopService;
+import com.petd.tiktok_system_be.service.Shop.ShopService;
 import com.petd.tiktok_system_be.shared.TiktokAuthAppClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,6 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor

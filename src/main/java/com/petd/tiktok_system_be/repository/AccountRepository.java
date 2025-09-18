@@ -1,7 +1,6 @@
 package com.petd.tiktok_system_be.repository;
 
-import com.petd.tiktok_system_be.entity.Account;
-import com.petd.tiktok_system_be.entity.Shop;
+import com.petd.tiktok_system_be.entity.Auth.Account;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

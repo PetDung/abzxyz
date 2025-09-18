@@ -1,6 +1,6 @@
 package com.petd.tiktok_system_be.dto.response;
 
-import com.petd.tiktok_system_be.service.SalesReportService;
+import com.petd.tiktok_system_be.service.Product.SalesReportService;
 import lombok.*;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.petd.tiktok_system_be.Specification;
 
-import com.petd.tiktok_system_be.entity.Product;
+import com.petd.tiktok_system_be.entity.Product.Product;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 

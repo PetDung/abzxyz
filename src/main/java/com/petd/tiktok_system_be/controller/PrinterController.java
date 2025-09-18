@@ -1,8 +1,8 @@
 package com.petd.tiktok_system_be.controller;
 
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
-import com.petd.tiktok_system_be.entity.Printer;
-import com.petd.tiktok_system_be.service.PrinterService;
+import com.petd.tiktok_system_be.entity.Manager.Printer;
+import com.petd.tiktok_system_be.service.Manager.PrinterService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

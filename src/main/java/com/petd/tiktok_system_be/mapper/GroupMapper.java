@@ -1,7 +1,7 @@
 package com.petd.tiktok_system_be.mapper;
 
 import com.petd.tiktok_system_be.dto.response.GroupResponse;
-import com.petd.tiktok_system_be.entity.ShopGroup;
+import com.petd.tiktok_system_be.entity.Group.ShopGroup;
 import org.mapstruct.Mapper;
 
 import java.util.List;

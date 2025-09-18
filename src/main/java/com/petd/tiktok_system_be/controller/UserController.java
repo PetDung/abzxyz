@@ -5,7 +5,7 @@ import com.petd.tiktok_system_be.dto.request.UpdateProfileRequest;
 import com.petd.tiktok_system_be.dto.request.UserRequest;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.LoginSuccessResponse;
-import com.petd.tiktok_system_be.service.AccountService;
+import com.petd.tiktok_system_be.service.Auth.AccountService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

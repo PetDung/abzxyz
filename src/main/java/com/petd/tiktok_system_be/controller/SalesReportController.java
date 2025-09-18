@@ -3,7 +3,7 @@ package com.petd.tiktok_system_be.controller;
 
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.ProductReportResponse;
-import com.petd.tiktok_system_be.service.SalesReportService;
+import com.petd.tiktok_system_be.service.Product.SalesReportService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

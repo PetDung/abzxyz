@@ -2,7 +2,7 @@ package com.petd.tiktok_system_be.controller;
 
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.SettingResponse;
-import com.petd.tiktok_system_be.service.SettingService;
+import com.petd.tiktok_system_be.service.Auth.SettingService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

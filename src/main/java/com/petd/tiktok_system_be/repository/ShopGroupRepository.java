@@ -1,6 +1,6 @@
 package com.petd.tiktok_system_be.repository;
 
-import com.petd.tiktok_system_be.entity.ShopGroup;
+import com.petd.tiktok_system_be.entity.Group.ShopGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

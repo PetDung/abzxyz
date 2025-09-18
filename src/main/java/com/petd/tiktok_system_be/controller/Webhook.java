@@ -7,12 +7,14 @@ import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
+import com.petd.tiktok_system_be.dto.webhook.req.ReturnData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
 import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
-import com.petd.tiktok_system_be.service.*;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
+import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Queue.*;
+import com.petd.tiktok_system_be.service.Shop.TransactionsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,6 +42,7 @@ public class Webhook {
     WebhookService webhookService;
     ProductSyncService productSyncService;
     TransactionsService transactionsService;
+    ReturnSync returnSync;
 
     @PostMapping("/order")
     public Boolean OrderWebhook(@RequestBody TtsNotification<OrderData> ttsNotification) throws JsonProcessingException {
@@ -53,19 +56,25 @@ public class Webhook {
         return true;
     }
 
+    @PostMapping("/refund/change")
+    public Boolean RefundWebhook(@RequestBody TtsNotification<ReturnData> ttsNotification) throws JsonProcessingException {
+        returnSync.pushJobARefund(ttsNotification);
+        return true;
+    }
+
     @PostMapping("/add")
     public boolean OrderWebhook() throws JsonProcessingException {
         webhookService.addAllWebHooks();
         return true;
     }
 
-    @GetMapping("/test/{shopId}/{orderId}")
-    public ApiResponse<JsonNode> test(
-            @PathVariable String orderId,
-            @PathVariable String shopId
-    ){
+    ShippingService shippingService;
+    TransactionsService transactionService;
+
+    @GetMapping("/test/1231232")
+    public ApiResponse<JsonNode> test(){
        return ApiResponse.<JsonNode>builder()
-               .result(transactionsService.getTransactionsByOrderId(shopId, orderId))
+               .result(transactionService.getTransactionsByOrderId("7496285922117847372", "577069064220283552"))
                .build();
     }
 

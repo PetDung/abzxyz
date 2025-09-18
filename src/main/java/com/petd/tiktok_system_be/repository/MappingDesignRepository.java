@@ -1,7 +1,7 @@
 package com.petd.tiktok_system_be.repository;
 
-import com.petd.tiktok_system_be.entity.Design;
-import com.petd.tiktok_system_be.entity.MappingDesign;
+import com.petd.tiktok_system_be.entity.Design.Design;
+import com.petd.tiktok_system_be.entity.Design.MappingDesign;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

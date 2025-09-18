@@ -1,9 +1,10 @@
 package com.petd.tiktok_system_be.service;
 
 import com.petd.tiktok_system_be.constant.Role;
-import com.petd.tiktok_system_be.entity.Team;
+import com.petd.tiktok_system_be.entity.Manager.Team;
 import com.petd.tiktok_system_be.repository.AccountRepository;
 import com.petd.tiktok_system_be.repository.TeamRepository;
+import com.petd.tiktok_system_be.service.Auth.PasswordService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderApi  implements TiktokCallApi {
+public class OrderApi implements TiktokCallApi {
 
     private final String api = "/order/202309/orders/search";
 

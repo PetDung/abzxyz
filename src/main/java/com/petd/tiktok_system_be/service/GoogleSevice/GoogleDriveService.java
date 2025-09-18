@@ -6,7 +6,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import com.petd.tiktok_system_be.entity.Setting;
+import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

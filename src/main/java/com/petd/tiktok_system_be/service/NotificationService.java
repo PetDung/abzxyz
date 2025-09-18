@@ -1,7 +1,8 @@
 package com.petd.tiktok_system_be.service;
 
-import com.petd.tiktok_system_be.entity.Account;
-import com.petd.tiktok_system_be.entity.Order;
+import com.petd.tiktok_system_be.entity.Auth.Account;
+import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.service.Auth.AccountService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
