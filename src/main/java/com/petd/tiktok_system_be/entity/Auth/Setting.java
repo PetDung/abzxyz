@@ -17,6 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class Setting extends Base {
     String orderWebhook;
     String productWebhook;
+    String refundWebhook;
     String connectUrl;
     String ggAccessToken;
     String ggRefreshToken;

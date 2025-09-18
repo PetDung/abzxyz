@@ -14,6 +14,7 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Queue.*;
+import com.petd.tiktok_system_be.service.Shop.ShopService;
 import com.petd.tiktok_system_be.service.Shop.TransactionsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -150,6 +151,13 @@ public class Webhook {
         return DeleteProductRequest.builder()
                 .productIds(products)
                 .build();
+    }
+    ShopService shopService;
+
+    @GetMapping("/delete-shop/{shopId}")
+    public boolean deleteShop(@PathVariable String shopId) throws JsonProcessingException {
+        shopService.deleteShopByShopId(shopId);
+        return true;
     }
 
 }

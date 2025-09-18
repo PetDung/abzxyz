@@ -62,8 +62,13 @@ public class WebhookService {
                 .address(setting.getProductWebhook())
                 .event_type("PRODUCT_STATUS_CHANGE")
                 .build();
+        Event eventRefund = Event.builder()
+                .address(setting.getRefundWebhook())
+                .event_type("RETURN_STATUS_CHANGE")
+                .build();
         addWebHook(eventOrder);
         addWebHook(eventProduct);
+        addWebHook(eventRefund);
     }
 
 

@@ -59,17 +59,35 @@ public class ProductService {
         }
     }
 
-    public List<Product> getAllActiveProducts() {
+    public List<Product> getAllActiveProducts(Map<String, String> param) {
+        List<String> allowedFilters = Arrays.asList("ACTIVE", "UPDATE");
+
         // Lấy tất cả shop của user
         List<Shop> myShops = shopService.getMyShops();
         List<String> shopIds = myShops.stream()
                 .map(Shop::getId)
                 .toList();
 
+        Long endDate = parseNumberSafe(param.get("end_time"),Long::parseLong, null);
+        Long startDate = parseNumberSafe(param.get("start_time"),Long::parseLong,null);
+
+        String filterParam = param.get("filter");
+        String filter = (filterParam != null && allowedFilters.contains(filterParam))
+                ? filterParam
+                : "ACTIVE";
+
+
+
         // Tạo Specification: chỉ lấy ACTIVE và thuộc shopIds
         Specification<Product> spec = Specification
                 .where(ProductSpecification.hasStatus(List.of("ACTIVATE")))
                 .and(ProductSpecification.hasShopIds(shopIds));
+
+        if(filter.equals("ACTIVE")) {
+            spec = spec.and(ProductSpecification.activeTimeBetween(startDate, endDate));
+        }else if(filter.equals("UPDATE")) {
+            spec = spec.and(ProductSpecification.updateTimeBetween(startDate, endDate));
+        }
 
         // Sắp xếp theo activeTime giảm dần
         Sort sort = Sort.by(Sort.Order.desc("activeTime"));

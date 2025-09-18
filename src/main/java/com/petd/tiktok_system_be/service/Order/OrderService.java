@@ -142,7 +142,7 @@ public class OrderService {
             id = myShops.stream().map(Shop::getId).collect(Collectors.toList());
         }
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createTime").descending());
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("createTime").descending());
         Page<Order> orderPage = orderRepository.findAll(
                 OrderSpecification.filterOrders(orderId, id, status, shippingType),
                 pageable

@@ -4,6 +4,7 @@ import com.petd.tiktok_system_be.service.InitDataService;
 import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Queue.ReturnSync;
+import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,6 @@ public class DataInit  implements CommandLineRunner {
     OrderSyncService service;
     ShippingService shippingService;
     ReturnSync returnSync;
-
 
     @Override
     public void run(String... args) throws Exception {

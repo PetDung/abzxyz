@@ -34,9 +34,9 @@ public class ProductController {
                 .build();
     }
     @GetMapping("/active/all")
-    public ApiResponse<List<Product>> getAllActiveProducts() {
+    public ApiResponse<List<Product>> getAllActiveProducts(@RequestParam(required = false) Map<String, String> params) {
         return ApiResponse.<List<Product>>builder()
-                .result(productService.getAllActiveProducts())
+                .result(productService.getAllActiveProducts(params))
                 .build();
     }
     @GetMapping("/record")

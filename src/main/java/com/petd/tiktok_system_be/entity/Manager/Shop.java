@@ -1,8 +1,11 @@
 package com.petd.tiktok_system_be.entity.Manager;
 
 import com.petd.tiktok_system_be.entity.Auth.Account;
+import com.petd.tiktok_system_be.entity.Group.GroupShopAccess;
 import com.petd.tiktok_system_be.entity.Group.ShopGroup;
 import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.entity.Payment.Payment;
+import com.petd.tiktok_system_be.entity.Product.Product;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -45,16 +48,22 @@ public class Shop {
     @Column(nullable = false)
     String cipher;
 
-    @OneToMany(mappedBy = "shop")
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL,  orphanRemoval = true)
     List<Order> orders;
 
     @ManyToOne
     @JoinColumn(name = "leader_id")
     Account leader;
 
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    ShopGroup group;
+    @OneToMany(mappedBy = "shop",  cascade = CascadeType.ALL,  orphanRemoval = true)
+    List<GroupShopAccess>  groupShopAccess;
+
+    @OneToMany(mappedBy = "shop",  cascade = CascadeType.ALL,  orphanRemoval = true)
+    List<Payment>  payments;
+
+    @OneToMany(mappedBy = "shop",  cascade = CascadeType.ALL,  orphanRemoval = true)
+    List<Product>  products;
+
 
     @CreatedDate
     @Column(updatable = false)

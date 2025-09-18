@@ -2,9 +2,12 @@ package com.petd.tiktok_system_be.service.Return;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.petd.tiktok_system_be.Specification.ReturnSpecification;
 import com.petd.tiktok_system_be.api.RefundApi;
 import com.petd.tiktok_system_be.api.body.RefundBody;
+import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
+import com.petd.tiktok_system_be.entity.Return.Return;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.ReturnRepository;
@@ -20,6 +23,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -32,6 +38,7 @@ public class ReturnService {
 
     RequestClient requestClient;
     ShopService shopService;
+    ReturnRepository returnRepository;
 
     public JsonNode getReturn (String shopId, Map<String, String> params, Integer pageSize) {
 
@@ -76,5 +83,29 @@ public class ReturnService {
         }
 
 
+    }
+
+
+
+    public ResponsePage<Return> search(String keyword, Pageable pageable) {
+        Specification<Return> spec = (root, query, cb) -> {
+            if (keyword == null || keyword.isBlank()) {
+                return cb.conjunction();
+            }
+
+            return cb.or(
+                    cb.like(root.get("returnId"), "%" + keyword + "%"),
+                    cb.like(root.join("order").get("id"), "%" + keyword + "%")
+            );
+        };
+
+        Page<Return> pageResult = returnRepository.findAll(spec, pageable);
+
+        return new ResponsePage<>(
+                pageResult.getContent(),
+                pageResult.getTotalElements(),
+                pageResult.getNumber(), // vì Page mặc định bắt đầu từ 0
+                pageResult.isLast()
+        );
     }
 }

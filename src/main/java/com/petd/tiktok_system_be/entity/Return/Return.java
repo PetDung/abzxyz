@@ -2,6 +2,8 @@ package com.petd.tiktok_system_be.entity.Return;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.petd.tiktok_system_be.dto.response.ShopResponse;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import jakarta.persistence.*;
 import lombok.*;
@@ -85,5 +87,15 @@ public class Return {
     @Transient
     public String getOrderId(){
         return order.getId();
+    }
+
+    @Transient
+    public String getShopName(){
+        return order.getShopName();
+    }
+
+    @Transient
+    public String getShopId(){
+        return order.getShopId();
     }
 }

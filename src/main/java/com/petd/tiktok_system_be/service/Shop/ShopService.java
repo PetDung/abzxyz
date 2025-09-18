@@ -72,6 +72,11 @@ public class ShopService {
         return shopRepository.findByUserShopName(shopName)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
+
+    public void deleteShopByShopId(String shopId) {
+        shopRepository.deleteById(shopId);
+    }
+
     public ShopResponse update(Shop shopRequest) {
         if(shopRequest.getId() == null){
             throw new AppException(ErrorCode.RQ);
