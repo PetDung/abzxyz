@@ -48,11 +48,11 @@ public class ProductSyncService {
     }
 
 
-//    @Transactional
-//    @KafkaListener(topics = "product-sync",
-//            containerFactory = "kafkaListenerContainerFactory",
-//            concurrency = "3"
-//    )
+    @Transactional
+    @KafkaListener(topics = "product-sync",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+    )
     public void handlerProductJob (ConsumerRecord<String, String> record,  Acknowledgment ack){
         try {
             log.info("received record: {}", record.value());
