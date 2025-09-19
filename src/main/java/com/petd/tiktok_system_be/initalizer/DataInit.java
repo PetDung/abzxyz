@@ -26,7 +26,7 @@ public class DataInit  implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        initDataService.initAccount();
+        initDataService.initAccount();
 //        initDataService.initAccount2();
 //        service.pubJobStatus("COMPLETED");
 //        JsonNode shipping = shippingService.getShipping("577072234678489961", "7495997094249991038");
