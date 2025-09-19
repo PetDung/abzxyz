@@ -166,12 +166,11 @@ public class OrderSyncService {
                 for (JsonNode node : ordersNode) {
                     Order order = mapper.treeToValue(node, Order.class);
                     order.setShop(shop);
-                    orderSaveDataBaseService.save(order);
-                    autoGetLabel(order);
-                    notificationService.orderUpdateStatus(order);
+                    Order orderDb  =  orderSaveDataBaseService.save(order);
+                    autoGetLabel(orderDb);
+                    notificationService.orderUpdateStatus(orderDb);
                 }
             }
-
             log.info("✅ Synced order details shopId={} orderId={}", shop.getId(), msg.getOrderId());
             ack.acknowledge();
         } catch (Exception e) {

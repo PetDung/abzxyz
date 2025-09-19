@@ -19,7 +19,7 @@ public class OrderSaveCase {
     OrderRepository orderRepository;
 
     @Transactional
-    public void persistOrderTransactional(Order order) {
+    public Order persistOrderTransactional(Order order) {
 
         if (order.getId() != null && orderRepository.existsById(order.getId())) {
 
@@ -68,13 +68,13 @@ public class OrderSaveCase {
                     item.setOrder(existing);
                 }
             }
-            orderRepository.save(existing);
+            return orderRepository.save(existing);
         } else {
             if (order.getPayment() != null) order.getPayment().setOrder(order);
             if (order.getRecipientAddress() != null) order.getRecipientAddress().setOrder(order);
             if (order.getSettlement() != null) order.getSettlement().setOrder(order);
             if (order.getLineItems() != null) order.getLineItems().forEach(i -> i.setOrder(order));
-            orderRepository.save(order);
+            return orderRepository.save(order);
         }
     }
 }
