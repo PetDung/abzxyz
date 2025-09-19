@@ -7,6 +7,7 @@ import com.petd.tiktok_system_be.dto.message.DeleteProductMessage;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
+import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
@@ -31,9 +32,9 @@ import java.util.stream.Collectors;
 public class ProductDeleteService {
 
     ObjectMapper mapper;
-    ShopService shopService;
     RequestClient requestClient;
     KafkaTemplate<String, String> kafkaTemplate;
+    ShopRepository shopRepository;
 
     // --- Producer ---
     public void pushJob(DeleteProductRequest request) {
@@ -58,7 +59,7 @@ public class ProductDeleteService {
     public void handleDeleteProduct(ConsumerRecord<String, String> record,  Acknowledgment ack) {
         try {
             DeleteProductMessage msg = mapper.readValue(record.value(), DeleteProductMessage.class);
-            processDeleteProduct(msg);
+            processDeleteProduct(msg, ack);
             ack.acknowledge();
             log.info("Deleted products from shop {}", msg.getShopId());
         } catch (Exception e) {
@@ -67,8 +68,16 @@ public class ProductDeleteService {
         }
     }
 
-    private void processDeleteProduct(DeleteProductMessage msg) throws Exception {
-        Shop shop = shopService.getShopByShopName(msg.getShopId().trim());
+    private void processDeleteProduct(DeleteProductMessage msg, Acknowledgment ack) throws Exception {
+
+        Shop shop = shopRepository.findById(msg.getShopId())
+                .orElseGet(() -> {
+                    log.warn("Không tìm thấy shop {}", msg.getShopId());
+                    ack.acknowledge();
+                    return null;
+                });
+        if(shop==null) return;
+
         DeleteProductApi deleteProductApi = DeleteProductApi.builder()
                 .body(Map.of("product_ids", msg.getProductIds()))
                 .shopCipher(shop.getCipher())

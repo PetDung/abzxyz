@@ -82,16 +82,16 @@ public class Order {
     @JoinColumn(name = "printer_id", nullable = true)
     Printer printer;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)
     private PaymentOrder payment;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)
     private Settlement settlement;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)
     private RecipientAddress recipientAddress;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> lineItems;
 
     @ManyToOne
@@ -99,7 +99,7 @@ public class Order {
     @JsonIgnore
     Shop shop;
 
-    @OneToMany(mappedBy = "order",  cascade = CascadeType.ALL,  orphanRemoval = true)
+    @OneToMany(mappedBy = "order",  cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)
     List<Return> returns;
 
 }

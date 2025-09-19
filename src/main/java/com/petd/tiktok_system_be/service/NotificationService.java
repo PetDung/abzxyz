@@ -2,7 +2,10 @@ package com.petd.tiktok_system_be.service;
 
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.service.Auth.AccountService;
+import com.petd.tiktok_system_be.service.Order.OrderService;
+import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +24,7 @@ public class NotificationService {
 
     SimpMessagingTemplate messagingTemplate;
     AccountService accountService;
+    OrderRepository orderRepository;
 
     public void orderUpdateStatus(Order order){
         List<Account> accounts = accountService.getAllAccountsAccessShop(order.getShop());

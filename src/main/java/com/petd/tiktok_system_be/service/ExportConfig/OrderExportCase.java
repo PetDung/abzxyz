@@ -6,6 +6,7 @@ import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.SettingRepository;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleSheetService;
 import com.petd.tiktok_system_be.service.NotificationService;
+import com.petd.tiktok_system_be.service.TelegramService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +28,7 @@ public class OrderExportCase implements ExportInterface {
     GoogleSheetService<OrderExport> googleSheetService;
     Export export;
     NotificationService notificationService;
+    TelegramService telegramService;
 
     @Transactional
     @Override
@@ -49,6 +51,7 @@ public class OrderExportCase implements ExportInterface {
                 orderRepository.save(order);
                 notificationService.orderUpdateStatus(order);
             } catch (Exception e) {
+                telegramService.sendMessage(e.getMessage());
                 errors.put(orderId, e.getMessage());
             }
         }

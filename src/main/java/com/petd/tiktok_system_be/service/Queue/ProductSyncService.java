@@ -10,6 +10,7 @@ import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.ProductRepository;
+import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.service.Product.ProductService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
@@ -23,6 +24,8 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -33,6 +36,7 @@ public class ProductSyncService {
     ShopService shopService;
     ProductService productService;
     ProductRepository productRepository;
+    ShopRepository shopRepository;
     ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
     public void pushJob (TtsNotification<ProductData> notification) throws JsonProcessingException {
@@ -57,8 +61,17 @@ public class ProductSyncService {
         try {
             log.info("received record: {}", record.value());
             ProductMessage msg = mapper.readValue(record.value(), ProductMessage.class);
+
+            Shop shop = shopRepository.findById(msg.getShopId())
+                    .orElseGet(() -> {
+                        log.warn("Không tìm thấy shop {} : {}", msg.getShopId(), msg.getProductId());
+                        ack.acknowledge();
+                        return null;
+            });
+            if(shop==null) return;
+
             JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
-            Shop shop = shopService.getShopByShopId(msg.getShopId());
+
             Product product = mapper.convertValue(productNode, Product.class);
             product.setActiveTime(msg.getUpdateTime());
             product.setShop(shop);

@@ -6,6 +6,7 @@ import com.petd.tiktok_system_be.dto.message.LabelMessage;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
+import com.petd.tiktok_system_be.service.TelegramService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +26,7 @@ public class LabelUploadService {
     static final ObjectMapper mapper = new ObjectMapper();
     GoogleDriveService googleDriveService;
     OrderService orderService;
+    TelegramService  telegramService;
 
     @KafkaListener(topics = "order-get-label",
             containerFactory = "kafkaListenerContainerFactory",
@@ -46,6 +48,7 @@ public class LabelUploadService {
 
         }catch(Exception e){
             log.error(e.getMessage());
+            telegramService.sendMessage(e.getMessage());
             throw new RuntimeException(e);
         }
 

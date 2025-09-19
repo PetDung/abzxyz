@@ -151,9 +151,14 @@ public class OrderSyncService {
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
             OrderDetalisSyncMessage msg = mapper.readValue(record.value(), OrderDetalisSyncMessage.class);
-
             Shop shop = shopRepository.findById(msg.getShopId())
-                    .orElseThrow(() -> new IllegalArgumentException("Shop not found: " + msg.getShopId()));
+                    .orElseGet(() -> {
+                        log.warn("Không tìm thấy shop {} : {}", msg.getShopId(), msg.getOrderId());
+                        ack.acknowledge();
+                        return null;
+                    });
+
+            if(shop==null) return;
 
             Map<String, String> params = new HashMap<>();
             params.put("next_page_token", "");
@@ -166,9 +171,9 @@ public class OrderSyncService {
                 for (JsonNode node : ordersNode) {
                     Order order = mapper.treeToValue(node, Order.class);
                     order.setShop(shop);
-                    Order orderDb  =  orderSaveDataBaseService.save(order);
-                    autoGetLabel(orderDb);
-                    notificationService.orderUpdateStatus(orderDb);
+                    orderSaveDataBaseService.save(order);
+                    autoGetLabel(order);
+                    notificationService.orderUpdateStatus(order);
                 }
             }
             log.info("✅ Synced order details shopId={} orderId={}", shop.getId(), msg.getOrderId());
