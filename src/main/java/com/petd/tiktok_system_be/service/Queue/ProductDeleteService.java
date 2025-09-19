@@ -70,7 +70,7 @@ public class ProductDeleteService {
 
     private void processDeleteProduct(DeleteProductMessage msg, Acknowledgment ack) throws Exception {
 
-        Shop shop = shopRepository.findById(msg.getShopId())
+        Shop shop = shopRepository.findByUserShopName(msg.getShopId())
                 .orElseGet(() -> {
                     log.warn("Không tìm thấy shop {}", msg.getShopId());
                     ack.acknowledge();
