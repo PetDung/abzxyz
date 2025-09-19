@@ -40,7 +40,7 @@ public class OrderSaveDataBaseService {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public boolean save(Order order) {
+    public Order save(Order order) {
         try {
             // --- 1. Lấy settlement từ API (ngoài transaction) ---
             GetTransactionsByOrder getTransactionsByOrder = GetTransactionsByOrder.builder()
@@ -54,7 +54,7 @@ public class OrderSaveDataBaseService {
 
             if (response == null || response.getData() == null) {
                 log.error("Empty response from TikTok for order {}", order.getId());
-                return false;
+                return null;
             }
 
             Settlement settlement = mapper.convertValue(response.getData(), Settlement.class);
@@ -78,7 +78,7 @@ public class OrderSaveDataBaseService {
             order.setPaymentAmount(amount);
 
             // --- 4. Bước DB: chỉ logic persist vào DB, nằm trong transaction ---
-            orderSaveCase.persistOrderTransactional(order);
+            Order orderDb =  orderSaveCase.persistOrderTransactional(order);
 
             if("COMPLETED".equals(order.getStatus())){
                 try {
@@ -92,13 +92,13 @@ public class OrderSaveDataBaseService {
                     log.error("❌ Failed to push order-refund job {}: {}", order.getId(), e.getMessage());
                 }
             }
-            return true;
+            return orderDb;
         } catch (JsonProcessingException e) {
             log.error("Failed to compute payment amount for order {}: {}", order.getId(), e.getMessage(), e);
-            return false;
+            return null;
         } catch (Exception e) {
             log.error("Failed to save order {}: {}", order.getId(), e.getMessage(), e);
-            return false;
+            return null;
         }
     }
 

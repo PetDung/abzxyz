@@ -26,9 +26,8 @@ public class OrderSaveCase {
     public Order persistOrderTransactional(Order order) {
 
         if (order.getId() != null && orderRepository.existsById(order.getId())) {
-
+            log.info("Order already exists");
             Order existing = orderRepository.findById(order.getId()).orElseThrow();
-
             // --- Copy field primitive ---
             existing.setTrackingNumber(order.getTrackingNumber());
             existing.setStatus(order.getStatus());

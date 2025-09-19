@@ -78,8 +78,8 @@ public class Order {
     }
 
 
-    @ManyToOne
-    @JoinColumn(name = "printer_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "printer_id")
     Printer printer;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)

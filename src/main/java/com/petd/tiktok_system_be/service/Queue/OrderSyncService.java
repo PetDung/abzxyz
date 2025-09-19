@@ -171,9 +171,9 @@ public class OrderSyncService {
                 for (JsonNode node : ordersNode) {
                     Order order = mapper.treeToValue(node, Order.class);
                     order.setShop(shop);
-                    orderSaveDataBaseService.save(order);
-                    autoGetLabel(order);
-                    notificationService.orderUpdateStatus(order);
+                    Order db = orderSaveDataBaseService.save(order);
+                    autoGetLabel(db);
+                    notificationService.orderUpdateStatus(db);
                 }
             }
             log.info("✅ Synced order details shopId={} orderId={}", shop.getId(), msg.getOrderId());
