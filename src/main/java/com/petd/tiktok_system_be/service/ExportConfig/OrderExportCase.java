@@ -13,6 +13,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +53,25 @@ public class OrderExportCase implements ExportInterface {
                 orderRepository.save(order);
                 notificationService.orderUpdateStatus(order);
             } catch (Exception e) {
-                telegramService.sendMessage(e.getMessage());
-                errors.put(orderId, e.getMessage());
+                String exceptionClass = e.getClass().getName();
+
+                // Lấy message của exception
+                String exceptionMessage = e.getMessage();
+
+                // Lấy toàn bộ stack trace
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                String stackTrace = sw.toString();
+
+                String fullError = String.format(
+                        "Exception Class: %s\nMessage: %s\nStack Trace:\n%s",
+                        exceptionClass,
+                        exceptionMessage,
+                        stackTrace
+                );
+                telegramService.sendMessage(fullError);
+                errors.put(orderId, fullError);
             }
         }
         return errors; // Map rỗng nếu không có lỗi

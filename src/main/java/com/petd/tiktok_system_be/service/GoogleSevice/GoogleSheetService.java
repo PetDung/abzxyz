@@ -131,4 +131,24 @@ public class GoogleSheetService<T> {
                 .setValueInputOption("RAW")
                 .execute();
     }
+
+    public static List<String> buildHeaders(Class<?> clazz, Object instance) throws IllegalAccessException {
+        List<String> headers = new ArrayList<>();
+
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            Object value = field.get(instance);
+
+            // Nếu field là List
+            if (value instanceof List<?> list) {
+                for (int i = 0; i < list.size(); i++) {
+                    headers.add(field.getName() + " - Option " + (i + 1));
+                }
+            } else {
+                headers.add(field.getName());
+            }
+        }
+
+        return headers;
+    }
 }

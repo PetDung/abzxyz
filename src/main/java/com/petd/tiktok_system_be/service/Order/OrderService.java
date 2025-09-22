@@ -71,10 +71,20 @@ public class OrderService {
                     .accessToken(shop.getAccessToken())
                     .build();
         }else {
+
+
+
             OrderRequestBody orderRequestBody = OrderRequestBody.builder()
                     .orderStatus(status)
                     .shippingType(shippingType)
                     .build();
+
+            if(StringUtils.isNotBlank(params.get("create_time_ge"))) {
+                Long createTimeGe = Long.parseLong(params.get("create_time_ge"));
+                Long createTimeLt = Long.parseLong(params.get("create_time_lt"));
+                orderRequestBody.setCreateTimeGe(createTimeGe);
+                orderRequestBody.setCreateTimeLt(createTimeLt);
+            }
 
             orderApi = OrderApi.builder()
                     .requestClient(requestClient)

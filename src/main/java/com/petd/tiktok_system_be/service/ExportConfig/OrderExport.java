@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -38,8 +39,7 @@ public class OrderExport {
     private String left;
     private String right;
     private Integer quantity;
-    private String size;
-    private String color;
+    private String skuNameOption;
     private String tracking;
     private String prepaidLabel;
     private String productName;
@@ -50,9 +50,6 @@ public class OrderExport {
     private String orderAmount;
     private String productColor;
     private String key;
-
-
-
 
 
     public OrderExport(Order  order, Integer quantity, OrderItem item, Design design){
@@ -74,7 +71,7 @@ public class OrderExport {
                 .map(Address::getAddress_name)
                 .findFirst().orElse(null);
 
-        String[] parts = item.getSkuName().split(",");
+//        String[] parts = item.getSkuName().split(",");
 
         this.acc = order.getShop().getUserShopName();
         this.createdTime =  convertToVietnamTime(order.getCreateTime());
@@ -89,10 +86,7 @@ public class OrderExport {
         this.phone = order.getRecipientAddress().getPhoneNumber();
         this.sellerOrderId = order.getId();
         this.quantity = quantity;
-
-        this.size = parts[1];
-        this.color = parts[0];
-
+        this.skuNameOption = item.getSkuName();
         this.productId = "Classic T-Shirt";
         this.tracking = order.getTrackingNumber();
         this.prepaidLabel = order.getLabel();
