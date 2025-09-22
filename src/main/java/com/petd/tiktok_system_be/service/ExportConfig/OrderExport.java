@@ -39,7 +39,8 @@ public class OrderExport {
     private String left;
     private String right;
     private Integer quantity;
-    private String skuNameOption;
+    private String option1;
+    private String option2;
     private String tracking;
     private String prepaidLabel;
     private String productName;
@@ -71,7 +72,7 @@ public class OrderExport {
                 .map(Address::getAddress_name)
                 .findFirst().orElse(null);
 
-//        String[] parts = item.getSkuName().split(",");
+        String[] parts = item.getSkuName().split(",");
 
         this.acc = order.getShop().getUserShopName();
         this.createdTime =  convertToVietnamTime(order.getCreateTime());
@@ -86,7 +87,11 @@ public class OrderExport {
         this.phone = order.getRecipientAddress().getPhoneNumber();
         this.sellerOrderId = order.getId();
         this.quantity = quantity;
-        this.skuNameOption = item.getSkuName();
+
+        for (int i = 0; i < parts.length; i++) {
+            if(i == 0) this.option1 = parts[i];
+            else if(i == 1) this.option2 = parts[i];
+        }
         this.productId = "Classic T-Shirt";
         this.tracking = order.getTrackingNumber();
         this.prepaidLabel = order.getLabel();
