@@ -10,6 +10,7 @@ import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
@@ -98,6 +99,54 @@ public class RequestClient{
             return res;
         } catch (IOException  e) {
             log.error("IO: {}", e.getMessage(), e);
+            throw new TiktokException(500, "Lỗi hệ thống!");
+        }
+    }
+
+    public TiktokApiResponse postMultipart(String path, String accessToken, Map<String, String> queryParams, Map<String, Object> multipartData) {
+        long timestamp = Instant.now().getEpochSecond();
+        Map<String, String> params = new TreeMap<>();
+        params.put("app_key", appKey);
+        params.put("timestamp", String.valueOf(timestamp));
+        if (queryParams != null) params.putAll(queryParams);
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + path).newBuilder();
+        params.forEach(urlBuilder::addQueryParameter);
+
+        MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+
+        if (multipartData != null) {
+            for (Map.Entry<String, Object> entry : multipartData.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                if (value instanceof File) {
+                    File file = (File) value;
+                    multipartBuilder.addFormDataPart(key, file.getName(),
+                            RequestBody.create(file, MediaType.parse("application/octet-stream")));
+                } else {
+                    multipartBuilder.addFormDataPart(key, value.toString());
+                }
+            }
+        }
+
+        Request unsigned = new Request.Builder()
+                .url(urlBuilder.build())
+                .post(multipartBuilder.build())
+                .addHeader("x-tts-access-token", accessToken)
+                .build();
+
+        String sign = signatureUtil.generateSignature(unsigned, appSecret);
+        HttpUrl signedUrl = unsigned.url().newBuilder().addQueryParameter("sign", sign).build();
+        Request signedRequest = unsigned.newBuilder().url(signedUrl).build();
+
+        try (Response response = okHttpClient.newCall(signedRequest).execute()) {
+            if (!response.isSuccessful()) {
+                throw new TiktokException(response.code(), response.body().string());
+            }
+            return objectMapper.readValue(response.body().string(), TiktokApiResponse.class);
+        } catch (IOException e) {
             throw new TiktokException(500, "Lỗi hệ thống!");
         }
     }

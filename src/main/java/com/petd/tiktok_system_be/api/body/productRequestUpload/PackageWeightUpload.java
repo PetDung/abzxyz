@@ -1,5 +1,6 @@
 package com.petd.tiktok_system_be.api.body.productRequestUpload;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 @Getter
@@ -7,7 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PackageWeight {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PackageWeightUpload {
     private String value;
     private String unit;
 }

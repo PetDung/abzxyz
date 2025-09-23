@@ -3,6 +3,7 @@ package com.petd.tiktok_system_be.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.petd.tiktok_system_be.api.BandApi;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
@@ -10,14 +11,18 @@ import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.ReturnData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
+import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
+import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrinteesHub;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.dto.request.OrderRequest;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
+import com.petd.tiktok_system_be.service.Product.ReupProduct;
 import com.petd.tiktok_system_be.service.Queue.*;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import com.petd.tiktok_system_be.service.Shop.TransactionsService;
@@ -165,6 +170,37 @@ public class Webhook {
         ObjectMapper mapper = new ObjectMapper();
         return ApiResponse.<Object>builder().
                 result(printeesHub.print(order))
+                .build();
+    }
+
+
+    ReupProduct reupProduct;
+    @GetMapping("/reup/{productId}/{shopId}")
+    public ApiResponse<?> print(@PathVariable String productId,
+                                @PathVariable String shopId
+    ) throws IOException {
+        return ApiResponse.<Object>builder().
+                result(reupProduct.copyProduct(shopId,productId))
+                .build();
+    }
+
+    RequestClient requestClient;
+    ShopRepository shopRepository;
+
+    @GetMapping("/band/{bandName}")
+    public ApiResponse<?> getBand(@PathVariable String bandName) throws IOException {
+
+        Shop shop = shopRepository.findAll().get(0);
+
+        BandApi bandApi = BandApi.builder()
+                .accessToken(shop.getAccessToken())
+                .shopCipher(shop.getCipher())
+                .requestClient(requestClient)
+                .bandName(bandName)
+                .build();
+
+        return ApiResponse.<Object>builder().
+                result(bandApi.callApi())
                 .build();
     }
 

@@ -117,6 +117,8 @@ public class AccountService {
         Account account = accountRepository.findByUserName(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        log.info("Qua đây");
+
         if(!account.getRole().equals(Role.Leader.toString())){
             throw new AppException(ErrorCode.FI);
         }

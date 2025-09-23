@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
 import java.util.List;
 
 @Getter
@@ -15,10 +16,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ImageProductSize {
-    Long height;
-    List<String> thumbUrls;
-    String uri;
-    List<String> urls;
-    Long width;
-}
+public class SubscribePromotionConfig {
+    String discountLevel;
+    List<Integer> discountOptions;
+    Integer maxDiscount;
+    Integer minDiscount;
+} 
