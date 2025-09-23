@@ -2,6 +2,7 @@ package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
@@ -9,9 +10,13 @@ import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.ReturnData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
+import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
+import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrinteesHub;
+import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.dto.request.OrderRequest;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
+import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Queue.*;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
@@ -158,6 +163,19 @@ public class Webhook {
     public boolean deleteShop(@PathVariable String shopId) throws JsonProcessingException {
         shopService.deleteShopByShopId(shopId);
         return true;
+    }
+
+
+    PrinteesHub printeesHub;
+    OrderService orderService;
+
+    @GetMapping("/print/{orderId}")
+    public ApiResponse<?> print(@PathVariable String orderId) throws IOException {
+        Order order = orderService.getById(orderId);
+        ObjectMapper mapper = new ObjectMapper();
+        return ApiResponse.<Object>builder().
+                result(printeesHub.print(order))
+                .build();
     }
 
 }

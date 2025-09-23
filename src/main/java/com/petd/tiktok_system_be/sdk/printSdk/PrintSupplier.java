@@ -6,7 +6,7 @@ import com.petd.tiktok_system_be.entity.Order.Order;
 import java.io.IOException;
 
 public interface PrintSupplier <T> {
-    T print () throws IOException;
+    T print (Order order) throws IOException;
 
     String buildBody (Order order) throws JsonProcessingException;
 }

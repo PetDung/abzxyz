@@ -29,4 +29,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
             @Param("startDate") Long startDate,
             @Param("endDate") Long endDate
     );
+
+    List<OrderItem> findBySkuIdAndProductId(String skuId, String productId);
 }

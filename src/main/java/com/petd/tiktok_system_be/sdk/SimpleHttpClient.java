@@ -54,10 +54,15 @@ public class SimpleHttpClient {
         }
 
         try (Response response = client.newCall(builder.build()).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : "";
+
             if (!response.isSuccessful()) {
-                throw new IOException("HTTP error: " + response.code() + " - " + response.message());
+                throw new IOException("HTTP error: " + response.code()
+                        + " - " + response.message()
+                        + " - body: " + responseBody);
             }
-            return response.body().string();
+
+            return responseBody;
         }
     }
 

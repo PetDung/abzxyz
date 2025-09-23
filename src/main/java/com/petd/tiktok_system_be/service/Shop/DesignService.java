@@ -4,10 +4,13 @@ import com.petd.tiktok_system_be.dto.request.DesignMappingRequest;
 import com.petd.tiktok_system_be.dto.request.DesignRequest;
 import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Design.MappingDesign;
+import com.petd.tiktok_system_be.entity.Order.OrderItem;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.DesignRepository;
 import com.petd.tiktok_system_be.repository.MappingDesignRepository;
+import com.petd.tiktok_system_be.repository.OrderItemRepository;
+import com.petd.tiktok_system_be.service.Order.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +29,7 @@ public class DesignService {
 
     DesignRepository repository;
     MappingDesignRepository  mappingRepository;
+    OrderItemRepository orderItemRepository;
 
     public Design getDesignById(String id) {
         return repository.findById(id).orElse(null);
@@ -116,7 +120,17 @@ public class DesignService {
         updatedSkus.addAll(request.getSkuIds());
         mappingDesign.setSkus(new ArrayList<>(updatedSkus));
 
-        return mappingRepository.save(mappingDesign);
+        MappingDesign updatedMappingDesign = mappingRepository.save(mappingDesign);
+
+        for (String sku : updatedSkus ) {
+            List<OrderItem> orderItems = orderItemRepository.findBySkuIdAndProductId(sku,
+                    updatedMappingDesign.getProductId());
+            orderItems.forEach(orderItem -> {
+                orderItem.setDesign(mappingDesign.getDesign());
+            });
+            orderItemRepository.saveAll(orderItems);
+        }
+        return updatedMappingDesign;
     }
 
     @Transactional
@@ -126,7 +140,16 @@ public class DesignService {
         for (MappingDesign md : mappings) {
             List<String> skus = md.getSkus();
             boolean changed = skus.removeAll(skusToRemove); // remove các sku cần xoá
+            for (String sku : skus ) {
+                List<OrderItem> orderItems = orderItemRepository.findBySkuIdAndProductId(sku,
+                        md.getProductId());
+                orderItems.forEach(orderItem -> {
+                    orderItem.setDesign(null);
+                });
+                orderItemRepository.saveAll(orderItems);
+            }
             if (changed) {
+
                 if (skus.isEmpty()) {
                     mappingRepository.delete(md); // nếu không còn SKU thì delete record
                 } else {

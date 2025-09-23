@@ -51,6 +51,8 @@ public class OrderItem {
     Boolean isDangerousGood;
     Boolean needsPrescription;
 
+    String skuPrint;
+
     @ManyToOne
     @JoinColumn(name = "design_id")
     Design design;

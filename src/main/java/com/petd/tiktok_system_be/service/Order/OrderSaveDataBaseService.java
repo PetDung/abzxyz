@@ -60,19 +60,6 @@ public class OrderSaveDataBaseService {
             Settlement settlement = mapper.convertValue(response.getData(), Settlement.class);
             order.setSettlement(settlement);
 
-            // --- 2. Lấy design cho mỗi item (ngoài transaction nếu designService có thể gọi DB safely) ---
-            List<OrderItem> items = order.getLineItems();
-            List<OrderItem> preprocessedItems = new ArrayList<>();
-            if (items != null) {
-                for (OrderItem item : items) {
-                    // Lưu design vào item (cần tránh lazy-loading problems later)
-                    Design design = designService.getDesignBySkuIdAnhProductId(item.getProductId(), item.getSkuId());
-                    item.setDesign(design);
-                    preprocessedItems.add(item);
-                }
-            }
-            order.setLineItems(preprocessedItems);
-
             // --- 3. Tính amount (có thể gọi shippingService) ---
             BigDecimal amount = paymentAmount(order); // có thể ném JsonProcessingException
             order.setPaymentAmount(amount);

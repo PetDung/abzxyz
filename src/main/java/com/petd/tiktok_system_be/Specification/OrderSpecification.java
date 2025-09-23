@@ -14,7 +14,7 @@ public class OrderSpecification {
     public static Specification<Order> filterOrders(
             String orderId,
             List<String> shopIds,
-            String status,
+            List<String> statuses,    // <--- thay đổi ở đây
             String shippingType
     ) {
         return (root, query, cb) -> {
@@ -31,10 +31,11 @@ public class OrderSpecification {
                 predicates.add(root.get("shop").get("id").in(shopIds));
             }
 
-            // Nếu có status
-            if (status != null && !status.isEmpty()) {
-                predicates.add(cb.equal(root.get("status"), status));
+            // Nếu có statuses
+            if (statuses != null && !statuses.isEmpty()) {
+                predicates.add(root.get("status").in(statuses));
             }
+
 
             // Nếu có shippingType
             if (shippingType != null && !shippingType.isEmpty()) {

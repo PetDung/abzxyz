@@ -10,8 +10,10 @@ import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Manager.Printer;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
+import com.petd.tiktok_system_be.entity.Order.OrderItem;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
+import com.petd.tiktok_system_be.repository.OrderItemRepository;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
@@ -46,11 +48,17 @@ public class OrderService {
     OrderRepository orderRepository;
     PrinterService printerService;
     NotificationService notificationService;
+    OrderItemRepository orderItemRepository;
 
     public Order getById(String id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
+                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
+
+    public List<OrderItem> getAllOrderItemsBySkuAndProduct(String skuId, String productId) {
+        return orderItemRepository.findBySkuIdAndProductId(skuId, productId);
+    }
+
     public Order save(Order order) {
         return orderRepository.save(order);
     }
@@ -154,7 +162,7 @@ public class OrderService {
 
         Pageable pageable = PageRequest.of(page, 20, Sort.by("createTime").descending());
         Page<Order> orderPage = orderRepository.findAll(
-                OrderSpecification.filterOrders(orderId, id, status, shippingType),
+                OrderSpecification.filterOrders(orderId, id, List.of(status), shippingType),
                 pageable
         );
 

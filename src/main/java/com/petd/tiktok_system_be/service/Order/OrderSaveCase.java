@@ -160,7 +160,6 @@ public class OrderSaveCase {
         existing.setIsGift(incoming.getIsGift());
         existing.setIsDangerousGood(incoming.getIsDangerousGood());
         existing.setNeedsPrescription(incoming.getNeedsPrescription());
-        existing.setDesign(incoming.getDesign()); // Quan hệ ManyToOne có thể copy nếu bạn muốn thay đổi
     }
 
 
