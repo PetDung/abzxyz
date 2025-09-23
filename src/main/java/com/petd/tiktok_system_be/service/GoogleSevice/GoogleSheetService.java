@@ -5,7 +5,10 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.repository.SettingRepository;
+import com.petd.tiktok_system_be.repository.SettingSystemRepository;
+import com.petd.tiktok_system_be.service.Auth.SettingService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,10 +23,11 @@ import java.util.*;
 public class GoogleSheetService<T> {
 
     GoogleAuthService googleAuthService;
-    SettingRepository settingRepository;
+    SettingService settingService;
+    SettingSystemRepository settingSystemRepository;
 
 
-    public Sheets getSheetsService(Setting setting) throws Exception {
+    public Sheets getSheetsService(SettingSystem setting) throws Exception {
         return new Sheets.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 GsonFactory.getDefaultInstance(),
@@ -32,12 +36,10 @@ public class GoogleSheetService<T> {
                 .setApplicationName("tiktok_system_be")
                 .build();
     }
-
-
     public <T> void exportOrdersToSheet(String spreadsheetId, String sheetName,
                                   List<T> exports, Class<T> clazz, String keyFieldName) throws Exception {
 
-        Setting setting = settingRepository.findAll().get(0);
+        SettingSystem setting = settingSystemRepository.findAll().get(0);
         Sheets sheetsService = getSheetsService(setting);
 
         // 1. Lấy dữ liệu hiện có từ sheet

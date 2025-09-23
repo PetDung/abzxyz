@@ -29,6 +29,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,19 +86,27 @@ public class ReturnService {
 
     }
 
-
-
     public ResponsePage<Return> search(String keyword, Pageable pageable) {
-        Specification<Return> spec = (root, query, cb) -> {
-            if (keyword == null || keyword.isBlank()) {
-                return cb.conjunction();
-            }
 
-            return cb.or(
-                    cb.like(root.get("returnId"), "%" + keyword + "%"),
-                    cb.like(root.join("order").get("id"), "%" + keyword + "%")
+        List<Shop> myShops = shopService.getMyShops();
+        if (myShops == null || myShops.isEmpty()) {
+            return new ResponsePage<>(
+                    List.of(),
+                    0,
+                    0, // vì Page mặc định bắt đầu từ 0
+                    true
             );
-        };
+        }
+
+        List<String> ids =  myShops.stream().map(Shop::getId).toList();
+
+        Specification<Return> shopSpec = ReturnSpecification.hasShopIds(ids);
+
+        Specification<Return> keywordSpec = Specification
+                .where(ReturnSpecification.hasReturnId(keyword))
+                .or(ReturnSpecification.hasOrderId(keyword));
+
+        Specification<Return> spec = shopSpec.and(keywordSpec);
 
         Page<Return> pageResult = returnRepository.findAll(spec, pageable);
 

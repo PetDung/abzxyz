@@ -14,14 +14,12 @@ import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Auth.MappingUserSystem;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.mapper.ShopMapper;
-import com.petd.tiktok_system_be.repository.MappingUserSystemRepository;
-import com.petd.tiktok_system_be.repository.SettingRepository;
-import com.petd.tiktok_system_be.repository.ShopGroupRepository;
-import com.petd.tiktok_system_be.repository.ShopRepository;
+import com.petd.tiktok_system_be.repository.*;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
@@ -52,7 +50,6 @@ import java.util.Optional;
 @Slf4j
 public class ShopService {
 
-
     TiktokAuthAppClient authClient;
     RequestClient requestClient;
     ShopMapper shopMapper;
@@ -62,7 +59,7 @@ public class ShopService {
     ShopGroupRepository shopGroupRepository;
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
-    SettingRepository settingRepository;
+    SettingSystemRepository settingSystemRepository;
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
@@ -195,10 +192,6 @@ public class ShopService {
         }
     }
 
-
-
-
-
     public AuthShopResponse connectShop(AuthShopRequest request){
         try {
 
@@ -261,7 +254,7 @@ public class ShopService {
                     .limit(10)
                     .build();
 
-            Setting setting = settingRepository.findAll().get(0);
+            SettingSystem setting = settingSystemRepository.findAll().get(0);
 
             Event eventOrder = Event.builder()
                     .address(setting.getOrderWebhook())

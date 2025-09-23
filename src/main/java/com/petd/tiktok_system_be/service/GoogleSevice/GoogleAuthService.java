@@ -5,7 +5,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.repository.SettingRepository;
+import com.petd.tiktok_system_be.repository.SettingSystemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,8 +25,9 @@ public class GoogleAuthService {
 
     JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     SettingRepository settingRepository;
+    SettingSystemRepository systemRepository;
 
-    public GoogleCredential getCredential(Setting setting) throws GeneralSecurityException, IOException {
+    public GoogleCredential getCredential(SettingSystem setting) throws GeneralSecurityException, IOException {
         String clientId = System.getenv("GG_CLIENT_ID");
         String clientSecret = System.getenv("GG_CLIENT_SECRET");
 
@@ -39,7 +42,7 @@ public class GoogleAuthService {
         if (credential.getRefreshToken() != null) {
             if (credential.refreshToken()) {
                 setting.setGgAccessToken(credential.getAccessToken());
-                settingRepository.save(setting);
+                systemRepository.save(setting);
             } else {
                 throw new RuntimeException("Cannot refresh Google access token");
             }

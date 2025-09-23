@@ -47,7 +47,6 @@ public class Webhook {
     OrderSyncService orderSyncService;
     WebhookService webhookService;
     ProductSyncService productSyncService;
-    TransactionsService transactionsService;
     ReturnSync returnSync;
 
     @PostMapping("/order")
@@ -100,15 +99,6 @@ public class Webhook {
     public boolean getOrder () throws JsonProcessingException {
         orderSyncService.pushJob();
         return true;
-    }
-
-    OrderExportCase orderExportCase;
-
-    @GetMapping("/test")
-    public ApiResponse<Map<String, String>> exports(@RequestParam List<String> orderIds) {
-        return ApiResponse.<Map<String, String>>builder()
-                .result(orderExportCase.run(orderIds))
-                .build();
     }
 
     ProductDeleteService productDeleteService;

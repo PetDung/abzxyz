@@ -1,6 +1,8 @@
 package com.petd.tiktok_system_be.entity.Auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.petd.tiktok_system_be.entity.Base;
+import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Group.ShopGroup;
 import com.petd.tiktok_system_be.entity.Manager.Team;
 import jakarta.persistence.*;
@@ -39,10 +41,25 @@ public class Account extends Base implements UserDetails {
     @JoinColumn(name = "team_id")
     Team team;
 
+    @OneToOne
+    @JoinColumn(name = "my_team_id")
+    @JsonIgnore
+    Team myTeam;
+
     @ManyToOne
     @JoinColumn(name = "group_id")
     ShopGroup group;
 
+
+    @OneToOne(cascade = CascadeType.ALL) // tự động persist, merge, remove entity liên quan
+    @JoinColumn(name = "setting_id")
+    @JsonIgnore
+    Setting setting;
+
+
+    @OneToMany(mappedBy = "account",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Design> designs;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

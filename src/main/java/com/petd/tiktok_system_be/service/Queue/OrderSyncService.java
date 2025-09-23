@@ -6,10 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.dto.message.OrderDetalisSyncMessage;
 import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
+import com.petd.tiktok_system_be.entity.Auth.Account;
+import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
+import com.petd.tiktok_system_be.service.Auth.SettingService;
 import com.petd.tiktok_system_be.service.NotificationService;
 import com.petd.tiktok_system_be.service.Order.OrderSaveDataBaseService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
@@ -38,6 +41,7 @@ public class OrderSyncService {
     OrderSaveDataBaseService orderSaveDataBaseService;
     NotificationService notificationService;
     ShippingService shippingService;
+    SettingService settingService;
 
     /**
      * Push job đồng bộ đơn hàng cho tất cả shop
@@ -187,6 +191,9 @@ public class OrderSyncService {
     }
 
     public void autoGetLabel (Order order) throws JsonProcessingException {
+        Account account = order.getShop().getLeader();
+        Setting setting = account.getSetting();
+        if(!setting.getEnabledAutoGetLale()) return;
         if(!"TIKTOK".equals(order.getShippingType())) return;
         if("AWAITING_SHIPMENT".equals(order.getStatus())){
             shippingService.buyLabel(order.getId(), order.getShopId());

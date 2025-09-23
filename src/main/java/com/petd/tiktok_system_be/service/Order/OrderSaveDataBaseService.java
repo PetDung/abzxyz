@@ -35,7 +35,6 @@ public class OrderSaveDataBaseService {
     OrderSaveCase orderSaveCase;
     RequestClient requestClient;
     ShippingService shippingService;
-    DesignService designService;
     ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper objectMapper = new ObjectMapper();

@@ -3,7 +3,10 @@ package com.petd.tiktok_system_be.service.Queue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.services.drive.model.File;
 import com.petd.tiktok_system_be.dto.message.LabelMessage;
+import com.petd.tiktok_system_be.entity.Auth.Account;
+import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.service.Auth.SettingService;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.TelegramService;
@@ -27,6 +30,7 @@ public class LabelUploadService {
     GoogleDriveService googleDriveService;
     OrderService orderService;
     TelegramService  telegramService;
+    SettingService settingService;
 
     @KafkaListener(topics = "order-get-label",
             containerFactory = "kafkaListenerContainerFactory",
@@ -35,11 +39,13 @@ public class LabelUploadService {
     public void job(ConsumerRecord<String, String> record, Acknowledgment ack) throws Exception {
         try {
             LabelMessage msg = mapper.readValue(record.value(), LabelMessage.class);
-
             Order order = orderService.getById(msg.getOrderId());
+            Account account = order.getShop().getLeader();
+
+            Setting setting = settingService.getSetting(account);
 
             String mimeType = "application/pdf";
-            String folderId = "1tT1Syx94e14uNY2J3-2ZP0RFNeGk7SGU";
+            String folderId = setting.getDriverId();
             File file = googleDriveService.uploadFileFromUrl(msg.getLabel(),mimeType, folderId, msg.getTrackingNumber());
             order.setLabel(file.getWebViewLink());
             orderService.save(order);

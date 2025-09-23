@@ -4,6 +4,7 @@ import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.SettingRepository;
+import com.petd.tiktok_system_be.service.Auth.SettingService;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleSheetService;
 import com.petd.tiktok_system_be.service.NotificationService;
 import com.petd.tiktok_system_be.service.TelegramService;
@@ -24,19 +25,19 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderExportCase implements ExportInterface {
 
-
     SettingRepository settingRepository;
     OrderRepository orderRepository;
     GoogleSheetService<OrderExport> googleSheetService;
     Export export;
     NotificationService notificationService;
     TelegramService telegramService;
+    SettingService settingService;
 
     @Transactional
     @Override
     public Map<String, String> run(List<String> items) {
         Map<String, String> errors = new HashMap<>();
-        Setting setting = settingRepository.findAll().get(0);
+        Setting setting = settingService.getSetting();
 
         for (String orderId : items) {
             try {

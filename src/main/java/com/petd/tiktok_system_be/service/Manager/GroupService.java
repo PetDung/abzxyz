@@ -37,7 +37,6 @@ public class GroupService {
     GroupMapper  groupMapper;
     ShopMapper shopMapper;
     ShopService shopService;
-    AccountRepository accountRepository;
 
     public ShopGroup getById(String id){
         return  shopGroupRepository.findById(id)

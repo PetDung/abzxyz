@@ -7,8 +7,10 @@ import com.petd.tiktok_system_be.api.WebhookApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.dto.message.WebhookMessage;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.SettingRepository;
+import com.petd.tiktok_system_be.repository.SettingSystemRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
@@ -34,7 +36,7 @@ public class WebhookService {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
     ShopRepository  shopRepository;
-    SettingRepository settingRepository;
+    SettingSystemRepository settingSystemRepository;
 
     public void addWebHook(Event event) throws JsonProcessingException {
         List<Shop> list =  shopRepository.findAll();
@@ -52,7 +54,7 @@ public class WebhookService {
     }
 
     public void addAllWebHooks() throws JsonProcessingException {
-        Setting setting = settingRepository.findAll().get(0);
+        SettingSystem setting = settingSystemRepository.findAll().get(0);
 
         Event eventOrder = Event.builder()
                 .address(setting.getOrderWebhook())
@@ -75,7 +77,7 @@ public class WebhookService {
     public TiktokApiResponse getWebhook(String shopId) throws JsonProcessingException {
         Shop shop = shopRepository.findById(shopId).get();
 
-        GetWebhookApi  getWebhookApi = GetWebhookApi.builder()
+        GetWebhookApi getWebhookApi = GetWebhookApi.builder()
                 .accessToken(shop.getAccessToken())
                 .requestClient(requestClient)
                 .shopCipher(shop.getCipher())

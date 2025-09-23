@@ -1,7 +1,9 @@
 package com.petd.tiktok_system_be.service.Shop;
 
+import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.dto.request.DesignMappingRequest;
 import com.petd.tiktok_system_be.dto.request.DesignRequest;
+import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Design.MappingDesign;
 import com.petd.tiktok_system_be.entity.Order.OrderItem;
@@ -10,6 +12,7 @@ import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.DesignRepository;
 import com.petd.tiktok_system_be.repository.MappingDesignRepository;
 import com.petd.tiktok_system_be.repository.OrderItemRepository;
+import com.petd.tiktok_system_be.service.Auth.AccountService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class DesignService {
     DesignRepository repository;
     MappingDesignRepository  mappingRepository;
     OrderItemRepository orderItemRepository;
+    AccountService accountService;
 
     public Design getDesignById(String id) {
         return repository.findById(id).orElse(null);
@@ -49,7 +53,14 @@ public class DesignService {
         return repository.save(design);
     }
     public List<Design> getAllDesigns() {
-        return repository.findAll();
+        Account account = accountService.getMe();
+        if(account.getRole().equals(Role.Admin.toString())){
+            return repository.findAll();
+        }
+        String accountId = null;
+        if(account.getRole().equals(Role.Leader.toString())) accountId = account.getId();
+        if (account.getRole().equals(Role.Employee.toString())) accountId = account.getTeam().getLeader().getId();
+        return repository.findAllByAccount_Id(accountId);
     }
 
     public void deleteDesignById(String id) {

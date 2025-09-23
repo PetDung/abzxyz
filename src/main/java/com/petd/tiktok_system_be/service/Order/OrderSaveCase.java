@@ -1,7 +1,9 @@
 package com.petd.tiktok_system_be.service.Order;
 
+import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Order.*;
 import com.petd.tiktok_system_be.repository.OrderRepository;
+import com.petd.tiktok_system_be.service.Shop.DesignService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class OrderSaveCase {
 
     OrderRepository orderRepository;
+    DesignService designService;
 
     @Transactional
     public Order persistOrderTransactional(Order order) {
@@ -60,6 +63,7 @@ public class OrderSaveCase {
             existing.setSettlement(settlement);
             existing.setPayment(paymentOrder);
             existing.setRecipientAddress(recipientAddress);
+
 
             return orderRepository.save(existing);
         } else {
@@ -192,6 +196,8 @@ public class OrderSaveCase {
                 incoming.setOrder(order);
                 existing.add(incoming);
             }
+            Design design = designService.getDesignBySkuIdAnhProductId(incoming.getSkuId(), incoming.getProductId());
+            incoming.setDesign(design);
         }
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.Specification.ProductSpecification;
 import com.petd.tiktok_system_be.api.GetProduct;
 import com.petd.tiktok_system_be.dto.response.ProductResponse;
+import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -60,10 +62,14 @@ public class ProductService {
     }
 
     public List<Product> getAllActiveProducts(Map<String, String> param) {
-        List<String> allowedFilters = Arrays.asList("ACTIVE", "UPDATE");
 
-        // Lấy tất cả shop của user
         List<Shop> myShops = shopService.getMyShops();
+        if (myShops == null || myShops.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> allowedFilters = Arrays.asList("ACTIVE", "UPDATE");
+        // Lấy tất cả shop của user
         List<String> shopIds = myShops.stream()
                 .map(Shop::getId)
                 .toList();
@@ -75,8 +81,6 @@ public class ProductService {
         String filter = (filterParam != null && allowedFilters.contains(filterParam))
                 ? filterParam
                 : "ACTIVE";
-
-
 
         // Tạo Specification: chỉ lấy ACTIVE và thuộc shopIds
         Specification<Product> spec = Specification
@@ -97,7 +101,18 @@ public class ProductService {
     }
 
     public ProductResponse getListProductInDataBase(Map<String, String> param) {
-
+        List<Shop> myShops = shopService.getMyShops();
+        if (myShops == null || myShops.isEmpty()) {
+            return ProductResponse.builder()
+                    .products(new ArrayList<>())
+                    .currentPage(0)
+                    .isLast(true)
+                    .totalCount(0)
+                    .build();
+        }
+        List<String> shopIds = myShops.stream()
+                .map(Shop::getId)
+                .toList();
         List<String> allowedFilters = Arrays.asList("ACTIVE", "UPDATE");
 
         int page = parseNumberSafe(param.get("page"), Integer::parseInt, 0);
@@ -113,14 +128,6 @@ public class ProductService {
         String filter = (filterParam != null && allowedFilters.contains(filterParam))
                 ? filterParam
                 : "ACTIVE";
-
-
-
-        // Lấy tất cả shop của user
-        List<Shop> myShops = shopService.getMyShops();
-        List<String> shopIds = myShops.stream()
-                .map(Shop::getId)
-                .toList();
 
         // Tạo Specification
         Specification<Product> spec = Specification
@@ -142,7 +149,6 @@ public class ProductService {
                 Sort.Order.desc("id")
         ));
         Page<Product> productPage = productRepository.findAll(spec, pageable);
-
         return ProductResponse.builder()
                 .products(productPage.getContent())
                 .currentPage(page)

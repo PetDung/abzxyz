@@ -14,7 +14,7 @@ public class OrderSpecification {
     public static Specification<Order> filterOrders(
             String orderId,
             List<String> shopIds,
-            List<String> statuses,    // <--- thay đổi ở đây
+            List<String> statuses,
             String shippingType
     ) {
         return (root, query, cb) -> {

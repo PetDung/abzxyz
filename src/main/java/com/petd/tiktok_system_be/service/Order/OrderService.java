@@ -48,17 +48,11 @@ public class OrderService {
     OrderRepository orderRepository;
     PrinterService printerService;
     NotificationService notificationService;
-    OrderItemRepository orderItemRepository;
 
     public Order getById(String id) {
         return orderRepository.findById(id)
                  .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
-
-    public List<OrderItem> getAllOrderItemsBySkuAndProduct(String skuId, String productId) {
-        return orderItemRepository.findBySkuIdAndProductId(skuId, productId);
-    }
-
     public Order save(Order order) {
         return orderRepository.save(order);
     }
@@ -138,6 +132,9 @@ public class OrderService {
             String shippingType,
             Integer page
     ) {
+
+        List<String> statuses = StringUtils.isNotBlank(status) ? List.of(status) :  List.of() ;
+
         List<Shop> myShops = shopService.getMyShops();
 
         if(myShops == null || myShops.isEmpty()) {
@@ -148,6 +145,7 @@ public class OrderService {
                     .isLast(true)
                     .build();
         }
+
         // Ném lỗi nếu shopIds chứa id không hợp lệ
         if(hasInvalidShopId(myShops, shopIds)){
             throw new AppException(ErrorCode.FI);
@@ -162,7 +160,7 @@ public class OrderService {
 
         Pageable pageable = PageRequest.of(page, 20, Sort.by("createTime").descending());
         Page<Order> orderPage = orderRepository.findAll(
-                OrderSpecification.filterOrders(orderId, id, List.of(status), shippingType),
+                OrderSpecification.filterOrders(orderId, id, statuses, shippingType),
                 pageable
         );
 

@@ -23,7 +23,6 @@ public class TransactionsService {
 
     RequestClient requestClient;
     ShopService shopService;
-    OrderRepository orderRepository;
 
 
     public JsonNode getTransactionsByOrderId(String shopId, String orderId) {

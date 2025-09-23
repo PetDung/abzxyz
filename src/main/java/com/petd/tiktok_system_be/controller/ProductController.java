@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,8 @@ public class ProductController {
                 .result(productService.getListProductInDataBase(params))
                 .build();
     }
+
+    @PreAuthorize("@shopSecurity.isAccept(#shopId)")
     @GetMapping("details/{id}/{shopId}")
     public ApiResponse<JsonNode> getProduct (@PathVariable String id, @PathVariable String shopId) throws JsonProcessingException {
         return ApiResponse.<JsonNode>builder()

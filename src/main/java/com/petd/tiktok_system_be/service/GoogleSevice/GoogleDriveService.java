@@ -7,7 +7,9 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.repository.SettingRepository;
+import com.petd.tiktok_system_be.repository.SettingSystemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,9 +25,9 @@ import java.util.Collections;
 public class GoogleDriveService {
 
     GoogleAuthService googleAuthService;
-    SettingRepository settingRepository;
+    SettingSystemRepository settingSystemRepository;
 
-    public Drive getDriveService(Setting setting) throws Exception {
+    public Drive getDriveService(SettingSystem setting) throws Exception {
         return new Drive.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 GsonFactory.getDefaultInstance(),
@@ -37,7 +39,7 @@ public class GoogleDriveService {
 
 
     public File uploadFileFromUrl(String fileUrl, String mimeType, String driveFolderId, String fileName) throws Exception {
-        Setting setting = settingRepository.findAll().get(0);
+        SettingSystem setting = settingSystemRepository.findAll().get(0);
         Drive drive = getDriveService(setting);
 
         // Lấy input stream từ URL

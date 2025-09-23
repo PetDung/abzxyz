@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.dto.request.UpdateOrderCostPrinterRequest;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.entity.Order.Order;
+import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Order.OrderUpdatePrinterAndCostCase;
 import lombok.AccessLevel;
@@ -26,6 +27,7 @@ public class OrderController {
 
     OrderService orderService;
     OrderUpdatePrinterAndCostCase updatePrinterAndCostCase;
+    OrderExportCase orderExportCase;
 
     @PreAuthorize("@shopSecurity.isAccept(#shopId)")
     @PostMapping("/list/{shopId}")
@@ -58,6 +60,13 @@ public class OrderController {
     public ApiResponse<Map<Integer, List<String>>> updateInFile(@RequestBody UpdateOrderCostPrinterRequest request){
         return ApiResponse.<Map<Integer, List<String>>>builder()
                 .result(updatePrinterAndCostCase.updatePrinterAndCost(request.getData()))
+                .build();
+    }
+
+    @GetMapping("/export")
+    public ApiResponse<Map<String, String>> exports(@RequestParam List<String> orderIds) {
+        return ApiResponse.<Map<String, String>>builder()
+                .result(orderExportCase.run(orderIds))
                 .build();
     }
 }

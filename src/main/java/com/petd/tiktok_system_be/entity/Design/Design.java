@@ -1,6 +1,7 @@
 package com.petd.tiktok_system_be.entity.Design;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Base;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,6 +24,11 @@ public class Design  extends Base {
     String backSide;
     String leftSide;
     String rightSide;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    @JsonIgnore
+    Account account;
 
     @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

@@ -9,7 +9,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
+import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.repository.SettingRepository;
+import com.petd.tiktok_system_be.repository.SettingSystemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,7 +31,7 @@ import java.util.List;
 public class DriveTokenFetcher {
 
     JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-    SettingRepository settingRepository;
+    SettingSystemRepository settingSystemRepository;
     String path   = System.getenv("GG_CERTIFICATE");
     public void getTokenGG() throws Exception {
 
@@ -57,18 +59,17 @@ public class DriveTokenFetcher {
         System.out.println("access token: " + credential.getAccessToken());
         System.out.println("refresh token: " + credential.getRefreshToken());
 
-        Setting setting;
-
-        List<Setting> settings = settingRepository.findAll();
+        SettingSystem setting;
+        List<SettingSystem> settings = settingSystemRepository.findAll();
 
         if(settings.isEmpty()){
-            setting = new Setting();
+            setting = new SettingSystem();
         }else {
             setting = settings.get(0);
         }
         setting.setGgAccessToken(credential.getAccessToken());
         setting.setGgRefreshToken(credential.getRefreshToken());
-        settingRepository.save(setting);
+        settingSystemRepository.save(setting);
 
     }
 }
