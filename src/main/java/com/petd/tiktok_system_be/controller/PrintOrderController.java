@@ -29,13 +29,15 @@ public class PrintOrderController {
     public ApiResponse<?> orderSync(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "order_id", required = false) String orderId,
-            @RequestParam(name = "shop_ids", required = false) List<String> shopIds
+            @RequestParam(name = "shop_ids", required = false) List<String> shopIds,
+            @RequestParam(name = "print_status", defaultValue = "ALL") String printStatus
     ){
         // lấy dữ liệu từ DB với filter
         ResponsePage<Order> response = printCase.getOrderCanPrint(
                 orderId,
                 shopIds,
-                page
+                page,
+                printStatus
         );
         return ApiResponse.<ResponsePage<Order>>builder()
                 .message("Order sync started")

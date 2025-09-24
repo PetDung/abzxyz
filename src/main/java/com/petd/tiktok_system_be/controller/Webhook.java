@@ -19,11 +19,14 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrinteesHub;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.dto.request.OrderRequest;
+import com.petd.tiktok_system_be.service.CloudinaryService;
 import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
+import com.petd.tiktok_system_be.service.FileProxyService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Product.ReupProduct;
 import com.petd.tiktok_system_be.service.Queue.*;
+import com.petd.tiktok_system_be.service.Shop.DesignService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import com.petd.tiktok_system_be.service.Shop.TransactionsService;
 import lombok.AccessLevel;
@@ -35,6 +38,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -202,6 +207,14 @@ public class Webhook {
         return ApiResponse.<Object>builder().
                 result(bandApi.callApi())
                 .build();
+    }
+
+    DesignService designService;
+
+    @PostMapping("upload/image")
+    public ResponseEntity<String> upload(@RequestParam("fileId") String file) {
+        designService.sy();
+        return ResponseEntity.ok("Oke");
     }
 
 }

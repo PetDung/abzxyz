@@ -21,7 +21,7 @@ import java.util.List;
 public class Printer  extends Base {
     String name;
     String description;
-
+    String code;
     @OneToMany(mappedBy = "printer")
     @JsonIgnore
     List<Order> orders;

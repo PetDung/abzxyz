@@ -1,6 +1,7 @@
 package com.petd.tiktok_system_be.service.Manager;
 
 import com.petd.tiktok_system_be.entity.Manager.Printer;
+import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.OrderRepository;
@@ -47,10 +48,6 @@ public class PrinterService {
         printer.setDescription(printerRq.getDescription());
         return printerRepository.save(printer);
     }
-
-
-
-
     public void delete(String id) {
         Printer printer = this.findById(id);
         printer.getOrders().forEach(order -> {

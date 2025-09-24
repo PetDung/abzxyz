@@ -6,6 +6,7 @@ import com.petd.tiktok_system_be.dto.request.DesignRequest;
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Design.MappingDesign;
+import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Order.OrderItem;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
@@ -13,13 +14,18 @@ import com.petd.tiktok_system_be.repository.DesignRepository;
 import com.petd.tiktok_system_be.repository.MappingDesignRepository;
 import com.petd.tiktok_system_be.repository.OrderItemRepository;
 import com.petd.tiktok_system_be.service.Auth.AccountService;
+import com.petd.tiktok_system_be.service.CloudinaryService;
+import com.petd.tiktok_system_be.service.FileProxyService;
+import com.petd.tiktok_system_be.service.NotificationService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
+import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -34,24 +40,58 @@ public class DesignService {
     MappingDesignRepository  mappingRepository;
     OrderItemRepository orderItemRepository;
     AccountService accountService;
-
-    public Design getDesignById(String id) {
-        return repository.findById(id).orElse(null);
-    }
+    FileProxyService fileProxyService;
+    CloudinaryService cloudinaryService;
+    NotificationService notificationService;
 
     public Design save(Design design){
         return repository.save(design);
     }
     public Design create(DesignRequest request) {
+
+        Account account = accountService.getMe();
+        String thumbnail = processLink(request.getFrontSide());
+        if(StringUtils.isBlank(thumbnail)){
+            thumbnail = processLink(request.getBackSide());
+        }
+        if(StringUtils.isBlank(thumbnail)){
+            thumbnail = processLink(request.getLeftSide());
+        }
+        if(StringUtils.isBlank(thumbnail)){
+            thumbnail = processLink(request.getRightSide());
+        }
+
         Design design = Design.builder()
                 .name(request.getName())
                 .backSide(request.getBackSide())
                 .frontSide(request.getFrontSide())
                 .leftSide(request.getLeftSide())
                 .rightSide(request.getRightSide())
+                .thumbnail(thumbnail)
+                .account(account)
                 .build();
+
         return repository.save(design);
     }
+    public void sy () {
+        List<Design> designs = repository.findAll();
+        designs.forEach(design -> {
+            String thumbnail = processLink(design.getFrontSide());
+            if(StringUtils.isBlank(thumbnail)){
+                thumbnail = processLink(design.getBackSide());
+            }
+            if(StringUtils.isBlank(thumbnail)){
+                thumbnail = processLink(design.getLeftSide());
+            }
+            if(StringUtils.isBlank(thumbnail)){
+                thumbnail = processLink(design.getRightSide());
+            }
+            design.setThumbnail(thumbnail);
+
+        });
+        repository.saveAll(designs);
+    }
+
     public List<Design> getAllDesigns() {
         Account account = accountService.getMe();
         if(account.getRole().equals(Role.Admin.toString())){
@@ -64,7 +104,10 @@ public class DesignService {
     }
 
     public void deleteDesignById(String id) {
+        Design design = repository.findById(id).orElse(null);
+        if (design == null) return;
         repository.deleteById(id);
+        cloudinaryService.deleteByUrl(design.getThumbnail());
     }
 
     public Design getDesignBySkuIdAnhProductId (String skuId, String productId){
@@ -112,7 +155,6 @@ public class DesignService {
         for (String sku : request.getSkuIds()) {
             Optional<MappingDesign> conflict = mappingRepository.findByProductIdAndSku(request.getProductId(), sku);
             if (conflict.isPresent() && (existing.isEmpty() || !conflict.get().getId().equals(existing.get().getId()))) {
-                // xoá sku khỏi record cũ
                 MappingDesign oldMapping = conflict.get();
                 oldMapping.getSkus().remove(sku);
                 mappingRepository.save(oldMapping);
@@ -138,27 +180,29 @@ public class DesignService {
                     updatedMappingDesign.getProductId());
             orderItems.forEach(orderItem -> {
                 orderItem.setDesign(mappingDesign.getDesign());
+                notificationService.orderUpdateStatus(orderItem.getOrder());
             });
             orderItemRepository.saveAll(orderItems);
         }
         return updatedMappingDesign;
     }
 
+
+    public Order clearDesignInOrderItem (String itemId) {
+            OrderItem item = orderItemRepository.findById(itemId).orElse(null);
+            if (item == null) return null;
+            item.setDesign(null);
+            orderItemRepository.save(item);
+            notificationService.orderUpdateStatus(item.getOrder());
+            return item.getOrder();
+    }
     @Transactional
     public void removeSkus(String productId, List<String> skusToRemove) {
         List<MappingDesign> mappings = mappingRepository.findByProductId(productId);
 
         for (MappingDesign md : mappings) {
             List<String> skus = md.getSkus();
-            boolean changed = skus.removeAll(skusToRemove); // remove các sku cần xoá
-            for (String sku : skus ) {
-                List<OrderItem> orderItems = orderItemRepository.findBySkuIdAndProductId(sku,
-                        md.getProductId());
-                orderItems.forEach(orderItem -> {
-                    orderItem.setDesign(null);
-                });
-                orderItemRepository.saveAll(orderItems);
-            }
+            boolean changed = skus.removeAll(skusToRemove);
             if (changed) {
 
                 if (skus.isEmpty()) {
@@ -169,6 +213,42 @@ public class DesignService {
                 }
             }
         }
+    }
+
+    private String processLink(String url) {
+        if (url == null || url.isBlank()) return null;
+
+        if (isGoogleDriveLink(url)) {
+            try {
+                // 1. Lấy fileId từ URL
+                String fileId = extractFileId(url);
+
+                // 2. Download file từ Google Drive
+                MultipartFile file = fileProxyService.downloadFileAsMultipart(fileId, "original");
+
+                // 3. Upload lên Cloud (ví dụ Cloudinary)
+                String cloudUrl = cloudinaryService.uploadFile(file); // giả sử bạn có service upload
+
+                return cloudUrl;
+
+            } catch (Exception e) {
+                log.error("Lỗi xử lý link Google Drive: {}", url, e);
+                return url; // fallback: trả link gốc
+            }
+        }
+        return url; // không phải Drive -> giữ nguyên
+    }
+
+    private boolean isGoogleDriveLink(String url) {
+        return url.contains("drive.google.com");
+    }
+
+    private String extractFileId(String url) {
+        // Ví dụ: https://drive.google.com/file/d/<fileId>/view?usp=sharing
+        String[] parts = url.split("/d/");
+        if (parts.length < 2) return null;
+        String idPart = parts[1];
+        return idPart.split("/")[0];
     }
 
 

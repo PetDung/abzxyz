@@ -47,6 +47,21 @@ public class OrderController {
                 .build();
     }
 
+    @PostMapping("/change-status-print/{orderId}/{status}")
+    public ApiResponse<Order> changeStatus(@PathVariable String orderId, @PathVariable String status){
+        return ApiResponse.<Order>builder()
+                .result(orderService.changeStatusPrint(orderId,status))
+                .build();
+    }
+
+    @PostMapping("/update-sku-print-id/{orderItemId}/{skuId}")
+    public ApiResponse<Order> updateSkuPrint(@PathVariable String orderItemId,
+                                            @PathVariable String skuId){
+        return ApiResponse.<Order>builder()
+                .result(orderService.updateSkuPrint(orderItemId,skuId))
+                .build();
+    }
+
     @PostMapping("/cost/{orderId}")
     public ApiResponse<Order> updateCost(
             @PathVariable String orderId,

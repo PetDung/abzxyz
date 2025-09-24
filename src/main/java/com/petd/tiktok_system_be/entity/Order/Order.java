@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.petd.tiktok_system_be.constant.PrintStatus;
 import com.petd.tiktok_system_be.entity.Manager.Printer;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.entity.Return.Return;
@@ -66,6 +67,8 @@ public class Order {
 
     String label;
     Boolean isNote;
+    @Builder.Default
+    String printStatus = PrintStatus.REVIEW.toString();
 
     @Transient
     public String getShopName(){

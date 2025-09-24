@@ -85,4 +85,12 @@ public class DesignController {
                 .build();
     }
 
+    @DeleteMapping("/clear/{itemId}")
+    public ApiResponse<String> clear(@PathVariable String itemId) {
+        designService.clearDesignInOrderItem(itemId);
+        return ApiResponse.<String>builder()
+                .result("Delete successfully")
+                .build();
+    }
+
 }

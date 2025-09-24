@@ -8,6 +8,7 @@ import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
+import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,14 +33,21 @@ public class PrintCase {
     ShopService shopService;
     OrderRepository orderRepository;
 
-    public ResponsePage<Order> getOrderCanPrint( String orderId, List<String> shopIds,  Integer page ) {
+    public ResponsePage<Order> getOrderCanPrint( String orderId, List<String> shopIds,  Integer page, String printStatus ) {
+
+        if(StringUtils.isBlank(printStatus) || "ALL".equalsIgnoreCase(printStatus)) {
+            printStatus = null;
+        }
+        log.info(printStatus);
+
         List<String> status = List.of("AWAITING_COLLECTION", "AWAITING_SHIPMENT");
         return getAllOrderOnDataBaseByOwnerId(
                 orderId,
                 shopIds,
                 status,
                 null,
-                page
+                page,
+                printStatus
         );
     }
 
@@ -49,7 +57,8 @@ public class PrintCase {
             List<String> shopIds,
             List<String> status,
             String shippingType,
-            Integer page
+            Integer page,
+            String printStatus
     ) {
         List<Shop> myShops = shopService.getMyShops();
 
@@ -75,7 +84,7 @@ public class PrintCase {
 
         Pageable pageable = PageRequest.of(page, 20, Sort.by("createTime").descending());
         Page<Order> orderPage = orderRepository.findAll(
-                OrderSpecification.filterOrders(orderId, id, status, shippingType),
+                OrderSpecification.filterOrders(orderId, id, status, shippingType, printStatus),
                 pageable
         );
 

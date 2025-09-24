@@ -48,6 +48,7 @@ public class OrderService {
     OrderRepository orderRepository;
     PrinterService printerService;
     NotificationService notificationService;
+    OrderItemRepository orderItemRepository;
 
     public Order getById(String id) {
         return orderRepository.findById(id)
@@ -112,9 +113,21 @@ public class OrderService {
         Order order = getById(orderId);
         Printer printer = "REMOVE".equals(printerId) ? null : printerService.findById(printerId);
         order.setPrinter(printer);
+        order.getLineItems().forEach(lineItem -> {
+            lineItem.setSkuPrint(null);
+        });
         orderRepository.save(order);
         notificationService.orderUpdateStatus(order);
         return order;
+    }
+
+    public Order updateSkuPrint(String lineItemId, String skuPrintId){
+        OrderItem orderItem = orderItemRepository.findById(lineItemId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        orderItem.setSkuPrint(skuPrintId);
+        orderItemRepository.save(orderItem);
+        notificationService.orderUpdateStatus(orderItem.getOrder());
+        return orderItem.getOrder();
     }
 
     public Order updateCost (String orderId, BigDecimal cost){
@@ -172,6 +185,17 @@ public class OrderService {
                 .build();
     }
 
+    public Order changeStatusPrint(String orderId, String status){
+        Set<String> validStatuses = Set.of("AWAITING", "REVIEW", "PRINTED");
+        if (!validStatuses.contains(status.toUpperCase())) {
+            throw new AppException(ErrorCode.NOT_FOUND);
+        }
+        Order order = getById(orderId);
+        order.setPrintStatus(status);
+        orderRepository.save(order);
+        notificationService.orderUpdateStatus(order);
+        return order;
+    }
     public boolean hasInvalidShopId(List<Shop> myShops, List<String> shopIds) {
         if(shopIds == null || shopIds.isEmpty()) return false;
         Set<String> myShopIdSet = myShops.stream()
