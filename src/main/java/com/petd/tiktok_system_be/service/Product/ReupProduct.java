@@ -5,19 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.api.body.productRequestUpload.*;
 import com.petd.tiktok_system_be.entity.Order.MainImage;
-import com.petd.tiktok_system_be.repository.ProductRepository;
-import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.service.Product.productDetailsMap.*;
-import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,37 +20,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReupProduct {
 
-    ShopService shopService;
-    ProductRepository productRepository;
     ProductService productService;
-    RequestClient requestClient;
-
-
-    public ProductDetailsMap copyProduct (String shopId, String productId){
+    public ProductUpload copyProduct (String shopId, String productId){
         try {
             ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);;
             JsonNode productJson = productService.getProduct(shopId, productId);
             ProductDetailsMap  productDetailsMap =  mapper.convertValue(productJson, ProductDetailsMap.class);
-
-            ProductUpload productUpload = new ProductUpload();
-
-            ImageProductSize image = productDetailsMap.getSizeChart().getImage();
-            System.out.println(image.getHeight());
-            System.out.println(image.getWidth());
-
-            productUpload.setSaveMode("LISTING");
-
-
-            return productDetailsMap;
+            return convertToProductUpload(productDetailsMap);
         }catch (Exception ex){
             log.error(ex.getMessage(),ex);
             return null;
         }
     }
-
-
     public ProductUpload convertToProductUpload(ProductDetailsMap src){
-
         return ProductUpload.builder()
                 .categoryId(getLastCategoryId(src.getCategoryChains()))
                 .saveMode("LISTING")
@@ -69,6 +46,7 @@ public class ReupProduct {
                 .listingPlatforms(List.of("TIKTOK_SHOP"))
                 .sizeChart(getSizeChartUploads(src.getSizeChart()))
                 .mainImages(getMainImage(src.getMainImages()))
+                .skus(src.getSkus())
                 .video(null)
                 .certifications(null)
                 .externalProductId(null)
@@ -82,7 +60,6 @@ public class ReupProduct {
                 .idempotencyKey(UUID.randomUUID().toString())
                 .build();
     }
-
     public String getLastCategoryId(List<CategoryChain> categoryChains) {
         if (categoryChains == null || categoryChains.isEmpty()) {
             throw new IllegalArgumentException("categoryChains is null or empty");
@@ -104,25 +81,25 @@ public class ReupProduct {
                 .value(src.getValue())
                 .build();
     }
-
     public SizeChart getSizeChartUploads(SizeChartProductDetails src){
         if(src == null) return null;
         String uri = src.getImage().getUri();
         Image image = Image.builder()
                 .uri(uri)
+                .urls(src.getImage().getUrls())
                 .build();
         return SizeChart.builder()
                 .image(image)
                 .template(null)
                 .build();
     }
-
     public List<Image> getMainImage (List<MainImage> src){
         return src.stream()
                 .map(item -> Image.builder()
-                        .uri(item.getUri())
+                        .urls(item.getUrls())
                         .build()
                 )
                 .toList();
     }
+
 }

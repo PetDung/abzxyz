@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.api.BandApi;
+import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductUpload;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
@@ -25,6 +26,7 @@ import com.petd.tiktok_system_be.service.FileProxyService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Product.ReupProduct;
+import com.petd.tiktok_system_be.service.Product.UploadProductCase;
 import com.petd.tiktok_system_be.service.Queue.*;
 import com.petd.tiktok_system_be.service.Shop.DesignService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
@@ -180,12 +182,14 @@ public class Webhook {
 
 
     ReupProduct reupProduct;
+    UploadProductCase uploadProductCase;
     @GetMapping("/reup/{productId}/{shopId}")
     public ApiResponse<?> print(@PathVariable String productId,
                                 @PathVariable String shopId
     ) throws IOException {
+        ProductUpload productUpload = reupProduct.copyProduct(shopId,productId);
         return ApiResponse.<Object>builder().
-                result(reupProduct.copyProduct(shopId,productId))
+                result(uploadProductCase.uploadProductCase(productUpload, "7494158746987234821"))
                 .build();
     }
 

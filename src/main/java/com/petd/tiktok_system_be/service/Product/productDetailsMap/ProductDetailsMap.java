@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductAttribute;
+import com.petd.tiktok_system_be.api.body.productRequestUpload.SkuUpload;
 import com.petd.tiktok_system_be.entity.Order.MainImage;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +36,7 @@ public class ProductDetailsMap {
     List<String> manufacturerIds;
     PackageDimensions packageDimensions;
     PackageWeight packageWeight;
-    List<JsonNode> productAttributes;
+    List<ProductAttribute> productAttributes;
     String productStatus;
     List<JsonNode> recommendedCategories;
     List<String> responsiblePersonIds;
@@ -42,7 +44,7 @@ public class ProductDetailsMap {
 
     SizeChartProductDetails sizeChart;
 
-    List<SkuDetails> skus;
+    List<SkuUpload> skus;
     String status;
     SubscribeInfo subscribeInfo;
     String title;

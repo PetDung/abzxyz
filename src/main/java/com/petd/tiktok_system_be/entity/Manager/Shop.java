@@ -47,6 +47,7 @@ public class Shop {
 
     @Column(nullable = false)
     String cipher;
+    String warehouse;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL,  orphanRemoval = true)
     List<Order> orders;
@@ -63,6 +64,8 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop",  cascade = CascadeType.ALL,  orphanRemoval = true)
     List<Product>  products;
+
+
 
 
     @CreatedDate

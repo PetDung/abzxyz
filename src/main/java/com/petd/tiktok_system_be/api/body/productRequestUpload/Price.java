@@ -11,9 +11,13 @@ import lombok.*;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Price {
+
     private String amount;
+
     private String currency;
     @JsonProperty("sale_price")
     private String salePrice;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String source;
 }

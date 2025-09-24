@@ -1,40 +1,41 @@
 package com.petd.tiktok_system_be.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductUpload;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.shared.TiktokCallApi;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 @Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UploadImageApi implements TiktokCallApi {
+public class UploadProductApi implements TiktokCallApi {
 
-    private final String api = "/product/202309/images/upload";
-
+    private final String api = "/product/202309/products";
     RequestClient requestClient;
     String accessToken;
-    String useCase;
-    File image;
+    String shopCipher;
+
+    ProductUpload body;
 
     @Override
     public Map<String, String> createParameters() {
-        return Map.of();
+        return Map.of("shop_cipher", shopCipher);
     }
 
     @Override
     public TiktokApiResponse callApi() throws JsonProcessingException {
-        Map<String, Object> body = new HashMap<>();
-        body.put("use_case", useCase);
-        body.put("data", image);
-        return requestClient.postMultipart(api,accessToken,createParameters(), body )  ;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String bodyJson = objectMapper.writeValueAsString(body);
+        return requestClient.post(api,accessToken,createParameters(),bodyJson )  ;
     }
 }

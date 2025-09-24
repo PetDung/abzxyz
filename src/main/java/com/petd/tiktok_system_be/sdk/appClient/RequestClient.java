@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -113,28 +115,13 @@ public class RequestClient{
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + path).newBuilder();
         params.forEach(urlBuilder::addQueryParameter);
 
-        MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM);
-
-        if (multipartData != null) {
-            for (Map.Entry<String, Object> entry : multipartData.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-
-                if (value instanceof File) {
-                    File file = (File) value;
-                    multipartBuilder.addFormDataPart(key, file.getName(),
-                            RequestBody.create(file, MediaType.parse("application/octet-stream")));
-                } else {
-                    multipartBuilder.addFormDataPart(key, value.toString());
-                }
-            }
-        }
+        RequestBody requestBody = buildRequestBodyMultipart(multipartData);
 
         Request unsigned = new Request.Builder()
                 .url(urlBuilder.build())
-                .post(multipartBuilder.build())
+                .post(requestBody)
                 .addHeader("x-tts-access-token", accessToken)
+                .addHeader("Content-Type", "multipart/form-data")
                 .build();
 
         String sign = signatureUtil.generateSignature(unsigned, appSecret);
@@ -150,6 +137,44 @@ public class RequestClient{
             throw new TiktokException(500, "Lỗi hệ thống!");
         }
     }
+
+
+    public RequestBody buildRequestBodyMultipart(Map<String, Object> formParams) {
+        MultipartBody.Builder mpBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+
+        for (Map.Entry<String, Object> param : formParams.entrySet()) {
+            String key = param.getKey();
+            Object value = param.getValue();
+
+            if (value instanceof File) {
+                addPartToMultiPartBuilder(mpBuilder, key, (File) value);
+            } else if (value instanceof List<?>) {
+                for (Object item : (List<?>) value) {
+                    if (item instanceof File) {
+                        addPartToMultiPartBuilder(mpBuilder, key, (File) item);
+                    } else {
+                        mpBuilder.addFormDataPart(key, item.toString());
+                    }
+                }
+            } else {
+                mpBuilder.addFormDataPart(key, value.toString());
+            }
+        }
+
+        return mpBuilder.build();
+    }
+    private void addPartToMultiPartBuilder(MultipartBody.Builder mpBuilder, String key, File file) {
+        Headers partHeaders = Headers.of(new String[]{"Content-Disposition", "form-data; name=\"" + key + "\"; filename=\"" + file.getName() + "\""});
+        MediaType mediaType = MediaType.parse(this.guessContentTypeFromFile(file));
+        mpBuilder.addPart(partHeaders, RequestBody.create(file, mediaType));
+    }
+
+
+    public String guessContentTypeFromFile(File file) {
+        String contentType = URLConnection.guessContentTypeFromName(file.getName());
+        return contentType == null ? "application/octet-stream" : contentType;
+    }
+
 
 
 }
