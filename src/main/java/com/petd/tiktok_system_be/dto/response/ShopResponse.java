@@ -16,4 +16,5 @@ public class ShopResponse {
     String tiktokShopName;
     String userShopName;
     LocalDateTime createdAt;
+    String ownerName;
 }

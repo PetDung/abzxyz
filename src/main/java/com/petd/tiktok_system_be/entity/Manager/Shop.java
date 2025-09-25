@@ -66,8 +66,6 @@ public class Shop {
     List<Product>  products;
 
 
-
-
     @CreatedDate
     @Column(updatable = false)
     LocalDateTime createdAt;
@@ -75,4 +73,8 @@ public class Shop {
     @LastModifiedDate
     LocalDateTime updatedAt;
 
+    @Transient
+    public String getOwnerName(){
+        return leader.getName();
+    }
 }

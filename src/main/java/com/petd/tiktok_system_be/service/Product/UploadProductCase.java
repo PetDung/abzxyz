@@ -9,7 +9,9 @@ import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
+import com.petd.tiktok_system_be.sdk.exception.TiktokException;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
+import com.petd.tiktok_system_be.service.TelegramService;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,25 +34,31 @@ public class UploadProductCase {
 
     RequestClient requestClient;
     ShopService shopService;
+    TelegramService telegramService;
 
 
-
-    public ProductUpload uploadProductCase(ProductUpload product, String shopId) throws IOException {
+    public JsonNode uploadProductCase(ProductUpload product, String shopId) throws IOException {
        try{
            Shop shop = shopService.getShopByShopId(shopId);
            if(StringUtils.isBlank(shop.getWarehouse())){
                throw new AppException(ErrorCode.RQ);
            }
            handleImageUpload(product, shop);
-//           UploadProductApi uploadProductApi = UploadProductApi.builder()
-//                   .shopCipher(shop.getWarehouse())
-//                   .accessToken(shop.getAccessToken())
-//                   .body(product)
-//                   .requestClient(requestClient)
-//                   .build();
-//           TiktokApiResponse tiktokApiResponse = uploadProductApi.callApi();
-           return product;
+           UploadProductApi uploadProductApi = UploadProductApi.builder()
+                   .shopCipher(shop.getCipher())
+                   .accessToken(shop.getAccessToken())
+                   .body(product)
+                   .requestClient(requestClient)
+                   .build();
+           TiktokApiResponse tiktokApiResponse = uploadProductApi.callApi();
+           telegramService.sendMessage("Upload product successfully " + shop.getUserShopName());
+           return tiktokApiResponse.getData();
+       }catch(TiktokException ex){
+           telegramService.sendMessage("Upload product failed " + ex.getMessage());
+           ex.printStackTrace();
+           throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
        }catch(Exception ex){
+           telegramService.sendMessage("Upload product failed by system " + ex.getMessage());
            ex.printStackTrace();
            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
        }
@@ -86,12 +94,18 @@ public class UploadProductCase {
                             .build())
                     .toList();
 
+            Price price = Price.builder()
+                    .salePrice(sku.getPrice().getSalePrice())
+                    .amount(sku.getPrice().getSalePrice())
+                    .currency(sku.getPrice().getCurrency())
+                    .build();
+
             return SkuUpload.builder()
                     .combinedSkus(sku.getCombinedSkus())
                     .inventory(inventories)
                     .salesAttributes(updatedAttributes)
                     .externalSkuId(sku.getExternalSkuId())
-                    .price(sku.getPrice())
+                    .price(price)
                     .sellerSku(sku.getSellerSku())
                     .preSale(sku.getPreSale())
                     .externalUrls(sku.getExternalUrls())
@@ -105,7 +119,7 @@ public class UploadProductCase {
 
         // Upload size chart image
         if (productUpload.getSizeChart() != null && productUpload.getSizeChart().getImage() != null) {
-            Image uploaded = uploadSingleImage(productUpload.getSizeChart().getImage().getUrls().get(0), "MAIN_IMAGE", shop);
+            Image uploaded = uploadSingleImage(productUpload.getSizeChart().getImage().getUrls().get(0), "SIZE_CHART_IMAGE", shop);
             productUpload.setSizeChart(SizeChart.builder().image(uploaded).build());
         }
     }

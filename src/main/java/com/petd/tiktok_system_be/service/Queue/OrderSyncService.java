@@ -41,7 +41,6 @@ public class OrderSyncService {
     OrderSaveDataBaseService orderSaveDataBaseService;
     NotificationService notificationService;
     ShippingService shippingService;
-    SettingService settingService;
 
     /**
      * Push job đồng bộ đơn hàng cho tất cả shop

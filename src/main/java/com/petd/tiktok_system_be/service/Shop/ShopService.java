@@ -24,6 +24,7 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
 import com.petd.tiktok_system_be.service.Auth.AccountService;
+import com.petd.tiktok_system_be.service.Queue.WebhookService;
 import com.petd.tiktok_system_be.shared.TiktokAuthAppClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,7 @@ public class ShopService {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
     SettingSystemRepository settingSystemRepository;
+    WebhookService webhookService;
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
@@ -258,25 +260,21 @@ public class ShopService {
 
             Event eventOrder = Event.builder()
                     .address(setting.getOrderWebhook())
-                    .event_type("PRODUCT_STATUS_CHANGE")
+                    .event_type("ORDER_STATUS_CHANGE")
                     .build();
             Event eventProduct = Event.builder()
                     .address(setting.getProductWebhook())
-                    .event_type("ORDER_STATUS_CHANGE")
+                    .event_type("PRODUCT_STATUS_CHANGE")
                     .build();
-
-            WebhookMessage orderWB  = WebhookMessage.builder()
-                    .event(eventOrder)
-                    .shopId(shop.getId())
-                    .build();
-            WebhookMessage productWB  = WebhookMessage.builder()
-                    .event(eventProduct)
-                    .shopId(shop.getId())
+            Event eventRefund = Event.builder()
+                    .address(setting.getRefundWebhook())
+                    .event_type("RETURN_STATUS_CHANGE")
                     .build();
 
             kafkaTemplate.send("order-sync", shop.getId(), mapper.writeValueAsString(msg));
-            kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(orderWB));
-            kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(productWB));
+            kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(eventOrder));
+            kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(eventProduct));
+            kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(eventRefund));
 
             System.out.println("Pushed job for shop: " + shop.getId());
 

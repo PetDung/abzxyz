@@ -36,6 +36,6 @@ public class UploadProductApi implements TiktokCallApi {
     public TiktokApiResponse callApi() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String bodyJson = objectMapper.writeValueAsString(body);
-        return requestClient.post(api,accessToken,createParameters(),bodyJson )  ;
+        return requestClient.post( api, accessToken, createParameters(), bodyJson )  ;
     }
 }

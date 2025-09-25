@@ -3,10 +3,13 @@ package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductUpload;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.ProductResponse;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.service.Product.ProductService;
+import com.petd.tiktok_system_be.service.Product.ReupProduct;
+import com.petd.tiktok_system_be.service.Queue.UploadProduct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +29,8 @@ import java.util.Map;
 public class ProductController {
 
     ProductService productService;
+    UploadProduct uploadProduct;
+    ReupProduct reupProduct;
 
 
     @GetMapping("/active")
@@ -53,6 +59,18 @@ public class ProductController {
     public ApiResponse<JsonNode> getProduct (@PathVariable String id, @PathVariable String shopId) throws JsonProcessingException {
         return ApiResponse.<JsonNode>builder()
                 .result(productService.getProduct(shopId, id))
+                .build();
+    }
+
+
+    @PostMapping("/upload/reup/{productId}/{shopId}")
+    public ApiResponse<?> print(@PathVariable String productId,
+                                @PathVariable String shopId,
+                                @RequestParam List<String> myShopIds) throws IOException {
+        ProductUpload productUpload = reupProduct.copyProduct(shopId,productId);
+        uploadProduct.pushUpload(productUpload, myShopIds);
+        return ApiResponse.<Object>builder().
+                result(productUpload)
                 .build();
     }
 }

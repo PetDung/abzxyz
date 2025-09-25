@@ -15,8 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Image {
     private String uri;
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<String> urls;
 
 }

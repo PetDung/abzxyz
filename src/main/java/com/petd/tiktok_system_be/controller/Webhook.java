@@ -85,16 +85,6 @@ public class Webhook {
         return true;
     }
 
-    ShippingService shippingService;
-    TransactionsService transactionService;
-
-    @GetMapping("/test/1231232")
-    public ApiResponse<JsonNode> test(){
-       return ApiResponse.<JsonNode>builder()
-               .result(transactionService.getTransactionsByOrderId("7496285922117847372", "577069064220283552"))
-               .build();
-    }
-
     @GetMapping("/get")
     public TiktokApiResponse get(@RequestParam("shop_id") String shopId) throws JsonProcessingException {
         return webhookService.getWebhook(shopId);
@@ -180,45 +170,5 @@ public class Webhook {
                 .build();
     }
 
-
-    ReupProduct reupProduct;
-    UploadProductCase uploadProductCase;
-    @GetMapping("/reup/{productId}/{shopId}")
-    public ApiResponse<?> print(@PathVariable String productId,
-                                @PathVariable String shopId
-    ) throws IOException {
-        ProductUpload productUpload = reupProduct.copyProduct(shopId,productId);
-        return ApiResponse.<Object>builder().
-                result(uploadProductCase.uploadProductCase(productUpload, "7494158746987234821"))
-                .build();
-    }
-
-    RequestClient requestClient;
-    ShopRepository shopRepository;
-
-    @GetMapping("/band/{bandName}")
-    public ApiResponse<?> getBand(@PathVariable String bandName) throws IOException {
-
-        Shop shop = shopRepository.findAll().get(0);
-
-        BandApi bandApi = BandApi.builder()
-                .accessToken(shop.getAccessToken())
-                .shopCipher(shop.getCipher())
-                .requestClient(requestClient)
-                .bandName(bandName)
-                .build();
-
-        return ApiResponse.<Object>builder().
-                result(bandApi.callApi())
-                .build();
-    }
-
-    DesignService designService;
-
-    @PostMapping("upload/image")
-    public ResponseEntity<String> upload(@RequestParam("fileId") String file) {
-        designService.sy();
-        return ResponseEntity.ok("Oke");
-    }
 
 }
