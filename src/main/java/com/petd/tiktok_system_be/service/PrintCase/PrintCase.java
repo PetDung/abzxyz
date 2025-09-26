@@ -64,7 +64,7 @@ public class PrintCase {
 
         if(myShops == null || myShops.isEmpty()) {
             return ResponsePage.<Order>builder()
-                    .orders(new ArrayList<>())
+                    .data(new ArrayList<>())
                     .totalCount(0)
                     .currentPage(0)
                     .isLast(true)
@@ -89,7 +89,7 @@ public class PrintCase {
         );
 
         return ResponsePage.<Order>builder()
-                .orders(orderPage.getContent())
+                .data(orderPage.getContent())
                 .totalCount(orderPage.getTotalElements())
                 .currentPage(orderPage.getNumber())
                 .isLast(orderPage.isLast())

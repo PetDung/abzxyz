@@ -14,7 +14,7 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ResponsePage<T> {
 
-    List<T> orders;
+    List<T> data;
     long totalCount;
     long currentPage;
     boolean isLast;

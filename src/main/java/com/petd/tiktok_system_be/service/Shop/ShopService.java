@@ -143,7 +143,7 @@ public class ShopService {
                 .currentPage(shopPage.getNumber())
                 .totalCount(shopPage.getTotalElements())
                 .isLast(shopPage.isLast())
-                .orders(shopResponseList)
+                .data(shopResponseList)
                 .build();
     }
 
