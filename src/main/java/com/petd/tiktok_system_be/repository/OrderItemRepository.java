@@ -13,14 +13,16 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
         SELECT oi.productId AS productId, 
                oi.productName AS productName, 
                COUNT(oi) AS soldCount, 
-               o.shop.userShopName AS shopName
+               o.shop.userShopName AS shopName,
+               o.shop.id as shopId, 
+               MIN(oi.skuImage) AS skuImage
         FROM OrderItem oi
         JOIN oi.order o
         WHERE (:productId IS NULL OR oi.productId = :productId)
           AND (:shopIds IS NULL OR o.shop.id IN :shopIds)
           AND (:startDate IS NULL OR o.createTime >= :startDate)
           AND (:endDate IS NULL OR o.createTime <= :endDate)
-        GROUP BY oi.productId, oi.productName, o.shop.userShopName
+        GROUP BY oi.productId, oi.productName, o.shop.userShopName, o.shop.id
         ORDER BY soldCount DESC
     """)
     List<Object[]> countProductSales(

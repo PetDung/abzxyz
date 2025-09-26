@@ -5,8 +5,10 @@ import com.petd.tiktok_system_be.api.UploadImageApi;
 import com.petd.tiktok_system_be.api.UploadProductApi;
 import com.petd.tiktok_system_be.api.body.productRequestUpload.*;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
+import com.petd.tiktok_system_be.entity.Product.UploadedProduct;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
+import com.petd.tiktok_system_be.repository.UploadProductRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
@@ -35,6 +37,7 @@ public class UploadProductCase {
     RequestClient requestClient;
     ShopService shopService;
     TelegramService telegramService;
+    UploadProductRepository uploadProductRepository;
 
 
     public JsonNode uploadProductCase(ProductUpload product, String shopId) throws IOException {
@@ -51,6 +54,15 @@ public class UploadProductCase {
                    .requestClient(requestClient)
                    .build();
            TiktokApiResponse tiktokApiResponse = uploadProductApi.callApi();
+
+           if(!uploadProductRepository.existsByProductIdAndShop(product.getProductOriginId(), shop)){
+               UploadedProduct uploadedProduct = UploadedProduct.builder()
+                       .productId(product.getProductOriginId())
+                       .shop(shop)
+                       .build();
+               uploadProductRepository.save(uploadedProduct);
+           }
+
            telegramService.sendMessage("Upload product successfully " + shop.getUserShopName());
            return tiktokApiResponse.getData();
        }catch(TiktokException ex){

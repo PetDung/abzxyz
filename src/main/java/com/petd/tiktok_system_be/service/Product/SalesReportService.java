@@ -47,7 +47,10 @@ public class SalesReportService {
             String name = (String) obj[1];
             Long soldCount = (Long) obj[2];
             String shopName = (String) obj[3];
-            return new ProductSalesDTO(pid, name, soldCount, shopName);
+            String shopId = (String) obj[4];
+            String skuImage = (String) obj[5];
+            ShopSalesDTO shopSalesDTO = new ShopSalesDTO(shopName, shopId);
+            return new ProductSalesDTO(pid, name, soldCount, shopSalesDTO, skuImage);
         }).collect(Collectors.toList());
 
         return ProductReportResponse.builder()
@@ -61,6 +64,12 @@ public class SalesReportService {
             String productId,
             String productName,
             Long soldCount,
-            String shopName
+            ShopSalesDTO shop,
+            String skuImage
+    ) {}
+
+    public record ShopSalesDTO(
+            String shopName,
+            String shopId
     ) {}
 }

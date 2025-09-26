@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,4 +18,5 @@ public class ShopResponse {
     String userShopName;
     LocalDateTime createdAt;
     String ownerName;
+    List<String> productUpload;
 }

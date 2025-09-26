@@ -26,14 +26,15 @@ public class ReupProduct {
             ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);;
             JsonNode productJson = productService.getProduct(shopId, productId);
             ProductDetailsMap  productDetailsMap =  mapper.convertValue(productJson, ProductDetailsMap.class);
-            return convertToProductUpload(productDetailsMap);
+            return convertToProductUpload(productDetailsMap, productId);
         }catch (Exception ex){
             log.error(ex.getMessage(),ex);
             return null;
         }
     }
-    public ProductUpload convertToProductUpload(ProductDetailsMap src){
+    public ProductUpload convertToProductUpload(ProductDetailsMap src, String productId){
         return ProductUpload.builder()
+                .productOriginId(productId)
                 .categoryId(getLastCategoryId(src.getCategoryChains()))
                 .saveMode("LISTING")
                 .description(src.getDescription())
