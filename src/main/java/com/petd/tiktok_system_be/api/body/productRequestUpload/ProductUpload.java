@@ -15,7 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductUpload {
 
-    @JsonIgnore
     String productOriginId;
 
     @JsonProperty("save_mode")

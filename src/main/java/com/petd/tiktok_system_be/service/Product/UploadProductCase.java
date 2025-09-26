@@ -42,6 +42,7 @@ public class UploadProductCase {
 
     public JsonNode uploadProductCase(ProductUpload product, String shopId) throws IOException {
        try{
+           telegramService.sendMessage("Upload " + product.getProductOriginId());
            Shop shop = shopService.getShopByShopId(shopId);
            if(StringUtils.isBlank(shop.getWarehouse())){
                throw new AppException(ErrorCode.RQ);
