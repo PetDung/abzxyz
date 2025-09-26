@@ -24,41 +24,23 @@ public class NotificationService {
 
     SimpMessagingTemplate messagingTemplate;
     AccountService accountService;
-    OrderRepository orderRepository;
 
     public void orderUpdateStatus(Order order){
+        final OrderMessage<Order> orderMessage = "ON_HOLD".equals(order.getStatus())
+                ? new OrderMessage<Order>(order, "NEW_ORDER")
+                : new OrderMessage<Order>(order, "UPDATE");
+
         List<Account> accounts = accountService.getAllAccountsAccessShop(order.getShop());
         accounts.forEach(account -> {
             messagingTemplate.convertAndSendToUser(
                     account.getUsername(),
                     "/queue/orders",
-                    order
+                    orderMessage
             );
         });
     }
-
-    public void orderUpdateStatus(String orderId){
-        Order order = orderRepository.findById(orderId).get();
-        List<Account> accounts = accountService.getAllAccountsAccessShop(order
-                .getShop());
-        accounts.forEach(account -> {
-            messagingTemplate.convertAndSendToUser(
-                    account.getUsername(),
-                    "/queue/orders",
-                    order
-            );
-        });
-    }
-
-
-    public void orderUpdateStatus(List<Order> orders){
-        List<Account> accounts = accountService.getAllAccountsAccessShop(orders.get(0).getShop());
-        accounts.forEach(account -> {
-            messagingTemplate.convertAndSendToUser(
-                    account.getUsername(),
-                    "/queue/orders",
-                    orders
-            );
-        });
-    }
+    public record OrderMessage<T>(
+            T data,
+            String event
+    ){}
 }
