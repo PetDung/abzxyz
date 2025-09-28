@@ -104,5 +104,9 @@ public class Order {
 
     @OneToMany(mappedBy = "order",  cascade = CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.EAGER)
     List<Return> returns;
+    String printShippingMethod;
+    String orderFulfillId;
+    String errorPrint;
+    Long createPrintTime;
 
 }

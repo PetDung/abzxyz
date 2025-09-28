@@ -55,17 +55,12 @@ public class SimpleHttpClient {
 
         try (Response response = client.newCall(builder.build()).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
-
             if (!response.isSuccessful()) {
-                throw new IOException("HTTP error: " + response.code()
-                        + " - " + response.message()
-                        + " - body: " + responseBody);
+                throw new IOException(responseBody);
             }
-
             return responseBody;
         }
     }
-
     // Parse response về object
     public <T> T requestForObject(
             String url,

@@ -31,5 +31,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             "join g.groupShopAccess ga " +
             "where ga.shop.id = :shopId")
     List<Account> findEmployeesByShopId(@Param("shopId") String shopId);
+    List<Account> findAllByRole(String role);
 
 }

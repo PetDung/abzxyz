@@ -61,17 +61,11 @@ public class ShopService {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
     SettingSystemRepository settingSystemRepository;
-    WebhookService webhookService;
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
-    public Shop getShopByShopName(String shopName) {
-        return shopRepository.findByUserShopName(shopName)
-                .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
-    }
-
     public void deleteShopByShopId(String shopId) {
         shopRepository.deleteById(shopId);
     }

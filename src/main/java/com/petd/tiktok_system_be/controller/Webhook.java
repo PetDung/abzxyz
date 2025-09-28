@@ -1,10 +1,7 @@
 package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.petd.tiktok_system_be.api.BandApi;
-import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductUpload;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
@@ -12,25 +9,13 @@ import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.ReturnData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
-import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.entity.Order.Order;
-import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
-import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
-import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrinteesHub;
-import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.dto.request.OrderRequest;
-import com.petd.tiktok_system_be.service.CloudinaryService;
-import com.petd.tiktok_system_be.service.ExportConfig.OrderExportCase;
-import com.petd.tiktok_system_be.service.FileProxyService;
+import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrintersHub;
 import com.petd.tiktok_system_be.service.Order.OrderService;
-import com.petd.tiktok_system_be.service.Order.ShippingService;
-import com.petd.tiktok_system_be.service.Product.ReupProduct;
-import com.petd.tiktok_system_be.service.Product.UploadProductCase;
 import com.petd.tiktok_system_be.service.Queue.*;
-import com.petd.tiktok_system_be.service.Shop.DesignService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
-import com.petd.tiktok_system_be.service.Shop.TransactionsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,14 +25,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/webhook")
@@ -158,7 +140,7 @@ public class Webhook {
     }
 
 
-    PrinteesHub printeesHub;
+    PrintersHub printeesHub;
     OrderService orderService;
 
     @GetMapping("/print/{orderId}")

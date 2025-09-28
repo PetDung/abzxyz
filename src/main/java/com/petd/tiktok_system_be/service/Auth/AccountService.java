@@ -60,7 +60,9 @@ public class AccountService {
 
     public List<Account> getAllAccountsAccessShop(Shop shop) {
         List<Account> list = accountRepository.findEmployeesByShopId(shop.getId());
+        List<Account> listAdmin = accountRepository.findAllByRole(Role.Admin.toString());
         list.add(shop.getLeader());
+        list.addAll(listAdmin);
         return list;
     }
 

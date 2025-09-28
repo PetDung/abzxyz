@@ -16,7 +16,7 @@ public class OrderSpecification {
             List<String> shopIds,
             List<String> statuses,
             String shippingType,
-            String printStatus
+            List<String> printStatus
     ) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -36,7 +36,7 @@ public class OrderSpecification {
                 predicates.add(root.get("status").in(statuses));
             }
             if (printStatus != null && !printStatus.isEmpty()) {
-                predicates.add(cb.equal(root.get("printStatus"), printStatus));
+                predicates.add(root.get("printStatus").in(printStatus));
             }
             // Nếu có shippingType
             if (shippingType != null && !shippingType.isEmpty()) {

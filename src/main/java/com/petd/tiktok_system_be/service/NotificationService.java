@@ -30,6 +30,8 @@ public class NotificationService {
                 ? new OrderMessage<Order>(order, "NEW_ORDER")
                 : new OrderMessage<Order>(order, "UPDATE");
 
+        log.info("");
+
         List<Account> accounts = accountService.getAllAccountsAccessShop(order.getShop());
         accounts.forEach(account -> {
             messagingTemplate.convertAndSendToUser(

@@ -1,6 +1,7 @@
 package com.petd.tiktok_system_be.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.petd.tiktok_system_be.dto.request.PrintSkuRequest;
 import com.petd.tiktok_system_be.dto.request.UpdateOrderCostPrinterRequest;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.entity.Order.Order;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -48,17 +50,27 @@ public class OrderController {
     }
 
     @PostMapping("/change-status-print/{orderId}/{status}")
-    public ApiResponse<Order> changeStatus(@PathVariable String orderId, @PathVariable String status){
+    public ApiResponse<Order> changeStatus(@PathVariable String orderId, @PathVariable String status) throws IOException {
         return ApiResponse.<Order>builder()
                 .result(orderService.changeStatusPrint(orderId,status))
                 .build();
     }
 
-    @PostMapping("/update-sku-print-id/{orderItemId}/{skuId}")
+    @PostMapping("/update-sku-print-id/{orderItemId}")
     public ApiResponse<Order> updateSkuPrint(@PathVariable String orderItemId,
-                                            @PathVariable String skuId){
+                                             @RequestBody PrintSkuRequest printSkuRequest
+                                             ){
         return ApiResponse.<Order>builder()
-                .result(orderService.updateSkuPrint(orderItemId,skuId))
+                .result(orderService.updateSkuPrint(orderItemId,printSkuRequest))
+                .build();
+    }
+
+    @PostMapping("/update-print-shipping-method/{orderId}")
+    public ApiResponse<Order> updateSkuPrint(@PathVariable String orderId,
+                                             @RequestParam(required = false) String method
+    ){
+        return ApiResponse.<Order>builder()
+                .result(orderService.updatePrintShippingMethod(orderId,method))
                 .build();
     }
 

@@ -50,11 +50,12 @@ public class OrderItem {
     Boolean isGift;
     Boolean isDangerousGood;
     Boolean needsPrescription;
-
-    String skuPrint;
-
     @ManyToOne
     @JoinColumn(name = "design_id")
     Design design;
+
+    @ManyToOne
+    @JoinColumn(name = "print_sku_id")
+    PrintSku printSku;
 
 }
