@@ -5,11 +5,21 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class SimpleHttpClient {
 
     private final OkHttpClient client;
     private final ObjectMapper mapper;
+
+    public SimpleHttpClient(int timeoutSeconds) {
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(timeoutSeconds, TimeUnit.SECONDS) // thời gian kết nối
+                .readTimeout(timeoutSeconds, TimeUnit.SECONDS)    // thời gian đọc dữ liệu
+                .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)   // thời gian ghi dữ liệu
+                .build();
+        this.mapper = new ObjectMapper();
+    }
 
     public SimpleHttpClient() {
         this.client = new OkHttpClient();
@@ -71,5 +81,15 @@ public class SimpleHttpClient {
     ) throws IOException {
         String response = request(url, method, headers, bodyJson);
         return mapper.readValue(response, responseClass);
+    }
+
+    public String requestForObject(
+            String url,
+            String method,
+            Map<String, String> headers,
+            String bodyJson
+
+    ) throws IOException {
+        return request(url, method, headers, bodyJson);
     }
 }
