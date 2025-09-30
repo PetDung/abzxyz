@@ -102,6 +102,28 @@ public class DesignService {
         });
         repository.saveAll(designs);
     }
+    public void aDesnyc (String id) {
+        Design design = repository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+
+        String front = processLink(design.getFrontSide());
+        String back = processLink(design.getBackSide());
+        String left = processLink(design.getLeftSide());
+        String right = processLink(design.getRightSide());
+
+        String thumbnail = front;
+        if (isNullOrEmpty(thumbnail)) thumbnail = back;
+        if (isNullOrEmpty(thumbnail)) thumbnail = left;
+        if (isNullOrEmpty(thumbnail)) thumbnail = right;
+
+        design.setFront(front);
+        design.setBack(back);
+        design.setLeftUrl(left);
+        design.setRightUrl(right);
+        design.setThumbnail(thumbnail);
+
+        repository.save(design);
+    }
     private boolean isNullOrEmpty(String s) {
         return s == null || s.trim().isEmpty();
     }

@@ -161,4 +161,10 @@ public class Webhook {
         CompletableFuture.runAsync(designService::snyc);
         return "Oke";
     }
+
+    @GetMapping("/design/syn_id")
+    public String aDesginDB(@RequestParam String id) {
+        CompletableFuture.runAsync(() -> designService.aDesnyc(id));
+        return "Oke";
+    }
 }
