@@ -15,6 +15,7 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrintersHub;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Queue.*;
+import com.petd.tiktok_system_be.service.Shop.DesignService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/webhook")
@@ -152,5 +154,11 @@ public class Webhook {
                 .build();
     }
 
+    DesignService designService;
 
+    @GetMapping("/design/syn")
+    public String desginDB() {
+        CompletableFuture.runAsync(designService::snyc);
+        return "Oke";
+    }
 }

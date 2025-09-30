@@ -26,6 +26,10 @@ public class Design  extends Base {
     String leftSide;
     String rightSide;
     String thumbnail;
+    String front;
+    String back;
+    String leftUrl;
+    String rightUrl;
 
     @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = false)
     @JsonIgnore

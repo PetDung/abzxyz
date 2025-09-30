@@ -1,5 +1,6 @@
 package com.petd.tiktok_system_be.service.Shop;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.dto.request.DesignMappingRequest;
 import com.petd.tiktok_system_be.dto.request.DesignRequest;
@@ -50,16 +51,15 @@ public class DesignService {
     public Design create(DesignRequest request) {
 
         Account account = accountService.getMe();
-        String thumbnail = processLink(request.getFrontSide());
-        if(StringUtils.isBlank(thumbnail)){
-            thumbnail = processLink(request.getBackSide());
-        }
-        if(StringUtils.isBlank(thumbnail)){
-            thumbnail = processLink(request.getLeftSide());
-        }
-        if(StringUtils.isBlank(thumbnail)){
-            thumbnail = processLink(request.getRightSide());
-        }
+        String front = processLink(request.getFrontSide());
+        String back = processLink(request.getBackSide());
+        String left = processLink(request.getLeftSide());
+        String right = processLink(request.getRightSide());
+
+        String thumbnail = front;
+        if (isNullOrEmpty(thumbnail)) thumbnail = back;
+        if (isNullOrEmpty(thumbnail)) thumbnail = left;
+        if (isNullOrEmpty(thumbnail)) thumbnail = right;
 
         Design design = Design.builder()
                 .name(request.getName())
@@ -67,29 +67,43 @@ public class DesignService {
                 .frontSide(request.getFrontSide())
                 .leftSide(request.getLeftSide())
                 .rightSide(request.getRightSide())
+                .front(front)
+                .back(back)
+                .leftUrl(left)
+                .rightUrl(right)
                 .thumbnail(thumbnail)
                 .account(account)
                 .build();
-
         return repository.save(design);
     }
-    public void sy () {
+    public void snyc () {
         List<Design> designs = repository.findAll();
-        designs.forEach(design -> {
-            String thumbnail = processLink(design.getFrontSide());
-            if(StringUtils.isBlank(thumbnail)){
-                thumbnail = processLink(design.getBackSide());
-            }
-            if(StringUtils.isBlank(thumbnail)){
-                thumbnail = processLink(design.getLeftSide());
-            }
-            if(StringUtils.isBlank(thumbnail)){
-                thumbnail = processLink(design.getRightSide());
-            }
-            design.setThumbnail(thumbnail);
+        RateLimiter limiter = RateLimiter.create(5.0);
 
+        designs.forEach(design -> {
+
+            limiter.acquire(); // block tới khi đủ "token"
+
+            String front = processLink(design.getFrontSide());
+            String back = processLink(design.getBackSide());
+            String left = processLink(design.getLeftSide());
+            String right = processLink(design.getRightSide());
+
+            String thumbnail = front;
+            if (isNullOrEmpty(thumbnail)) thumbnail = back;
+            if (isNullOrEmpty(thumbnail)) thumbnail = left;
+            if (isNullOrEmpty(thumbnail)) thumbnail = right;
+
+            design.setFront(front);
+            design.setBack(back);
+            design.setLeftUrl(left);
+            design.setRightUrl(right);
+            design.setThumbnail(thumbnail);
         });
         repository.saveAll(designs);
+    }
+    private boolean isNullOrEmpty(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     public List<Design> getAllDesigns() {
