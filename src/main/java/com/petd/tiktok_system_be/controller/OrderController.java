@@ -56,12 +56,21 @@ public class OrderController {
                 .build();
     }
 
-    @PostMapping("/update-sku-print-id/{orderItemId}")
-    public ApiResponse<Order> updateSkuPrint(@PathVariable String orderItemId,
+    @PostMapping("/update-sku-print-id")
+    public ApiResponse<Order> updateSkuPrint(@RequestParam(name = "order_item_ids") List<String> orderItemIds,
                                              @RequestBody PrintSkuRequest printSkuRequest
                                              ){
         return ApiResponse.<Order>builder()
-                .result(orderService.updateSkuPrint(orderItemId,printSkuRequest))
+                .result(orderService.updateSkuPrint(orderItemIds,printSkuRequest))
+                .build();
+    }
+
+    @PostMapping("/update-is-print")
+    public ApiResponse<Order> updateIsPrint(@RequestParam(name = "order_item_ids") List<String> orderItemIds,
+                                            @RequestParam(name = "is_print") Boolean isPrint
+    ){
+        return ApiResponse.<Order>builder()
+                .result(orderService.updateIsPrint(orderItemIds,isPrint))
                 .build();
     }
 

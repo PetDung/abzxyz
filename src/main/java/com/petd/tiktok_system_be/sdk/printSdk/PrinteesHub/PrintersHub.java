@@ -114,6 +114,7 @@ public class PrintersHub implements PrintSupplier {
                 ? "tiktok_shipping" : "seller_shipping";
 
         List<ProductOption> productOptions = order.getLineItems().stream()
+                .filter(orderItem -> orderItem.getIsPrint() == true)
                 .collect(Collectors.groupingBy(OrderItem::getSkuId))
                 .values().stream()
                 .map(orderItems -> {

@@ -141,6 +141,7 @@ public class MonkeyPrint implements PrintSupplier {
 
 
         List<ItemMPK> items = order.getLineItems().stream()
+                .filter(orderItem -> orderItem.getIsPrint() == true)
                 .collect(Collectors.groupingBy(OrderItem::getSkuId))
                 .values().stream()
                 .map(orderItems ->{

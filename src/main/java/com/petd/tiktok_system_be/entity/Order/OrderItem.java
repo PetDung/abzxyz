@@ -57,5 +57,7 @@ public class OrderItem {
     @ManyToOne
     @JoinColumn(name = "print_sku_id")
     PrintSku printSku;
+    @Builder.Default
+    Boolean isPrint = true;
 
 }

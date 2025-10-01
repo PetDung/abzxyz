@@ -132,25 +132,41 @@ public class OrderService {
     }
 
     @Transactional
-    public Order updateSkuPrint(String lineItemId, PrintSkuRequest printSkuRequest) {
+    public Order updateIsPrint(List<String> lineItemIds, Boolean isPrint) {
+        List<OrderItem> orderItem = orderItemRepository.findAllById(lineItemIds);
+        orderItem.forEach(item ->{
+            Order order = item.getOrder();
+            item.setIsPrint(isPrint);
+            notificationService.orderUpdateStatus(order);
+        });
+        orderItemRepository.saveAll(orderItem);
+        Order order = orderItem.get(0).getOrder();
+        notificationService.orderUpdateStatus(order);
+        return orderItem.get(0).getOrder();
+    }
+
+
+    @Transactional
+    public Order updateSkuPrint(List<String> lineItemIds, PrintSkuRequest printSkuRequest) {
         validatePrintSkuRequest(printSkuRequest);
 
-        OrderItem orderItem = orderItemRepository.findById(lineItemId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        Order order = orderItem.getOrder();
-
-        if (order.getPrinter() == null) {
-            throw new AppException(ErrorCode.RQ);
-        }
-        PrintSku printSku = printSkuRepository
-                .findByPrintCodeAndSkuCode(order.getPrinter().getId(), printSkuRequest.getSkuCode())
-                .orElseGet(() -> createAndSavePrintSku(order.getPrinter().getId(), printSkuRequest));
-
-        orderItem.setPrintSku(printSku);
-        orderItemRepository.save(orderItem);
+        List<OrderItem> orderItem = orderItemRepository.findAllById(lineItemIds);
+        orderItem.forEach(item ->{
+            Order order = item.getOrder();
+            if (order.getPrinter() == null) {
+                throw new AppException(ErrorCode.RQ);
+            }
+            PrintSku printSku = printSkuRepository
+                    .findByPrintCodeAndSkuCode(order.getPrinter().getId(), printSkuRequest.getSkuCode())
+                    .orElseGet(() -> createAndSavePrintSku(order.getPrinter().getId(), printSkuRequest));
+            item.setPrintSku(printSku);
+        });
+        orderItemRepository.saveAll(orderItem);
+        Order order = orderItem.get(0).getOrder();
         notificationService.orderUpdateStatus(order);
         return order;
     }
+
 
     @Transactional
     public Order updatePrintShippingMethod(String orderId, String shippingMethodId) {

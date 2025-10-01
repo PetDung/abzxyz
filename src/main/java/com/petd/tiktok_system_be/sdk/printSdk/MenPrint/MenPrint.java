@@ -123,6 +123,7 @@ public class MenPrint implements PrintSupplier {
                 .findFirst().orElse(null);
 
         List<OrderItemPrintRequest> items = order.getLineItems().stream()
+                .filter(orderItem -> orderItem.getIsPrint() == true)
                 .collect(Collectors.groupingBy(OrderItem::getSkuId))
                 .values().stream()
                 .map(orderItems -> {

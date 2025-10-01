@@ -7,7 +7,6 @@ import com.petd.tiktok_system_be.dto.request.DesignRequest;
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Design.MappingDesign;
-import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Order.OrderItem;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
@@ -18,8 +17,6 @@ import com.petd.tiktok_system_be.service.Auth.AccountService;
 import com.petd.tiktok_system_be.service.CloudinaryService;
 import com.petd.tiktok_system_be.service.FileProxyService;
 import com.petd.tiktok_system_be.service.NotificationService;
-import com.petd.tiktok_system_be.service.Order.OrderService;
-import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -224,13 +221,13 @@ public class DesignService {
     }
 
 
-    public Order clearDesignInOrderItem (String itemId) {
-            OrderItem item = orderItemRepository.findById(itemId).orElse(null);
-            if (item == null) return null;
-            item.setDesign(null);
-            orderItemRepository.save(item);
-            notificationService.orderUpdateStatus(item.getOrder());
-            return item.getOrder();
+    public void clearDesignInOrderItem (List<String> itemIds) {
+        List<OrderItem> items = orderItemRepository.findAllById(itemIds);
+          items.forEach(orderItem -> {
+                orderItem.setDesign(null);
+        });
+        orderItemRepository.saveAll(items);
+        notificationService.orderUpdateStatus(items.get(0).getOrder());
     }
     @Transactional
     public void removeSkus(String productId, List<String> skusToRemove) {

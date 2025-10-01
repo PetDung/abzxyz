@@ -85,9 +85,9 @@ public class DesignController {
                 .build();
     }
 
-    @DeleteMapping("/clear/{itemId}")
-    public ApiResponse<String> clear(@PathVariable String itemId) {
-        designService.clearDesignInOrderItem(itemId);
+    @DeleteMapping("/clear")
+    public ApiResponse<String> clear(@RequestParam(name = "item_order_ids") List<String> orderItems) {
+        designService.clearDesignInOrderItem(orderItems);
         return ApiResponse.<String>builder()
                 .result("Delete successfully")
                 .build();
