@@ -6,7 +6,7 @@ import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductUpload;
 import com.petd.tiktok_system_be.dto.message.UploadProductMessage;
 import com.petd.tiktok_system_be.service.Product.ReupProduct;
 import com.petd.tiktok_system_be.service.Product.UploadProductCase;
-import com.petd.tiktok_system_be.service.TelegramService;
+import com.petd.tiktok_system_be.service.Lib.TelegramService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

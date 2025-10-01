@@ -1,6 +1,5 @@
 package com.petd.tiktok_system_be.service.Return;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.Specification.ReturnSpecification;
 import com.petd.tiktok_system_be.api.RefundApi;
@@ -9,13 +8,10 @@ import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.entity.Return.Return;
 import com.petd.tiktok_system_be.exception.AppException;
-import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.ReturnRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
-import com.petd.tiktok_system_be.service.Manager.PrinterService;
-import com.petd.tiktok_system_be.service.NotificationService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import com.petd.tiktok_system_be.shared.TiktokCallApi;
 import io.micrometer.common.util.StringUtils;
@@ -29,7 +25,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

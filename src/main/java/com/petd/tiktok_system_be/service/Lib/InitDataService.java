@@ -1,4 +1,4 @@
-package com.petd.tiktok_system_be.service;
+package com.petd.tiktok_system_be.service.Lib;
 
 import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.entity.Manager.Team;

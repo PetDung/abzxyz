@@ -30,9 +30,18 @@ public class OrderItemPrintRequest {
     @Builder.Default
     private String leftSleeve="";
 
+    @JsonProperty("mockup_left_sleeve")
+    @Builder.Default
+    String mockupLeftSleeve = "";
+
     @JsonProperty("right_sleeve")
     @Builder.Default
     private String rightSleeve="";
+
+    @JsonProperty("mockup_right_sleeve")
+    @Builder.Default
+    String mockupRightSleeve = "";
+
 
     @Builder.Default
     private String note="";

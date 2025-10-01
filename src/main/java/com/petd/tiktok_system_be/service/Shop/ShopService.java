@@ -61,6 +61,7 @@ public class ShopService {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper mapper = new ObjectMapper();
     SettingSystemRepository settingSystemRepository;
+    WarehouseGet warehouseGet;
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
@@ -264,6 +265,7 @@ public class ShopService {
                     .address(setting.getRefundWebhook())
                     .event_type("RETURN_STATUS_CHANGE")
                     .build();
+            warehouseGet.updateWarehouseForShop(shop);
 
             kafkaTemplate.send("order-sync", shop.getId(), mapper.writeValueAsString(msg));
             kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(eventOrder));
@@ -271,6 +273,8 @@ public class ShopService {
             kafkaTemplate.send("web-hook", shop.getId(), mapper.writeValueAsString(eventRefund));
 
             System.out.println("Pushed job for shop: " + shop.getId());
+
+
 
             return AuthShopResponse.builder()
                     .id(shop.getId())

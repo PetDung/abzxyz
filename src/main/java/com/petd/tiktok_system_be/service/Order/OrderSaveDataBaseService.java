@@ -63,6 +63,8 @@ public class OrderSaveDataBaseService {
             BigDecimal amount = paymentAmount(order); // có thể ném JsonProcessingException
             order.setPaymentAmount(amount);
 
+            if("COMPLETED".equals(order.getStatus()))  order.setCompleteTime(order.getUpdateTime());
+
             // --- 4. Bước DB: chỉ logic persist vào DB, nằm trong transaction ---
             Order orderDb =  orderSaveCase.persistOrderTransactional(order);
 

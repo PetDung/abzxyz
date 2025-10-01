@@ -9,7 +9,7 @@ import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.service.Auth.SettingService;
 import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
-import com.petd.tiktok_system_be.service.TelegramService;
+import com.petd.tiktok_system_be.service.Lib.TelegramService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

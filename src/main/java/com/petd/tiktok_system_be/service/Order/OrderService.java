@@ -22,7 +22,7 @@ import com.petd.tiktok_system_be.repository.PrintSkuRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
-import com.petd.tiktok_system_be.service.NotificationService;
+import com.petd.tiktok_system_be.service.Lib.NotificationService;
 import com.petd.tiktok_system_be.service.Manager.PrinterService;
 import com.petd.tiktok_system_be.service.PrintCase.HandlePrintOrderCase;
 import com.petd.tiktok_system_be.service.Shop.ShopService;

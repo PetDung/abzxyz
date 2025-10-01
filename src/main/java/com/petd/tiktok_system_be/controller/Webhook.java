@@ -17,6 +17,7 @@ import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Queue.*;
 import com.petd.tiktok_system_be.service.Shop.DesignService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
+import com.petd.tiktok_system_be.service.Shop.WarehouseGet;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -165,6 +166,13 @@ public class Webhook {
     @GetMapping("/design/syn_id")
     public String aDesginDB(@RequestParam String id) {
         CompletableFuture.runAsync(() -> designService.aDesnyc(id));
+        return "Oke";
+    }
+
+    WarehouseGet warehouse;
+    @GetMapping("/warehouse")
+    public String warehouse() {
+        CompletableFuture.runAsync(warehouse::updateWarehouseForAllShops);
         return "Oke";
     }
 }

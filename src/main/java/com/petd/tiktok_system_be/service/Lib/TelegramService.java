@@ -1,4 +1,4 @@
-package com.petd.tiktok_system_be.service;
+package com.petd.tiktok_system_be.service.Lib;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

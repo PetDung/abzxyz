@@ -41,6 +41,7 @@ public class Order {
 
     Long createTime;
     Long updateTime;
+    Long completeTime;
 
     String deliveryOptionId;
     String deliveryOptionName;

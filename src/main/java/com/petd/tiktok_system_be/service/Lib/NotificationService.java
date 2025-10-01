@@ -1,11 +1,8 @@
-package com.petd.tiktok_system_be.service;
+package com.petd.tiktok_system_be.service.Lib;
 
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Order.Order;
-import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.service.Auth.AccountService;
-import com.petd.tiktok_system_be.service.Order.OrderService;
-import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

@@ -9,7 +9,9 @@ import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
+import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.ProductRepository;
+import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
@@ -40,9 +42,32 @@ public class ProductService {
     RequestClient requestClient;
     ShopService shopService;
     ProductRepository productRepository;
+    ShopRepository shopRepository;
 
     public JsonNode getProduct (String shopId, String productId){
         Shop shop = shopService.getShopByShopId(shopId);
+
+        GetProduct getProduct = GetProduct.builder()
+                .requestClient(requestClient)
+                .productId(productId)
+                .shopCipher(shop.getCipher())
+                .accessToken(shop.getAccessToken())
+                .build();
+        try {
+            TiktokApiResponse response = getProduct.callApi();
+            return response.getData();
+        }catch (TiktokException e) {
+            log.error(e.getMessage());
+            throw new AppException(e.getMessage(), e.getCode());
+        } catch (JsonProcessingException e) {
+            throw new AppException(e.getMessage(), 409);
+        }
+    }
+
+
+    public JsonNode getProductByShopName (String shopName, String productId){
+        Shop shop = shopRepository.findByUserShopName(shopName)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         GetProduct getProduct = GetProduct.builder()
                 .requestClient(requestClient)

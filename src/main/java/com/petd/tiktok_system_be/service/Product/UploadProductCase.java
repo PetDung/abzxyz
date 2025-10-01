@@ -13,7 +13,7 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
-import com.petd.tiktok_system_be.service.TelegramService;
+import com.petd.tiktok_system_be.service.Lib.TelegramService;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

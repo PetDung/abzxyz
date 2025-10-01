@@ -1,10 +1,9 @@
 package com.petd.tiktok_system_be.initalizer;
 
-import com.petd.tiktok_system_be.service.InitDataService;
+import com.petd.tiktok_system_be.service.Lib.InitDataService;
 import com.petd.tiktok_system_be.service.Queue.OrderSyncService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
 import com.petd.tiktok_system_be.service.Queue.ReturnSync;
-import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

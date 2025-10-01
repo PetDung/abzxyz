@@ -5,7 +5,7 @@ import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Manager.Printer;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.PrinterRepository;
-import com.petd.tiktok_system_be.service.NotificationService;
+import com.petd.tiktok_system_be.service.Lib.NotificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

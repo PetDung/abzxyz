@@ -132,19 +132,31 @@ public class MenPrint implements PrintSupplier {
                             .sku(item.getPrintSku().getSkuCode())
                             .quantity(orderItems.size())
                             .frontUrl(item.getDesign().getFrontSide())
-                            .mockupFrontUrl(item.getSkuImage())
                             .backUrl(item.getDesign().getBackSide())
                             .leftSleeve(item.getDesign().getLeftSide())
                             .rightSleeve(item.getDesign().getRightSide())
                             .note(order.getBuyerMessage())
                             .build();
-                    if(StringUtils.isBlank(itemResponse.getFrontUrl())){
+
+                    if (StringUtils.isNotBlank(item.getDesign().getFrontSide())) {
+                        itemResponse.setMockupFrontUrl(item.getSkuImage());
+                    } else {
                         itemResponse.setPrintSizeFront(null);
                     }
-                    if(StringUtils.isBlank(itemResponse.getBackUrl())){
+
+                    if (StringUtils.isNotBlank(item.getDesign().getBackSide())) {
+                        itemResponse.setMockupBackUrl(item.getSkuImage());
+                    } else {
                         itemResponse.setPrintSizeBack(null);
                     }
 
+                    if (StringUtils.isNotBlank(item.getDesign().getLeftSide())) {
+                        itemResponse.setMockupLeftSleeve(item.getSkuImage());
+                    }
+
+                    if (StringUtils.isNotBlank(item.getDesign().getRightSide())) {
+                        itemResponse.setMockupRightSleeve(item.getSkuImage());
+                    }
                     return itemResponse;
                 })
                 .collect(Collectors.toList());

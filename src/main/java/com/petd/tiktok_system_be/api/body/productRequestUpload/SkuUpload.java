@@ -13,6 +13,9 @@ import java.util.List;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SkuUpload {
+
+    String id;
+
     @JsonProperty("sales_attributes")
     private List<SalesAttribute> salesAttributes;
     private List<Inventory> inventory;
