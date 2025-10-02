@@ -20,6 +20,8 @@ echo.
 :: Nếu bạn dùng password-based SSH:
 ssh -p %PORT% %USER%@%HOST%
 
+cd code
+
 :: Nếu bạn dùng private key thì đổi thành:
 :: ssh -i "%KEY_PATH%" -p %PORT% %USER%@%HOST%
 

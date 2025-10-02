@@ -73,6 +73,17 @@ public class ProductSyncService {
             JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
 
             Product product = mapper.convertValue(productNode, Product.class);
+
+            if(product.getStatus().equalsIgnoreCase("FAILED")){
+                ack.acknowledge();
+                return;
+            }
+            if(product.getStatus().equalsIgnoreCase("DELETED")){
+                productRepository.deleteById(msg.getProductId());
+                ack.acknowledge();
+                return;
+            }
+
             product.setActiveTime(msg.getUpdateTime());
             product.setShop(shop);
             productRepository.save(product);

@@ -56,6 +56,12 @@ public class OrderController {
                 .build();
     }
 
+    @PostMapping("/change-status-print/batch/{status}")
+    public ApiResponse<List<Order>> changeStatusBatch(@RequestParam(name = "order_ids") List<String> orderIds, @PathVariable String status) throws IOException {
+        return ApiResponse.<List<Order>>builder()
+                .result(orderService.changeStatusPrintList(orderIds,status))
+                .build();
+    }
     @PostMapping("/update-sku-print-id")
     public ApiResponse<Order> updateSkuPrint(@RequestParam(name = "order_item_ids") List<String> orderItemIds,
                                              @RequestBody PrintSkuRequest printSkuRequest

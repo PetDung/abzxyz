@@ -2,6 +2,7 @@ package com.petd.tiktok_system_be.service.Order;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.Specification.OrderSpecification;
 import com.petd.tiktok_system_be.api.OrderApi;
 import com.petd.tiktok_system_be.api.OrderDetailsApi;
@@ -37,6 +38,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -58,6 +60,8 @@ public class OrderService {
     OrderItemRepository orderItemRepository;
     PrintSkuRepository printSkuRepository;
     HandlePrintOrderCase handlePrintOrderCase;
+    KafkaTemplate<String, String> kafkaTemplate;
+    ObjectMapper objectMapper;
 
     public Order getById(String id) {
         return orderRepository.findById(id)
@@ -239,17 +243,30 @@ public class OrderService {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
         Order order = getById(orderId);
-        if(PrintStatus.PRINT_CANCEL.toString().equals(status)){
-            order = handlePrintOrderCase.cancel(order);
-        }
         order.setPrintStatus(status);
-        if(PrintStatus.PRINT_REQUEST.toString().equals(status)){
-            order = handlePrintOrderCase.printOrder(order);
-        }
         orderRepository.save(order);
         notificationService.orderUpdateStatus(order);
+        if(PrintStatus.PRINT_REQUEST.toString().equals(status)){
+            MessageOrderPrint messageOrderPrint = new MessageOrderPrint(orderId, "PRINT");
+            kafkaTemplate.send("print", orderId,
+                    objectMapper.writeValueAsString(messageOrderPrint));
+        }
+        else if(PrintStatus.PRINT_CANCEL.toString().equals(status)){
+            MessageOrderPrint messageOrderPrint = new MessageOrderPrint(orderId, "CANCEL");
+            kafkaTemplate.send("print", orderId,
+                    objectMapper.writeValueAsString(messageOrderPrint));
+        }
         return order;
     }
+
+    public List<Order> changeStatusPrintList(List<String> orderIds, String status) throws IOException {
+        List<Order> updatedOrders = new ArrayList<>();
+        for (String orderId : orderIds) {
+            updatedOrders.add(changeStatusPrint(orderId, status));
+        }
+        return updatedOrders;
+    }
+
     public boolean hasInvalidShopId(List<Shop> myShops, List<String> shopIds) {
         if(shopIds == null || shopIds.isEmpty()) return false;
         Set<String> myShopIdSet = myShops.stream()
@@ -282,5 +299,8 @@ public class OrderService {
         }
     }
 
-
+    public record MessageOrderPrint(
+            String orderId,
+            String type
+    ){}
 }
