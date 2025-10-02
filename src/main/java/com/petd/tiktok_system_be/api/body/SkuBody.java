@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class SkuBody {
-    String sku;
+    String id;
     List<Inventory> inventory;
 
 }

@@ -6,14 +6,12 @@ import com.petd.tiktok_system_be.api.AuthorizedApi;
 import com.petd.tiktok_system_be.api.body.Event;
 import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.dto.message.OrderSyncMessage;
-import com.petd.tiktok_system_be.dto.message.WebhookMessage;
 import com.petd.tiktok_system_be.dto.request.AuthShopRequest;
 import com.petd.tiktok_system_be.dto.response.AuthShopResponse;
 import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Auth.MappingUserSystem;
-import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.entity.Auth.SettingSystem;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
@@ -24,7 +22,6 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
 import com.petd.tiktok_system_be.service.Auth.AccountService;
-import com.petd.tiktok_system_be.service.Queue.WebhookService;
 import com.petd.tiktok_system_be.shared.TiktokAuthAppClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +62,11 @@ public class ShopService {
 
     public Shop getShopByShopId(String shopId) {
         return shopRepository.findById(shopId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
+    }
+
+    public Shop getByShopName(String shopName) {
+        return shopRepository.findByUserShopName(shopName)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
     public void deleteShopByShopId(String shopId) {

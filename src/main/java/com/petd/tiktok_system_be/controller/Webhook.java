@@ -14,6 +14,7 @@ import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrintersHub;
 import com.petd.tiktok_system_be.service.Order.OrderService;
+import com.petd.tiktok_system_be.service.Product.StockService;
 import com.petd.tiktok_system_be.service.Queue.*;
 import com.petd.tiktok_system_be.service.Shop.DesignService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
@@ -94,6 +95,14 @@ public class Webhook {
     public boolean deleteProduct(@RequestParam("file") MultipartFile file) throws IOException {
         DeleteProductRequest request = parseExcelFile(file);
         productDeleteService.pushJob(request);
+        return true;
+    }
+
+
+    StockService stockService;
+    @PostMapping("/update-stock")
+    public boolean updateStockProduct(@RequestBody MultipartFile file) throws IOException {
+        stockService.push(file);
         return true;
     }
 

@@ -8,6 +8,7 @@ import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.shared.TiktokCallApi;
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -24,8 +25,7 @@ public class StockApi implements TiktokCallApi {
 
     String shopCipher;
     String accessToken;
-
-    Map<String,SkuBody> body;
+    List<SkuBody> body;
 
     @Override
     public Map<String, String> createParameters() {
@@ -35,7 +35,7 @@ public class StockApi implements TiktokCallApi {
     public TiktokApiResponse callApi() throws JsonProcessingException {
         String finalApi = api.replace("{product_id}", productId);
         ObjectMapper objectMapper = new ObjectMapper();
-        String bodyJson = objectMapper.writeValueAsString(body);
+        String bodyJson = objectMapper.writeValueAsString(Map.of("skus", body));
         return requestClient.post(finalApi, accessToken , createParameters(), bodyJson);
     }
 }
