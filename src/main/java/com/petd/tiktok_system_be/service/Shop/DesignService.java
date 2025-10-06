@@ -4,10 +4,12 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.petd.tiktok_system_be.constant.Role;
 import com.petd.tiktok_system_be.dto.request.DesignMappingRequest;
 import com.petd.tiktok_system_be.dto.request.DesignRequest;
+import com.petd.tiktok_system_be.dto_v2.response.CursorPageResponse;
 import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Design.MappingDesign;
 import com.petd.tiktok_system_be.entity.Order.OrderItem;
+import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.exception.AppException;
 import com.petd.tiktok_system_be.exception.ErrorCode;
 import com.petd.tiktok_system_be.repository.DesignRepository;
@@ -17,6 +19,7 @@ import com.petd.tiktok_system_be.service.Auth.AccountService;
 import com.petd.tiktok_system_be.service.Lib.CloudinaryService;
 import com.petd.tiktok_system_be.service.Lib.FileProxyService;
 import com.petd.tiktok_system_be.service.Lib.NotificationService;
+import com.petd.tiktok_system_be.util.CursorUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 @Service
@@ -136,6 +141,65 @@ public class DesignService {
         return repository.findAllByAccount_Id(accountId);
     }
 
+    public CursorPageResponse<Design> getDesignsCursor(String keyword, String cursor) {
+        Account account = accountService.getMe();
+        Role role = Role.valueOf(account.getRole());
+        List<Design> list;
+
+        // Decode cursor
+        Long lastCreatedAt = null;
+        String lastId = null;
+        if (cursor != null && !cursor.isBlank()) {
+            String decoded = CursorUtils.decodeCursor(cursor).value();
+            String[] parts = decoded.split("\\|");
+            if (parts.length == 2) {
+                lastCreatedAt = Long.parseLong(parts[0]);
+                lastId = parts[1];
+            }
+        }
+
+        int limit = 10;
+
+        // Lấy list theo role
+        switch (role) {
+            case Admin:
+                list = repository.findAllWithCursor(keyword, lastCreatedAt, lastId, limit + 1);
+                break;
+            case Leader:
+                list = repository.findAllByAccountWithCursor(account.getId(), keyword, lastCreatedAt, lastId, limit + 1);
+                break;
+            case Employee:
+                String leaderId = (account.getTeam() != null && account.getTeam().getLeader() != null)
+                        ? account.getTeam().getLeader().getId()
+                        : null;
+                if (leaderId != null) {
+                    list = repository.findAllByAccountWithCursor(leaderId, keyword, lastCreatedAt, lastId, limit + 1);
+                } else {
+                    list = List.of();
+                }
+                break;
+            default:
+                list = List.of();
+        }
+
+        // Check hasMore và build cursor
+        boolean hasMore = list.size() > limit;
+        List<Design> data = list.stream().limit(limit).toList();
+
+        String nextCursor = null;
+        if (hasMore) {
+            Design last = data.get(data.size() - 1);
+            long lastCreatedAtMillis = last.getCreatedAt().toInstant(ZoneOffset.UTC).toEpochMilli();
+            nextCursor = CursorUtils.encodeCursor("activeTime,id",lastCreatedAtMillis + "|" + last.getId());
+        }
+
+        return CursorPageResponse.<Design>builder()
+                .data(data)
+                .total((long) data.size())
+                .hasMore(hasMore)
+                .nextCursor(nextCursor)
+                .build();
+    }
     public void deleteDesignById(String id) {
         Design design = repository.findById(id).orElse(null);
         if (design == null) return;

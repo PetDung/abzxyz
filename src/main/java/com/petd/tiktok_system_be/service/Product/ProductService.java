@@ -6,6 +6,7 @@ import com.petd.tiktok_system_be.Specification.ProductSpecification;
 import com.petd.tiktok_system_be.api.GetProduct;
 import com.petd.tiktok_system_be.dto.response.ProductResponse;
 import com.petd.tiktok_system_be.dto.response.ResponsePage;
+import com.petd.tiktok_system_be.dto_v2.response.CursorPageResponse;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.exception.AppException;
@@ -16,6 +17,7 @@ import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.appClient.RequestClient;
 import com.petd.tiktok_system_be.sdk.exception.TiktokException;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
+import com.petd.tiktok_system_be.util.CursorUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +29,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,6 +90,75 @@ public class ProductService {
         }
     }
 
+
+    public CursorPageResponse<Product> getActiveProductCursor (Map<String, String> param){
+
+
+        List<Shop> myShops = shopService.getMyShops();
+        if (myShops == null || myShops.isEmpty()) {
+            return new CursorPageResponse<>();
+        }
+        List<String> shopIds = myShops.stream().map(Shop::getId).toList();
+        List<String> allowedFilters = List.of("ACTIVATE");
+
+
+        Long startDate = parseNumberSafe(param.get("start_time"), Long::parseLong, null);
+        Long endDate = parseNumberSafe(param.get("end_time"), Long::parseLong, null);
+        String productId = param.get("product_id");
+
+        if (productId != null && productId.isBlank()) productId = null;
+
+        if (productId != null) {
+            startDate = null;
+            endDate = null;
+        }
+
+        String filterParam = param.get("filter");
+        String filter = (filterParam != null && List.of("ACTIVE","UPDATE").contains(filterParam))
+                ? filterParam
+                : "ACTIVE";
+
+        String cursor = param.get("next_cursor");
+
+        Long lastActiveTime = null;
+        String lastProductId = null;
+
+        if (cursor != null && !cursor.isBlank()) {
+            String[] values = CursorUtils.decodeCursor(cursor).value().split("\\|");
+            lastActiveTime = Long.parseLong(values[0]);
+            lastProductId = values[1];
+        }
+
+        int pageSize = 10;
+        List<Product> rows = productRepository.findProductsWithCursor(
+                allowedFilters,
+                productId,
+                shopIds,
+                startDate,
+                endDate,
+                filter,
+                lastActiveTime,
+                lastProductId,
+                pageSize + 1
+        );
+        long total = productRepository.countActiveProducts(allowedFilters, productId, shopIds, startDate, endDate, filter);
+        boolean hasMore = rows.size() > pageSize;
+        List<Product> data = rows.stream().limit(pageSize).toList();
+
+        String nextCursor = null;
+        if (hasMore) {
+            Product last = data.get(data.size() - 1);
+            nextCursor = CursorUtils.encodeCursor("activeTime,id", last.getActiveTime() + "|" + last.getId());
+        }
+
+        return CursorPageResponse.<Product>builder()
+                .data(data)
+                .hasMore(hasMore)
+                .nextCursor(nextCursor)
+                .total(total)
+                .build();
+
+    }
     public List<Product> getAllActiveProducts(Map<String, String> param) {
 
         List<Shop> myShops = shopService.getMyShops();

@@ -3,6 +3,7 @@ package com.petd.tiktok_system_be.controller;
 import com.petd.tiktok_system_be.dto.request.DesignMappingRequest;
 import com.petd.tiktok_system_be.dto.request.DesignRequest;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
+import com.petd.tiktok_system_be.dto_v2.response.CursorPageResponse;
 import com.petd.tiktok_system_be.entity.Design.Design;
 import com.petd.tiktok_system_be.entity.Design.MappingDesign;
 import com.petd.tiktok_system_be.service.Shop.DesignService;
@@ -35,6 +36,16 @@ public class DesignController {
     public ApiResponse<List<Design>> getDesigns() {
         return ApiResponse.<List<Design>>builder()
                 .result(designService.getAllDesigns())
+                .build();
+    }
+
+    @GetMapping("/next-page")
+    public ApiResponse<CursorPageResponse<Design>> getDesignsCursor(
+            @RequestParam(name = "next_cursor", required = false) String nextCursor,
+            @RequestParam(name = "search", required = false) String search
+    ) {
+        return ApiResponse.<CursorPageResponse<Design>>builder()
+                .result(designService.getDesignsCursor(search, nextCursor))
                 .build();
     }
 

@@ -30,6 +30,8 @@ public class PrintSku extends Base {
     String type;
     String value1;
     String value2;
+    String value3;
+    String value4;
     String printCode;
 
     @OneToMany(mappedBy = "printSku")

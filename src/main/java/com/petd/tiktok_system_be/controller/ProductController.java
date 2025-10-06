@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.api.body.productRequestUpload.ProductUpload;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.ProductResponse;
+import com.petd.tiktok_system_be.dto_v2.response.CursorPageResponse;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.service.Product.ProductService;
 import com.petd.tiktok_system_be.service.Product.ReupProduct;
@@ -46,6 +47,14 @@ public class ProductController {
                 .result(productService.getAllActiveProducts(params))
                 .build();
     }
+
+    @GetMapping("/active/next-page")
+    public ApiResponse<CursorPageResponse<Product>> getActiveProductsCursor(@RequestParam(required = false) Map<String, String> params) {
+        return ApiResponse.<CursorPageResponse<Product>>builder()
+                .result(productService.getActiveProductCursor(params))
+                .build();
+    }
+
     @GetMapping("/record")
     public ApiResponse<ProductResponse> getProductsRecord(@RequestParam(required = false) Map<String, String> params) {
         params.put("status", "FAILED,PLATFORM_DEACTIVATED,FREEZE");
