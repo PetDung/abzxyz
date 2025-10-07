@@ -158,15 +158,18 @@ public class DesignService {
             }
         }
 
-        int limit = 10;
+        int limit = 30;
+        long total = 0;
 
         // Lấy list theo role
         switch (role) {
             case Admin:
                 list = repository.findAllWithCursor(keyword, lastCreatedAt, lastId, limit + 1);
+                total = repository.countAllWithCursor(keyword);
                 break;
             case Leader:
                 list = repository.findAllByAccountWithCursor(account.getId(), keyword, lastCreatedAt, lastId, limit + 1);
+                total = repository.countAllByAccountWithCursor(account.getId(), keyword);
                 break;
             case Employee:
                 String leaderId = (account.getTeam() != null && account.getTeam().getLeader() != null)
@@ -174,6 +177,7 @@ public class DesignService {
                         : null;
                 if (leaderId != null) {
                     list = repository.findAllByAccountWithCursor(leaderId, keyword, lastCreatedAt, lastId, limit + 1);
+                    total = repository.countAllByAccountWithCursor(leaderId, keyword);
                 } else {
                     list = List.of();
                 }
@@ -195,7 +199,7 @@ public class DesignService {
 
         return CursorPageResponse.<Design>builder()
                 .data(data)
-                .total((long) data.size())
+                .total(total)
                 .hasMore(hasMore)
                 .nextCursor(nextCursor)
                 .build();

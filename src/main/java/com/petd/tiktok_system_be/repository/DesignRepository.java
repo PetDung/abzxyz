@@ -55,4 +55,27 @@ public interface DesignRepository extends JpaRepository<Design, String> {
     );
 
 
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM design d
+    WHERE d.is_active = true
+      AND (:keyword IS NULL OR :keyword = '' OR LOWER(d.name) LIKE CONCAT('%', LOWER(:keyword), '%'))
+    """, nativeQuery = true)
+    long countAllWithCursor(@Param("keyword") String keyword);
+
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM design d
+    WHERE d.is_active = true
+      AND d.account_id = :accountId
+      AND (:keyword IS NULL OR :keyword = '' OR LOWER(d.name) LIKE CONCAT('%', LOWER(:keyword), '%'))
+    """, nativeQuery = true)
+    long countAllByAccountWithCursor(
+            @Param("accountId") String accountId,
+            @Param("keyword") String keyword
+    );
+
+
 }

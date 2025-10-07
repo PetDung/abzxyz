@@ -1,6 +1,7 @@
 package com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.petd.tiktok_system_be.entity.Order.Address;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -93,6 +95,34 @@ public class PrintersHub implements PrintSupplier {
           throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
       }
     }
+
+    @Override
+    public OrderResponse synchronize(Order order) throws IOException {
+        JsonNode rootOrderResponse = getPrintOrderById(order.getOrderFulfillId());
+        BigDecimal bigDecimal =  new BigDecimal(rootOrderResponse.get("amount").asText());
+        String status = rootOrderResponse.get("status").asText();
+        return OrderResponse.builder()
+                .amount(bigDecimal)
+                .orderFulfillId(order.getOrderFulfillId())
+                .originPrintStatus(status)
+                .build();
+    }
+    @Override
+    public JsonNode getPrintOrderById(String orderId) throws IOException {
+        String api = "/api/v1/orders/" +  orderId;
+
+        String response = httpClient.requestForObject(
+                baseUrl + api,
+                "get",
+                headers,
+                ""
+        );
+        log.info(response);
+        return objectMapper.readTree(response);
+    }
+
+
+
 
     public String buildBodyJson(Order order) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper()

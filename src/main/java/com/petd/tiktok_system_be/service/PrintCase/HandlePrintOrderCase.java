@@ -36,6 +36,7 @@ public class HandlePrintOrderCase {
           order.setPrintStatus(PrintStatus.PRINT_REQUEST_SUCCESS.toString());
           order.setCost(orderResponse.getAmount());
           order.setOrderFulfillId(orderResponse.getOrderFulfillId());
+          order.setOriginPrintStatus(orderResponse.getOriginPrintStatus());
           telegramService.sendMessage("Đặt in thành công cho đơn " + order.getId());
       }catch (AppException e){
           order.setPrintStatus(PrintStatus.PRINT_REQUEST_FAIL.toString());
@@ -60,6 +61,26 @@ public class HandlePrintOrderCase {
             OrderResponse orderResponse = supplier.cancel(order);
             order.setPrintStatus(PrintStatus.PRINT_CANCEL.toString());
             telegramService.sendMessage("Hủy thành công cho đơn " + order.getId());
+        }catch (AppException e){
+            log.error(e.getMessage());
+            order.setErrorPrint(e.getMessage());
+            throw new AppException(409, e.getMessage());
+        }catch (Exception e){
+            log.error(e.getMessage());
+            order.setErrorPrint("Lỗi hệ thống khi hủy");
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }finally {
+            orderRepository.save(order);
+        }
+        return order;
+    }
+    public Order synchronize(Order order){
+        try {
+            PrintSupplier supplier = printerFactory.getProvider(order.getPrinter().getCode());
+            OrderResponse orderResponse = supplier.synchronize(order);
+            order.setCost(orderResponse.getAmount());
+            order.setOrderFulfillId(orderResponse.getOrderFulfillId());
+            order.setOriginPrintStatus(orderResponse.getOriginPrintStatus());
         }catch (AppException e){
             log.error(e.getMessage());
             order.setErrorPrint(e.getMessage());

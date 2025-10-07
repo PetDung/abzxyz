@@ -1,9 +1,11 @@
 package com.petd.tiktok_system_be.controller;
 
+import com.petd.tiktok_system_be.dto.request.SynchronizePrint;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
 import com.petd.tiktok_system_be.dto.response.ResponsePage;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.service.PrintCase.GetPrintOrder;
+import com.petd.tiktok_system_be.service.PrintCase.SynchronizePrintCase;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +23,7 @@ import java.util.List;
 public class PrintOrderController {
 
     GetPrintOrder printCase;
+    SynchronizePrintCase  synchronizeCase;
 
     @GetMapping("/order")
     public ApiResponse<?> orderSync(
@@ -47,6 +50,13 @@ public class PrintOrderController {
     public ApiResponse<?> printShippingMethod(){
         return ApiResponse.builder()
                 .result(printCase.getAll())
+                .build();
+    }
+
+    @PutMapping("/synchronize")
+    public ApiResponse<?> synchronize(@RequestBody SynchronizePrint synchronizePrint){
+        return ApiResponse.builder()
+                .result(synchronizeCase.synchronize(synchronizePrint))
                 .build();
     }
 }

@@ -29,4 +29,6 @@ public class OrderResponse {
     private String trackingId;
 
     private BigDecimal amount;
+
+    private String originPrintStatus;
 }

@@ -1,6 +1,7 @@
 package com.petd.tiktok_system_be.sdk.printSdk.Monkeykingprint;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.constant.PrintStatus;
 import com.petd.tiktok_system_be.entity.Design.Design;
@@ -94,6 +95,16 @@ public class MonkeyPrint implements PrintSupplier {
         orderRepository.save(order);
         notificationService.orderUpdateStatus(order);
         throw new AppException(409, "Nhà in này không hỗ trợ hủy! Hủy trên hệ thống bạn có thể tạo đơn in mới");
+    }
+
+    @Override
+    public OrderResponse synchronize(Order order) throws IOException {
+        return null;
+    }
+
+    @Override
+    public JsonNode getPrintOrderById(String orderId) throws IOException {
+        return null;
     }
 
 

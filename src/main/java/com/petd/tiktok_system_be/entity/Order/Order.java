@@ -109,5 +109,5 @@ public class Order {
     String orderFulfillId;
     String errorPrint;
     Long createPrintTime;
-
+    String originPrintStatus;
 }

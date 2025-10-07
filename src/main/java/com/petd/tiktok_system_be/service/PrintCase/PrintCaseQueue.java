@@ -27,7 +27,7 @@ public class PrintCaseQueue {
             containerFactory = "kafkaListenerContainerFactory",
             concurrency = "3"
     )
-    public void printCaseQueue(ConsumerRecord<String, String> record, Acknowledgment ack) throws JsonProcessingException {
+    public void printCaseQueue(ConsumerRecord<String, String> record, Acknowledgment ack){
       try {
           ObjectMapper mapper = new ObjectMapper();
           OrderService.MessageOrderPrint msg = mapper.readValue(record.value(), OrderService.MessageOrderPrint.class);

@@ -60,13 +60,8 @@ public class MenPrint implements PrintSupplier {
           if (dataArray != null && dataArray.isArray() && !dataArray.isEmpty()) {
               orderId = dataArray.get(0).asText();
           }
-          JsonNode rootOrderResponse = getPrintOrderById(orderId);
-          BigDecimal bigDecimal =  new BigDecimal(rootOrderResponse.get("total").asText());
-          return OrderResponse.builder()
-                  .orderId(orderId)
-                  .amount(bigDecimal)
-                  .orderFulfillId(orderId)
-                  .build();
+          order.setOrderFulfillId(orderId);
+          return synchronize(order);
       }catch (IOException e){
           log.error(e.getMessage());
           Response response = objectMapper.readValue(e.getMessage(), Response.class);
@@ -107,6 +102,26 @@ public class MenPrint implements PrintSupplier {
            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
        }
     }
+
+    @Override
+    public OrderResponse synchronize(Order order) throws IOException {
+       try{
+           JsonNode rootOrderResponse = getPrintOrderById(order.getOrderFulfillId());
+           BigDecimal bigDecimal =  new BigDecimal(rootOrderResponse.get("total").asText());
+           String status = rootOrderResponse.get("Status").asText();
+           return OrderResponse.builder()
+                   .orderId(order.getOrderFulfillId())
+                   .amount(bigDecimal)
+                   .orderFulfillId(order.getOrderFulfillId())
+                   .originPrintStatus(status)
+                   .build();
+       }catch (IOException e) {
+           log.error(e.getMessage());
+           Response response = objectMapper.readValue(e.getMessage(), Response.class);
+           throw new AppException(409, response.getMsg());
+       }
+    }
+
     public String buildBodyJson(Order order) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper()
                 .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
@@ -189,6 +204,7 @@ public class MenPrint implements PrintSupplier {
                 headers,
                 ""
         );
+        log.info(response);
         return objectMapper.readTree(response);
     }
 }
