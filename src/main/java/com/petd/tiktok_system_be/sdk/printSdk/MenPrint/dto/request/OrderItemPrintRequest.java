@@ -5,7 +5,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -14,13 +14,16 @@ public class OrderItemPrintRequest {
     private int quantity;
 
     @JsonProperty("front_url")
-    private String frontUrl;
+    @Builder.Default
+    private String frontUrl = "";
 
     @JsonProperty("mockup_front_url")
-    private String mockupFrontUrl;
+    @Builder.Default
+    private String mockupFrontUrl= "";
 
     @JsonProperty("back_url")
-    private String backUrl;
+    @Builder.Default
+    private String backUrl = "";
 
     @JsonProperty("mockup_back_url")
     @Builder.Default
