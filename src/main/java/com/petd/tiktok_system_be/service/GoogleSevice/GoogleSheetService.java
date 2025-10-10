@@ -23,24 +23,11 @@ import java.util.*;
 public class GoogleSheetService<T> {
 
     GoogleAuthService googleAuthService;
-    SettingService settingService;
-    SettingSystemRepository settingSystemRepository;
 
-
-    public Sheets getSheetsService(SettingSystem setting) throws Exception {
-        return new Sheets.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                GsonFactory.getDefaultInstance(),
-                googleAuthService.getCredential(setting)
-        )
-                .setApplicationName("tiktok_system_be")
-                .build();
-    }
     public <T> void exportOrdersToSheet(String spreadsheetId, String sheetName,
                                   List<T> exports, Class<T> clazz, String keyFieldName) throws Exception {
 
-        SettingSystem setting = settingSystemRepository.findAll().get(0);
-        Sheets sheetsService = getSheetsService(setting);
+        Sheets sheetsService = googleAuthService.getSheetsService();
 
         // 1. Lấy dữ liệu hiện có từ sheet
         ValueRange existingData = sheetsService.spreadsheets().values()

@@ -10,7 +10,6 @@ import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.ReturnData;
 import com.petd.tiktok_system_be.dto.webhook.req.TtsNotification;
 import com.petd.tiktok_system_be.entity.Order.Order;
-import com.petd.tiktok_system_be.sdk.DriveTokenFetcher;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrintersHub;
 import com.petd.tiktok_system_be.service.Order.OrderService;
@@ -76,12 +75,6 @@ public class Webhook {
         return webhookService.getWebhook(shopId);
     }
 
-    DriveTokenFetcher driveTokenFetcher;
-    @GetMapping("/ref")
-    public boolean refGG () throws Exception {
-        driveTokenFetcher.getTokenGG();
-        return true;
-    }
 
     @GetMapping("/sync-order")
     public boolean getOrder () throws JsonProcessingException {
@@ -182,6 +175,12 @@ public class Webhook {
     @GetMapping("/warehouse")
     public String warehouse() {
         CompletableFuture.runAsync(warehouse::updateWarehouseForAllShops);
+        return "Oke";
+    }
+
+    @GetMapping("/ddd")
+    public String dd() {
+        orderSyncService.pubJobStatus("AWAITING_COLLECTION");
         return "Oke";
     }
 }

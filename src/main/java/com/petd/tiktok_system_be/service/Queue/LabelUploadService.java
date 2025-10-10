@@ -7,7 +7,8 @@ import com.petd.tiktok_system_be.entity.Auth.Account;
 import com.petd.tiktok_system_be.entity.Auth.Setting;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.service.Auth.SettingService;
-import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveService;
+import com.petd.tiktok_system_be.service.GoogleSevice.FileFetcherService;
+import com.petd.tiktok_system_be.service.GoogleSevice.GoogleDriveUploader;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Lib.TelegramService;
 import lombok.AccessLevel;
@@ -19,6 +20,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,8 @@ import org.springframework.stereotype.Service;
 public class LabelUploadService {
 
     static final ObjectMapper mapper = new ObjectMapper();
-    GoogleDriveService googleDriveService;
+    GoogleDriveUploader googleDriveUploader;
+    FileFetcherService fileFetcherService;
     OrderService orderService;
     TelegramService  telegramService;
     SettingService settingService;
@@ -46,7 +50,9 @@ public class LabelUploadService {
 
             String mimeType = "application/pdf";
             String folderId = setting.getDriverId();
-            File file = googleDriveService.uploadFileFromUrl(msg.getLabel(),mimeType, folderId, msg.getTrackingNumber());
+
+            InputStream uploadFile = fileFetcherService.fromUrl(msg.getLabel());
+            File file = googleDriveUploader.uploadOrUpdate(uploadFile,mimeType, folderId, msg.getTrackingNumber());
             order.setLabel(file.getWebViewLink());
             orderService.save(order);
 

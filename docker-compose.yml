@@ -11,8 +11,4 @@ services:
     env_file:
       - .env
     environment:
-      - GG_CERTIFICATE=${GG_CERTIFICATE}
-      - GG_CLIENT_ID=${GG_CLIENT_ID}
-      - GG_CLIENT_SECRET=${GG_CLIENT_SECRET}
-    volumes:
-      - ${GG_CERTIFICATE}:/root/code/client_secret.json:ro
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
