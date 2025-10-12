@@ -45,13 +45,13 @@ public class JwtUtils {
 
   public String getUsernameFromToken(String token) {
     validateToken(token);
-    return Jwts.parserBuilder().setSigningKey(jwtKey).build()
+    return Jwts.parser().setSigningKey(jwtKey).build()
         .parseClaimsJws(token).getBody().getSubject();
   }
 
   public boolean validateToken(String token) {
     try {
-      Claims claims = Jwts.parserBuilder()
+      Claims claims = Jwts.parser()
           .setSigningKey(jwtKey)
           .build()
           .parseClaimsJws(token)
