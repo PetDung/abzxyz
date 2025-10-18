@@ -1,12 +1,14 @@
 package com.petd.tiktok_system_be.sdk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class SimpleHttpClient {
 
     private final OkHttpClient client;
@@ -65,6 +67,7 @@ public class SimpleHttpClient {
 
         try (Response response = client.newCall(builder.build()).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
+            log.info("Response Body: {}", responseBody);
             if (!response.isSuccessful()) {
                 throw new IOException(responseBody);
             }

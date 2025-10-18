@@ -48,8 +48,6 @@ public class MangoPrint implements PrintSupplier {
             "Accept", "application/json"
     );
 
-
-
     @Override
     public OrderResponse print(Order order) throws IOException {
         String api = "/api/public/v1/orders";
@@ -73,12 +71,11 @@ public class MangoPrint implements PrintSupplier {
     @Override
     public OrderResponse cancel(Order order) throws IOException {
         String api = "/api/public/v1/orders/" +  order.getOrderFulfillId();
-        Response response = httpClient.requestForObject(
+        httpClient.requestForObject(
                 baseUrl + api,
                 "DELETE",
                 headers,
-                "",
-                Response.class
+                ""
         );
         return new OrderResponse();
     }
