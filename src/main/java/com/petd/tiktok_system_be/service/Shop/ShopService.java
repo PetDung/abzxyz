@@ -65,6 +65,12 @@ public class ShopService {
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
 
+    public ShopResponse getShopResponseByShopId(String shopId) {
+        Shop shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
+        return shopMapper.toShopResponse(shop);
+    }
+
     public Shop getByShopName(String shopName) {
         return shopRepository.findByUserShopName(shopName)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));

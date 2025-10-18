@@ -155,12 +155,14 @@ public class MenPrint implements PrintSupplier {
 
                     if (StringUtils.isNotBlank(item.getDesign().getFrontSide())) {
                         itemResponse.setMockupFrontUrl(item.getSkuImage());
+                        itemResponse.setPrintSizeFront(item.getPrintSku().getValue3());
                     }else{
                         itemResponse.setPrintSizeFront("");
                     }
 
                     if (StringUtils.isNotBlank(item.getDesign().getBackSide())) {
                         itemResponse.setMockupBackUrl(item.getSkuImage());
+                        itemResponse.setPrintSizeBack(item.getPrintSku().getValue4());
                     }else {
                         itemResponse.setPrintSizeBack("");
                     }

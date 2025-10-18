@@ -28,6 +28,13 @@ public class ShopController {
                 .result(shopService.getMyShopsResponse())
                 .build();
     }
+    @GetMapping("/details/{id}")
+    public ApiResponse<ShopResponse> getShopDetails(@PathVariable String id){
+        return ApiResponse.<ShopResponse>builder()
+                .result(shopService.getShopResponseByShopId(id))
+                .build();
+    }
+
 
     @GetMapping("/shop-page")
     public ApiResponse<ResponsePage<ShopResponse>> getShopPage(

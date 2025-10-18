@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petd.tiktok_system_be.dto.request.DeleteProductRequest;
 import com.petd.tiktok_system_be.dto.request.ProductId;
 import com.petd.tiktok_system_be.dto.response.ApiResponse;
+import com.petd.tiktok_system_be.dto.response.ShopResponse;
 import com.petd.tiktok_system_be.dto.webhook.req.OrderData;
 import com.petd.tiktok_system_be.dto.webhook.req.ProductData;
 import com.petd.tiktok_system_be.dto.webhook.req.ReturnData;
@@ -182,5 +183,12 @@ public class Webhook {
     public String dd() {
         orderSyncService.pubJobStatus("AWAITING_COLLECTION");
         return "Oke";
+    }
+
+    @GetMapping("/details/{id}")
+    public ApiResponse<ShopResponse> getShopDetails(@PathVariable String id){
+        return ApiResponse.<ShopResponse>builder()
+                .result(shopService.getShopResponseByShopId(id))
+                .build();
     }
 }
