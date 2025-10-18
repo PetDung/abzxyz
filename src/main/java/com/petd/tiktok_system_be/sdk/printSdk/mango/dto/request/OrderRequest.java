@@ -18,7 +18,7 @@ public class OrderRequest {
     private String city;
     private String country;
     private String email;
-    private String facility;
+    private String facility ;
     private String first_name;
     private List<Item> items;
     private String label_url;
