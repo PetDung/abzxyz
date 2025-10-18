@@ -27,7 +27,6 @@ public class HandlePrintOrderCase {
     PrinterFactory printerFactory;
     TelegramService telegramService;
     OrderRepository orderRepository;
-    KafkaTemplate<String, String> kafkaTemplate;
     @Transactional
     public Order printOrder(Order order){
       try{
