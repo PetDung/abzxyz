@@ -16,7 +16,9 @@ public class Item {
     private List<Insert> inserts;
     private List<FileInfo> preview_files;
     private List<FileInfo> print_files;
-    private String production_config;
+
+    @Builder.Default
+    private String production_config = "large";
     private int quantity;
     private String sku;
 }
