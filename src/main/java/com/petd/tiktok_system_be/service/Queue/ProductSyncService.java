@@ -11,6 +11,7 @@ import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.ProductRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
+import com.petd.tiktok_system_be.service.Notification.NotificationProductService;
 import com.petd.tiktok_system_be.service.Product.ProductService;
 import com.petd.tiktok_system_be.service.Shop.ShopService;
 import lombok.AccessLevel;
@@ -37,6 +38,7 @@ public class ProductSyncService {
     ProductService productService;
     ProductRepository productRepository;
     ShopRepository shopRepository;
+    NotificationProductService notificationProductService;
     ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
     public void pushJob (TtsNotification<ProductData> notification) throws JsonProcessingException {
@@ -59,26 +61,24 @@ public class ProductSyncService {
     )
     public void handlerProductJob (ConsumerRecord<String, String> record,  Acknowledgment ack){
         try {
-            log.info("received record: {}", record.value());
             ProductMessage msg = mapper.readValue(record.value(), ProductMessage.class);
-
-            Shop shop = shopRepository.findById(msg.getShopId())
-                    .orElseGet(() -> {
-                        log.warn("Không tìm thấy shop {} : {}", msg.getShopId(), msg.getProductId());
-                        ack.acknowledge();
-                        return null;
-            });
-            if(shop==null) return;
+            Optional<Shop> shopOpt = shopRepository.findById(msg.getShopId());
+            if (shopOpt.isEmpty()) {
+                log.warn("Không tìm thấy shop {} : {}", msg.getShopId(), msg.getProductId());
+                ack.acknowledge();
+                return;
+            }
+            Shop shop = shopOpt.get();
 
             JsonNode productNode = productService.getProduct(msg.getShopId(), msg.getProductId());
 
             Product product = mapper.convertValue(productNode, Product.class);
 
-            if(product.getStatus().equalsIgnoreCase("FAILED")){
+            if("FAILED".equalsIgnoreCase(product.getStatus()) || "PLATFORM_DEACTIVATED".equalsIgnoreCase(product.getStatus())){
                 ack.acknowledge();
                 return;
             }
-            if(product.getStatus().equalsIgnoreCase("DELETED")){
+            if("DELETED".equalsIgnoreCase(product.getStatus())){
                 productRepository.deleteById(msg.getProductId());
                 ack.acknowledge();
                 return;
@@ -88,6 +88,9 @@ public class ProductSyncService {
             product.setShop(shop);
             productRepository.save(product);
             ack.acknowledge();
+            if(product.getStatus().equalsIgnoreCase("FREEZE")){
+                notificationProductService.productNotification(product);
+            }
         }catch (Exception e) {
             log.error("Failed to process delete product message: {}", record.value(), e);
             throw new RuntimeException(e);
