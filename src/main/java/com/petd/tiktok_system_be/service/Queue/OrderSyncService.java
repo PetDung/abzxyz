@@ -181,7 +181,8 @@ public class OrderSyncService {
                     autoGetLabel(db);
                     notificationService.orderUpdateStatus(db);
                     if("ON_HOLD".equals(order.getStatus())) {
-                        notificationOrderService.orderNotification(order)
+                        notificationOrderService.orderNotification(order);
+                    }
                 }
             }
             log.info("✅ Synced order details shopId={} orderId={}", shop.getId(), msg.getOrderId());
