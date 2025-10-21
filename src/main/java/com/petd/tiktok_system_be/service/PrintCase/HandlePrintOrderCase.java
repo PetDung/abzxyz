@@ -37,14 +37,10 @@ public class HandlePrintOrderCase {
           order.setOrderFulfillId(orderResponse.getOrderFulfillId());
           order.setOriginPrintStatus(orderResponse.getOriginPrintStatus());
           telegramService.sendMessage("Đặt in thành công cho đơn " + order.getId());
-      }catch (AppException e){
-          order.setPrintStatus(PrintStatus.PRINT_REQUEST_FAIL.toString());
-          order.setErrorPrint(e.getMessage());
-          throw new AppException(409, e.getMessage());
       }catch (Exception e){
           log.error(e.getMessage());
           order.setPrintStatus(PrintStatus.PRINT_REQUEST_FAIL.toString());
-          order.setErrorPrint("Lỗi hệ thống");
+          order.setErrorPrint(e.getMessage());
           throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
       }finally {
           long timestamp = Instant.now().getEpochSecond();
@@ -57,7 +53,7 @@ public class HandlePrintOrderCase {
     public Order cancel(Order order){
         try {
             PrintSupplier supplier = printerFactory.getProvider(order.getPrinter().getCode());
-            OrderResponse orderResponse = supplier.cancel(order);
+            supplier.cancel(order);
             order.setPrintStatus(PrintStatus.PRINT_CANCEL.toString());
             telegramService.sendMessage("Hủy thành công cho đơn " + order.getId());
         }catch (AppException e){

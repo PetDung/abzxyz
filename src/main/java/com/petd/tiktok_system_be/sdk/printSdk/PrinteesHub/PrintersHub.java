@@ -45,25 +45,16 @@ public class PrintersHub implements PrintSupplier {
     );
 
     @Override
-    public OrderResponse print(Order order) throws JsonProcessingException {
-       try {
-
-           String body = buildBodyJson(order);
-           String api = "/api/v1/orders/create";
-           return httpClient.requestForObject(
-                   baseUrl + api,
-                   "POST",
-                   headers,
-                   body,
-                   OrderResponse.class
-           );
-       }catch (IOException e){
-           PrintersHubApiException printersHubApiException = objectMapper.readValue(e.getMessage(), PrintersHubApiException.class);
-           throw new AppException(409, printersHubApiException.getMessage());
-       }catch (Exception e){
-           log.error(e.getMessage());
-           throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-       }
+    public OrderResponse print(Order order) throws IOException {
+        String body = buildBodyJson(order);
+        String api = "/api/v1/orders/create";
+        return httpClient.requestForObject(
+                baseUrl + api,
+                "POST",
+                headers,
+                body,
+                OrderResponse.class
+        );
     }
 
     @Override
@@ -120,10 +111,6 @@ public class PrintersHub implements PrintSupplier {
         log.info(response);
         return objectMapper.readTree(response);
     }
-
-
-
-
     public String buildBodyJson(Order order) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper()
                 .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);

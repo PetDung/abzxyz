@@ -45,31 +45,22 @@ public class MenPrint implements PrintSupplier {
     );
     @Override
     public OrderResponse print(Order order) throws IOException {
-      try{
-          String api = "/api/v3/orders/single_order";
-          String bodyJson = buildBodyJson(order);
-          String response = httpClient.requestForObject(
-                  baseUrl + api,
-                  "POST",
-                  headers,
-                  bodyJson
-          );
-          JsonNode root = objectMapper.readTree(response);
-          JsonNode dataArray = root.get("data");
-          String orderId = "";
-          if (dataArray != null && dataArray.isArray() && !dataArray.isEmpty()) {
-              orderId = dataArray.get(0).asText();
-          }
-          order.setOrderFulfillId(orderId);
-          return synchronize(order);
-      }catch (IOException e){
-          log.error(e.getMessage());
-          Response response = objectMapper.readValue(e.getMessage(), Response.class);
-          throw new AppException(409, response.getMsg());
-      }catch (Exception e){
-          log.error(e.getMessage());
-          throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-      }
+        String api = "/api/v3/orders/single_order";
+        String bodyJson = buildBodyJson(order);
+        String response = httpClient.requestForObject(
+                baseUrl + api,
+                "POST",
+                headers,
+                bodyJson
+        );
+        JsonNode root = objectMapper.readTree(response);
+        JsonNode dataArray = root.get("data");
+        String orderId = "";
+        if (dataArray != null && dataArray.isArray() && !dataArray.isEmpty()) {
+            orderId = dataArray.get(0).asText();
+        }
+        order.setOrderFulfillId(orderId);
+        return synchronize(order);
     }
     @Override
     public String getCode() {

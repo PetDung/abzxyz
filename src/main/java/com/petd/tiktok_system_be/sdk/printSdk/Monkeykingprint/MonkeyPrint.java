@@ -48,40 +48,31 @@ public class MonkeyPrint implements PrintSupplier {
 
     @Override
     public OrderResponse print(Order order) throws IOException {
+        Map<String, String> headers = getHeader();
+        String body = buildJson(order);
+        log.info(body);
+        String api = "/rest/V1/vendors/order/import";
 
-       try{
-           Map<String, String> headers = getHeader();
-           String body = buildJson(order);
-           log.info(body);
-           String api = "/rest/V1/vendors/order/import";
+        String response = httpClient.requestForObject(
+                baseUrl + api,
+                "POST",
+                headers,
+                body
+        );
+        MKPException rest = objectMapper.readValue(response, MKPException.class);
 
-           String response = httpClient.requestForObject(
-                   baseUrl + api,
-                   "POST",
-                   headers,
-                   body
-           );
-           MKPException rest = objectMapper.readValue(response, MKPException.class);
-
-           if(!rest.isSuccess()){
-               log.error(rest.getMessage());
-               throw new IOException(rest.getMessage());
-           }
+        if(!rest.isSuccess()){
+            log.error(rest.getMessage());
+            throw new IOException(rest.getMessage());
+        }
 
 
-           log.info("response:\n{}", response);
-           return OrderResponse.builder()
-                   .orderFulfillId(rest.getOrder().getIncrement_id())
-                   .amount(rest.getOrder().getGrand_total())
-                   .orderId(orderId)
-                   .build();
-       }catch (IOException e){
-           log.info(e.getMessage());
-           throw new AppException(409, e.getMessage());
-       }catch (Exception e){
-           log.error(e.getMessage());
-           throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-       }
+        log.info("response:\n{}", response);
+        return OrderResponse.builder()
+                .orderFulfillId(rest.getOrder().getIncrement_id())
+                .amount(rest.getOrder().getGrand_total())
+                .orderId(orderId)
+                .build();
     }
 
     @Override
