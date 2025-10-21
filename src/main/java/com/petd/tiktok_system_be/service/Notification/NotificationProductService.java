@@ -20,18 +20,20 @@ public class NotificationProductService {
         String shopName = "%s(%s)".formatted(product.getShop().getUserShopName(), product.getShop().getTiktokShopName());
         String productId = product.getId();
         String reason = "";
+        String suggestions = "";
         String productName = product.getTitle();
         if(!product.getAuditFailedReasons().isEmpty()){
             reason = product.getAuditFailedReasons().get(0).getReasons().toString();
+            suggestions = product.getAuditFailedReasons().get(0).getSuggestions().toString();
         }
         String imageUrl = product.getMainImages().get(0).getUrls().get(0);
 
-        String caption = buildProductFreezeMessage(shopName, productId, productName, reason);
+        String caption = buildProductFreezeMessage(shopName, productId, productName, reason, suggestions);
         String chatId = "-1003152164716";
         telegramService.sendPhoto(imageUrl, caption, chatId);
     }
 
-    public String buildProductFreezeMessage(String shopName, String productId, String productName, String reason) {
+    public String buildProductFreezeMessage(String shopName, String productId, String productName, String reason, String suggestions) {
         return """
             🔴 <b>#PRODUCT_FREEZE</b> 🔴
             - Shop: <b>%s</b>
@@ -39,6 +41,7 @@ public class NotificationProductService {
             - Product Name: <i>%s</i>
             
             - Reason: <b>%s</b>
-            """.formatted(shopName, productId, productName, reason);
+            - Suggestions: %s
+            """.formatted(shopName, productId, productName, reason, suggestions);
     }
 }

@@ -13,6 +13,7 @@ import com.petd.tiktok_system_be.entity.Manager.Shop;
 import com.petd.tiktok_system_be.repository.OrderRepository;
 import com.petd.tiktok_system_be.repository.ShopRepository;
 import com.petd.tiktok_system_be.service.Lib.NotificationService;
+import com.petd.tiktok_system_be.service.Notification.NotificationOrderService;
 import com.petd.tiktok_system_be.service.Order.OrderSaveDataBaseService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Order.ShippingService;
@@ -39,6 +40,7 @@ public class OrderSyncService {
     OrderService orderService;
     OrderSaveDataBaseService orderSaveDataBaseService;
     NotificationService notificationService;
+    NotificationOrderService notificationOrderService;
     ShippingService shippingService;
 
     /**
@@ -178,6 +180,8 @@ public class OrderSyncService {
                     Order db = orderSaveDataBaseService.save(order);
                     autoGetLabel(db);
                     notificationService.orderUpdateStatus(db);
+                    if("ON_HOLD".equals(order.getStatus())) {
+                        notificationOrderService.orderNotification(order)
                 }
             }
             log.info("✅ Synced order details shopId={} orderId={}", shop.getId(), msg.getOrderId());

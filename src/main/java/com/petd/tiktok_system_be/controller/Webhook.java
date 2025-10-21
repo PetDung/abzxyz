@@ -14,6 +14,7 @@ import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.entity.Product.Product;
 import com.petd.tiktok_system_be.sdk.TiktokApiResponse;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.PrintersHub;
+import com.petd.tiktok_system_be.service.Notification.NotificationOrderService;
 import com.petd.tiktok_system_be.service.Notification.NotificationProductService;
 import com.petd.tiktok_system_be.service.Order.OrderService;
 import com.petd.tiktok_system_be.service.Product.StockService;
@@ -195,11 +196,11 @@ public class Webhook {
     }
 
 
-    NotificationProductService notificationProductService;
+    NotificationOrderService notificationOrderService;
     @GetMapping("/test/tele")
     public String tele() {
-        notificationProductService.productNotification(new Product());
-
+        Order order = orderService.getById("577147628545675729");
+        notificationOrderService.orderNotification(order);
         return "oke";
     }
 }
