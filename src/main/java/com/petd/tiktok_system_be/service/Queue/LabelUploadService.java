@@ -53,11 +53,12 @@ public class LabelUploadService {
 
             InputStream uploadFile = fileFetcherService.fromUrl(msg.getLabel());
             File file = googleDriveUploader.uploadOrUpdate(uploadFile,mimeType, folderId, msg.getTrackingNumber());
-            order.setLabel(file.getWebViewLink());
+            String url = file.getWebViewLink();
+
+            order.setLabel(url);
             orderService.save(order);
-
             ack.acknowledge();
-
+            log.info("Thành công: {}", url);
         }catch(Exception e){
             log.error(e.getMessage());
             telegramService.sendMessage(e.getMessage());

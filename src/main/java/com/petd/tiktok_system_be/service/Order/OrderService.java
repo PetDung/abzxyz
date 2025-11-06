@@ -59,7 +59,6 @@ public class OrderService {
     NotificationService notificationService;
     OrderItemRepository orderItemRepository;
     PrintSkuRepository printSkuRepository;
-    HandlePrintOrderCase handlePrintOrderCase;
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper objectMapper;
 
@@ -67,8 +66,10 @@ public class OrderService {
         return orderRepository.findById(id)
                  .orElseThrow(() -> new AppException(ErrorCode.SHOP_NOT_FOUND));
     }
-    @Transactional
+
+
     public Order save(Order order) {
+        log.info("Lable {}", order.getLabel());
         return orderRepository.save(order);
     }
 

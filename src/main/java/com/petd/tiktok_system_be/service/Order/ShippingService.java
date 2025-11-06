@@ -66,6 +66,9 @@ public class ShippingService {
 
     public JsonNode buyLabel (String orderId, String shopId){
 
+        JsonNode lable = getShipping(orderId, shopId);
+
+
         Shop shop = shopService.getShopByShopId(shopId);
 
         CreatePackages createPackages = CreatePackages.builder()

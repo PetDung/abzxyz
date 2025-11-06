@@ -40,8 +40,8 @@ public class WebhookService {
 
     public void addWebHook(Event event) throws JsonProcessingException {
         List<Shop> list =  shopRepository.findAll();
-        list.forEach(shop->{
-            WebhookMessage msg  = WebhookMessage.builder()
+        list.forEach(shop -> {
+            WebhookMessage msg = WebhookMessage.builder()
                     .event(event)
                     .shopId(shop.getId())
                     .build();

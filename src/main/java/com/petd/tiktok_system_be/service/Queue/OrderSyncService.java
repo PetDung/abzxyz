@@ -116,8 +116,6 @@ public class OrderSyncService {
 
             Map<String, String> params = new HashMap<>();
             params.put("next_page_token", "");
-            params.put("create_time_ge", "1758128400");
-            params.put("create_time_lt", "1758333600");
 
             JsonNode jsonNode = orderService.getOrders(shop.getId(), params, msg.getLimit());
 
@@ -127,6 +125,7 @@ public class OrderSyncService {
 
             if (totalCount == 0) {
                 log.info("⚠️ No orders for shop {}", shop.getId());
+                ack.acknowledge();
                 return;
             }
 

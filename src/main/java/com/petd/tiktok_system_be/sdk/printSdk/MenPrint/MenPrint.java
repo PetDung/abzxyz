@@ -121,6 +121,7 @@ public class MenPrint implements PrintSupplier {
 
     public OrderRequest buildBodyO(Order order) {
 
+
         List<Address> addresses = order.getRecipientAddress().getDistrictInfo();
 
         Function<String, String> getAddress = level -> addresses.stream()

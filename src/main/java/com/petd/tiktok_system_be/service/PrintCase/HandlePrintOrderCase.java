@@ -8,6 +8,7 @@ import com.petd.tiktok_system_be.sdk.printSdk.PrintSupplier;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.dto.response.OrderResponse;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinterFactory;
 import com.petd.tiktok_system_be.service.Lib.TelegramService;
+import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,11 @@ public class HandlePrintOrderCase {
     @Transactional
     public Order printOrder(Order order){
       try{
+
+          if(StringUtils.isBlank(order.getLabel())){
+              throw new AppException(4000, "Label is empty");
+          }
+
           PrintSupplier supplier = printerFactory.getProvider(order.getPrinter().getCode());
           OrderResponse orderResponse = supplier.print(order);
           order.setPrintStatus(PrintStatus.PRINT_REQUEST_SUCCESS.toString());

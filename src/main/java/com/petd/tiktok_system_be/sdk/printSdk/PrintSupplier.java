@@ -1,6 +1,4 @@
 package com.petd.tiktok_system_be.sdk.printSdk;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.petd.tiktok_system_be.entity.Order.Order;
 import com.petd.tiktok_system_be.sdk.printSdk.PrinteesHub.dto.response.OrderResponse;
