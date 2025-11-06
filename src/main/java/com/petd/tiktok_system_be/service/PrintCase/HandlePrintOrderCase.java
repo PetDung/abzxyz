@@ -33,6 +33,7 @@ public class HandlePrintOrderCase {
       try{
 
           if(StringUtils.isBlank(order.getLabel())){
+              log.error("Label is empty");
               throw new AppException(4000, "Label is empty");
           }
 
